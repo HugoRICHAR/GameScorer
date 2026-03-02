@@ -74,5 +74,5 @@ GameScorer/
 ## 🚀 GitHub Pages
 
 Once enabled, the apps are accessible at:
-- `https://YOUR_USERNAME.github.io/GameScorer/scopa/`
-- `https://YOUR_USERNAME.github.io/GameScorer/skull-king/`
+- `https://hugorichar.github.io/GameScorer/scopa/`
+- `https://hugorichar.github.io/GameScorer/skull-king/`
