@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Scopa">
+<title>Scopa Score</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Crimson+Pro:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #1a0f00;
+    --card: #2a1a08;
+    --card2: #3a2510;
+    --gold: #c9993a;
+    --gold-light: #e8c46a;
+    --cream: #f2e8d0;
+    --muted: #8a7060;
+    --accent: #8b2020;
+    --accent-light: #c04040;
+    --green: #2d6040;
+    --green-light: #4a9060;
+    --border: rgba(201,153,58,0.25);
+    --shadow: 0 4px 24px rgba(0,0,0,0.5);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: 'Crimson Pro', Georgia, serif;
+    background: var(--bg);
+    color: var(--cream);
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+    overflow-x: hidden;
+  }
+
+  /* Background texture */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      radial-gradient(ellipse 80% 50% at 50% -20%, rgba(201,153,58,0.12) 0%, transparent 60%),
+      url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23c9993a' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  #app { position: relative; z-index: 1; }
+
+  /* ── SCREENS ── */
+  .screen { display: none; min-height: 100vh; min-height: -webkit-fill-available; }
+  .screen.active { display: flex; flex-direction: column; }
+
+  /* ── HEADER ── */
+  .app-header {
+    text-align: center;
+    padding: 32px 20px 16px;
+  }
+  .app-header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.8rem;
+    color: var(--gold);
+    letter-spacing: 0.05em;
+    line-height: 1;
+  }
+  .app-header .subtitle {
+    font-size: 0.9rem;
+    color: var(--muted);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+  .ornament {
+    color: var(--gold);
+    font-size: 1.2rem;
+    opacity: 0.6;
+    margin: 8px 0;
+    letter-spacing: 0.3em;
+  }
+
+  /* ── CARD ── */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    margin: 0 16px 16px;
+    box-shadow: var(--shadow);
+  }
+  .card-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 0.75rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 14px;
+    opacity: 0.8;
+  }
+
+  /* ── FORM ELEMENTS ── */
+  label {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+  }
+  input[type="text"], input[type="number"] {
+    width: 100%;
+    background: var(--card2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    color: var(--cream);
+    font-family: 'Crimson Pro', serif;
+    font-size: 1.05rem;
+    outline: none;
+    margin-bottom: 12px;
+    transition: border-color 0.2s;
+  }
+  input:focus { border-color: var(--gold); }
+
+  /* ── BUTTONS ── */
+  .btn {
+    display: block;
+    width: calc(100% - 32px);
+    margin: 0 16px 12px;
+    padding: 16px;
+    border: none;
+    border-radius: 10px;
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .btn::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(255,255,255,0);
+    transition: background 0.15s;
+  }
+  .btn:active::after { background: rgba(255,255,255,0.08); }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 50%, var(--gold) 100%);
+    color: var(--bg);
+    font-weight: 700;
+    box-shadow: 0 2px 16px rgba(201,153,58,0.35);
+  }
+  .btn-secondary {
+    background: transparent;
+    color: var(--gold);
+    border: 1px solid var(--border);
+  }
+  .btn-danger {
+    background: transparent;
+    color: var(--accent-light);
+    border: 1px solid rgba(139,32,32,0.3);
+    font-size: 0.9rem;
+    padding: 12px;
+  }
+  .btn-sm {
+    display: inline-block;
+    width: auto;
+    margin: 0;
+    padding: 8px 18px;
+    font-size: 0.9rem;
+  }
+
+  /* ── MODE SELECTOR ── */
+  .mode-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin: 0 16px 16px;
+  }
+  .mode-btn {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 10px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: var(--cream);
+  }
+  .mode-btn .icon { font-size: 1.8rem; display: block; margin-bottom: 6px; }
+  .mode-btn .label { font-family: 'Playfair Display', serif; font-size: 1rem; display: block; }
+  .mode-btn .sub { font-size: 0.75rem; color: var(--muted); display: block; margin-top: 2px; }
+  .mode-btn.selected, .mode-btn:active {
+    border-color: var(--gold);
+    background: rgba(201,153,58,0.12);
+    box-shadow: 0 0 0 1px var(--gold);
+  }
+
+  /* ── PLAYER INPUTS ── */
+  .player-input-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .player-input-row .player-num {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--gold);
+    color: var(--bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .player-input-row input { margin-bottom: 0; flex: 1; }
+
+  /* ── SCOREBOARD ── */
+  .score-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px 8px;
+  }
+  .target-badge {
+    font-size: 0.8rem;
+    color: var(--muted);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 4px 12px;
+  }
+
+  .players-grid {
+    display: grid;
+    gap: 10px;
+    padding: 0 16px 16px;
+  }
+  .players-grid.n2 { grid-template-columns: 1fr 1fr; }
+  .players-grid.n3 { grid-template-columns: 1fr 1fr 1fr; }
+  .players-grid.n4 { grid-template-columns: 1fr 1fr; }
+
+  .player-score-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 12px;
+    text-align: center;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+  .player-score-card.leader {
+    border-color: var(--gold);
+    background: rgba(201,153,58,0.08);
+  }
+  .player-score-card.leader::before {
+    content: '♛';
+    position: absolute;
+    top: 6px;
+    right: 8px;
+    font-size: 0.7rem;
+    color: var(--gold);
+    opacity: 0.7;
+  }
+  .player-score-card .p-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    color: var(--cream);
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .player-score-card .p-score {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.4rem;
+    color: var(--gold);
+    line-height: 1;
+    font-weight: 700;
+  }
+  .player-score-card .p-rounds {
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  /* ── ROUND ENTRY ── */
+  .round-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--gold);
+    text-align: center;
+    padding: 8px 0 4px;
+    opacity: 0.7;
+  }
+
+  .scoring-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+  }
+  .scoring-table th {
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 6px 4px;
+    font-weight: 400;
+    text-align: center;
+  }
+  .scoring-table th:first-child { text-align: left; }
+  .scoring-table td {
+    padding: 6px 4px;
+    text-align: center;
+    border-top: 1px solid rgba(201,153,58,0.08);
+  }
+  .scoring-table td:first-child { text-align: left; color: var(--cream); }
+
+  .scoring-table .cat-icon { font-size: 1.1rem; }
+
+  /* scopa count input */
+  .scopa-count {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+  }
+  .scopa-count button {
+    width: 28px;
+    height: 28px;
+    border: 1px solid var(--border);
+    background: var(--card2);
+    color: var(--gold);
+    font-size: 1.1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+  }
+  .scopa-count .count-val {
+    width: 28px;
+    text-align: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    color: var(--cream);
+  }
+
+  /* radio-style winner selector */
+  .winner-sel {
+    display: flex;
+    justify-content: center;
+    gap: 4px;
+  }
+  .winner-dot {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: var(--card2);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    color: var(--muted);
+    transition: all 0.15s;
+    font-family: 'Playfair Display', serif;
+  }
+  .winner-dot.active {
+    background: var(--gold);
+    color: var(--bg);
+    border-color: var(--gold);
+    font-weight: 700;
+  }
+  .winner-dot.tie-dot {
+    font-size: 0.6rem;
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+  }
+  .winner-dot.tie-dot.active {
+    background: var(--muted);
+    border-color: var(--muted);
+    color: var(--bg);
+  }
+
+  /* ── HISTORY ── */
+  .history-scroll {
+    padding: 0 16px;
+    max-height: 200px;
+    overflow-y: auto;
+  }
+  .history-row {
+    display: flex;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(201,153,58,0.08);
+    font-size: 0.88rem;
+    gap: 6px;
+  }
+  .history-row .hr-round {
+    font-size: 0.7rem;
+    color: var(--muted);
+    width: 52px;
+    flex-shrink: 0;
+    letter-spacing: 0.05em;
+  }
+  .history-row .hr-pts {
+    flex: 1;
+    color: var(--cream);
+  }
+  .history-row .hr-undo {
+    background: none;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 0.75rem;
+    padding: 2px 6px;
+    text-decoration: underline;
+  }
+
+  /* ── WIN SCREEN ── */
+  #win-screen {
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    gap: 16px;
+    padding: 40px 20px;
+  }
+  .win-trophy { font-size: 5rem; animation: pulse 1.5s ease-in-out infinite; }
+  @keyframes pulse {
+    0%,100% { transform: scale(1); }
+    50% { transform: scale(1.08); }
+  }
+  .win-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.4rem;
+    color: var(--gold);
+    font-style: italic;
+  }
+  .win-subtitle { color: var(--muted); font-size: 1rem; }
+  .win-scores {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 24px;
+    width: 100%;
+    max-width: 320px;
+  }
+  .win-score-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 0;
+    font-size: 1rem;
+  }
+  .win-score-row.winner { color: var(--gold); font-family: 'Playfair Display', serif; }
+
+  /* ── UTILS ── */
+  .spacer { flex: 1; }
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 12px 16px;
+  }
+  .text-center { text-align: center; }
+  .text-muted { color: var(--muted); font-size: 0.85rem; }
+  .mt8 { margin-top: 8px; }
+  .pb-safe { padding-bottom: env(safe-area-inset-bottom, 16px); }
+
+  /* scroll */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ═══ SETUP SCREEN ═══ -->
+  <div id="setup-screen" class="screen active">
+    <div class="app-header">
+      <h1>Scopa</h1>
+      <div class="ornament">✦ ✦ ✦</div>
+      <div class="subtitle">Score Keeper</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Mode</div>
+      <div class="mode-row" id="mode-row" style="margin:0 0 0 0;">
+        <div class="mode-btn selected" data-mode="players" onclick="selectMode('players')">
+          <span class="icon">👤</span>
+          <span class="label">Players</span>
+          <span class="sub">Individual</span>
+        </div>
+        <div class="mode-btn" data-mode="teams" onclick="selectMode('teams')">
+          <span class="icon">👥</span>
+          <span class="label">Teams</span>
+          <span class="sub">2 teams</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- players setup -->
+    <div id="players-setup" class="card">
+      <div class="card-title">Players</div>
+      <div style="margin-bottom:10px;">
+        <label>Number of players</label>
+        <div style="display:flex;gap:8px;">
+          <div class="mode-btn selected" style="flex:1;padding:10px;" data-n="2" onclick="setPlayerCount(2)">
+            <span class="label">2</span>
+          </div>
+          <div class="mode-btn" style="flex:1;padding:10px;" data-n="3" onclick="setPlayerCount(3)">
+            <span class="label">3</span>
+          </div>
+          <div class="mode-btn" style="flex:1;padding:10px;" data-n="4" onclick="setPlayerCount(4)">
+            <span class="label">4</span>
+          </div>
+        </div>
+      </div>
+      <div id="player-names"></div>
+    </div>
+
+    <!-- teams setup -->
+    <div id="teams-setup" class="card" style="display:none;">
+      <div class="card-title">Teams</div>
+      <div class="player-input-row">
+        <div class="player-num" style="background:#c9993a;">A</div>
+        <input type="text" id="team1-name" placeholder="Team A" maxlength="16">
+      </div>
+      <div class="player-input-row">
+        <div class="player-num" style="background:#8b2020;">B</div>
+        <input type="text" id="team2-name" placeholder="Team B" maxlength="16">
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Win condition</div>
+      <label>Target score (points)</label>
+      <input type="number" id="target-score" value="11" min="1" max="99" style="margin-bottom:0;">
+    </div>
+
+    <div class="spacer"></div>
+    <button class="btn btn-primary" onclick="startGame()">Start Game</button>
+    <div style="height:16px;"></div>
+  </div>
+
+  <!-- ═══ GAME SCREEN ═══ -->
+  <div id="game-screen" class="screen">
+    <div class="score-header">
+      <div style="font-family:'Playfair Display',serif;font-size:1.3rem;color:var(--gold);">Scopa</div>
+      <div class="target-badge" id="target-badge">First to 11</div>
+    </div>
+
+    <div class="players-grid" id="players-grid"></div>
+
+    <div class="card" style="margin-top:4px;">
+      <div class="round-title" id="round-title">Round 1</div>
+      <table class="scoring-table" id="scoring-table">
+        <thead id="scoring-head"></thead>
+        <tbody id="scoring-body"></tbody>
+      </table>
+    </div>
+
+    <button class="btn btn-primary mt8" onclick="confirmRound()">Confirm Round</button>
+
+    <div class="card" id="history-card" style="display:none;">
+      <div class="card-title" style="display:flex;justify-content:space-between;align-items:center;">
+        <span>History</span>
+        <span id="rounds-played" style="font-size:0.75rem;opacity:0.6;"></span>
+      </div>
+      <div class="history-scroll" id="history-list"></div>
+    </div>
+
+    <div class="divider"></div>
+    <button class="btn btn-danger" onclick="confirmNewGame()">New Game</button>
+    <div class="pb-safe" style="height:16px;"></div>
+  </div>
+
+  <!-- ═══ WIN SCREEN ═══ -->
+  <div id="win-screen" class="screen">
+    <div class="win-trophy">🏆</div>
+    <div class="win-name" id="win-name"></div>
+    <div class="win-subtitle">wins the game!</div>
+    <div class="win-scores" id="win-scores"></div>
+    <button class="btn btn-primary" onclick="startNew()">Play Again</button>
+    <button class="btn btn-secondary" onclick="goSetup()">Change Settings</button>
+  </div>
+
+</div>
+
+<script>
+// ── STATE ──
+let state = {
+  mode: 'players',
+  players: [],
+  target: 11,
+  round: 1,
+  history: [],
+  scores: [],
+  roundData: {}
+};
+
+// ── SETUP HELPERS ──
+function selectMode(m) {
+  state.mode = m;
+  document.querySelectorAll('.mode-btn[data-mode]').forEach(b => b.classList.toggle('selected', b.dataset.mode === m));
+  document.getElementById('players-setup').style.display = m === 'players' ? '' : 'none';
+  document.getElementById('teams-setup').style.display = m === 'teams' ? '' : 'none';
+}
+
+let playerCount = 2;
+function setPlayerCount(n) {
+  playerCount = n;
+  document.querySelectorAll('.mode-btn[data-n]').forEach(b => b.classList.toggle('selected', parseInt(b.dataset.n) === n));
+  renderPlayerNames();
+}
+
+function renderPlayerNames() {
+  const c = document.getElementById('player-names');
+  c.innerHTML = '';
+  for (let i = 0; i < playerCount; i++) {
+    c.innerHTML += `
+      <div class="player-input-row">
+        <div class="player-num">${i+1}</div>
+        <input type="text" id="pname-${i}" placeholder="Player ${i+1}" maxlength="16">
+      </div>`;
+  }
+}
+renderPlayerNames();
+
+function startGame() {
+  const target = parseInt(document.getElementById('target-score').value) || 11;
+  state.target = target;
+
+  if (state.mode === 'teams') {
+    const t1 = document.getElementById('team1-name').value.trim() || 'Team A';
+    const t2 = document.getElementById('team2-name').value.trim() || 'Team B';
+    state.players = [t1, t2];
+  } else {
+    state.players = [];
+    for (let i = 0; i < playerCount; i++) {
+      const v = document.getElementById(`pname-${i}`).value.trim() || `Player ${i+1}`;
+      state.players.push(v);
+    }
+  }
+
+  state.scores = state.players.map(() => 0);
+  state.round = 1;
+  state.history = [];
+
+  buildGameUI();
+  showScreen('game-screen');
+}
+
+// ── GAME UI ──
+const CATS = [
+  { key: 'scopa',   label: 'Scopa',      icon: '🌊', type: 'count' },
+  { key: 'cards',   label: 'Most Cards', icon: '🃏', type: 'winner' },
+  { key: 'coins',   label: 'Most Coins', icon: '🪙', type: 'winner' },
+  { key: 'sette',   label: 'Bito Bello', icon: '⭐', type: 'winner' },
+  { key: 'primiera',label: 'Primiera',   icon: '♠',  type: 'winner' },
+];
+
+function buildGameUI() {
+  const n = state.players.length;
+  // players grid
+  const grid = document.getElementById('players-grid');
+  grid.className = `players-grid n${n}`;
+  renderScoreCards();
+
+  document.getElementById('target-badge').textContent = `First to ${state.target}`;
+
+  buildScoringTable();
+  renderHistory();
+}
+
+function renderScoreCards() {
+  const n = state.players.length;
+  const grid = document.getElementById('players-grid');
+  const maxScore = Math.max(...state.scores);
+  grid.innerHTML = state.players.map((p, i) => `
+    <div class="player-score-card ${state.scores[i] === maxScore && maxScore > 0 ? 'leader' : ''}">
+      <div class="p-name">${p}</div>
+      <div class="p-score">${state.scores[i]}</div>
+      <div class="p-rounds">${state.round > 1 ? `${state.round - 1} round${state.round > 2 ? 's' : ''}` : '—'}</div>
+    </div>`).join('');
+}
+
+function buildScoringTable() {
+  const n = state.players.length;
+  const short = state.players.map(p => p.length > 6 ? p.slice(0,5)+'.' : p);
+
+  // head
+  let head = '<tr><th></th>';
+  short.forEach(p => { head += `<th>${p}</th>`; });
+  head += '</tr>';
+  document.getElementById('scoring-head').innerHTML = head;
+
+  // body
+  let body = '';
+  // Init roundData
+  state.roundData = {};
+
+  CATS.forEach(cat => {
+    state.roundData[cat.key] = cat.type === 'count' ? state.players.map(() => 0) : null;
+    if (cat.type === 'count') {
+      // scopa: individual counters
+      let tds = state.players.map((_, i) => `
+        <td>
+          <div class="scopa-count">
+            <button onclick="adjScopa(${i},-1)">−</button>
+            <span class="count-val" id="scopa-${i}">0</span>
+            <button onclick="adjScopa(${i},1)">+</button>
+          </div>
+        </td>`).join('');
+      body += `<tr><td><span class="cat-icon">${cat.icon}</span> ${cat.label}</td>${tds}</tr>`;
+    } else {
+      // winner selector
+      let dots = state.players.map((_, i) => `<div class="winner-dot" id="dot-${cat.key}-${i}" onclick="selectWinner('${cat.key}',${i})">${i+1}</div>`).join('');
+      dots += `<div class="winner-dot tie-dot" id="dot-${cat.key}-tie" onclick="selectWinner('${cat.key}','tie')">tie</div>`;
+      body += `<tr>
+        <td><span class="cat-icon">${cat.icon}</span> ${cat.label}</td>
+        <td colspan="${n}"><div class="winner-sel">${dots}</div></td>
+      </tr>`;
+    }
+  });
+
+  document.getElementById('scoring-body').innerHTML = body;
+  document.getElementById('round-title').textContent = `Round ${state.round}`;
+}
+
+function adjScopa(i, delta) {
+  state.roundData['scopa'][i] = Math.max(0, state.roundData['scopa'][i] + delta);
+  document.getElementById(`scopa-${i}`).textContent = state.roundData['scopa'][i];
+}
+
+function selectWinner(cat, idx) {
+  state.roundData[cat] = idx;
+  const n = state.players.length;
+  for (let i = 0; i < n; i++) {
+    const el = document.getElementById(`dot-${cat}-${i}`);
+    if (el) el.classList.toggle('active', i === idx);
+  }
+  const tieEl = document.getElementById(`dot-${cat}-tie`);
+  if (tieEl) tieEl.classList.toggle('active', idx === 'tie');
+}
+
+function confirmRound() {
+  const rd = state.roundData;
+  const roundPts = state.players.map(() => 0);
+
+  // scopa
+  rd.scopa.forEach((s, i) => { roundPts[i] += s; });
+
+  // winner categories (1 pt each, 0 for tie)
+  ['cards','coins','sette','primiera'].forEach(cat => {
+    if (rd[cat] !== null && rd[cat] !== 'tie' && rd[cat] !== undefined) {
+      roundPts[rd[cat]] += 1;
+    }
+  });
+
+  // Update scores
+  roundPts.forEach((p, i) => { state.scores[i] += p; });
+
+  // History entry
+  const entry = {
+    round: state.round,
+    pts: [...roundPts],
+    scores: [...state.scores],
+    scopa: [...rd.scopa],
+    winners: { cards: rd.cards, coins: rd.coins, sette: rd.sette, primiera: rd.primiera }
+  };
+  state.history.push(entry);
+  state.round++;
+
+  // Check win
+  const winIdx = state.scores.findIndex(s => s >= state.target);
+  if (winIdx !== -1) {
+    showWin(winIdx);
+    return;
+  }
+
+  renderScoreCards();
+  buildScoringTable();
+  renderHistory();
+}
+
+function renderHistory() {
+  const list = document.getElementById('history-list');
+  const card = document.getElementById('history-card');
+  if (state.history.length === 0) { card.style.display = 'none'; return; }
+  card.style.display = '';
+  document.getElementById('rounds-played').textContent = `${state.history.length} round${state.history.length > 1 ? 's' : ''}`;
+  list.innerHTML = state.history.slice().reverse().map((entry, revI) => {
+    const i = state.history.length - 1 - revI;
+    const pts = entry.pts.map((p, pi) => `${state.players[pi]}: <strong>${p > 0 ? '+' + p : p}</strong>`).join(' · ');
+    const totals = entry.scores.map((s, pi) => `${state.players[pi]}: ${s}`).join(' · ');
+    return `<div class="history-row">
+      <span class="hr-round">Rnd ${entry.round}</span>
+      <span class="hr-pts">${pts} <span style="color:var(--muted);font-size:0.8rem;">(${totals})</span></span>
+      <button class="hr-undo" onclick="undoRound(${i})">undo</button>
+    </div>`;
+  }).join('');
+}
+
+function undoRound(idx) {
+  const entry = state.history[idx];
+  entry.pts.forEach((p, i) => { state.scores[i] -= p; });
+  state.history.splice(idx, 1);
+  state.round--;
+  renderScoreCards();
+  buildScoringTable();
+  renderHistory();
+}
+
+function confirmNewGame() {
+  if (confirm('Start a new game? Current scores will be lost.')) startNew();
+}
+
+function startNew() {
+  state.scores = state.players.map(() => 0);
+  state.round = 1;
+  state.history = [];
+  buildGameUI();
+  showScreen('game-screen');
+}
+
+function goSetup() {
+  showScreen('setup-screen');
+}
+
+// ── WIN SCREEN ──
+function showWin(winIdx) {
+  document.getElementById('win-name').textContent = state.players[winIdx];
+  const rows = state.players.map((p, i) =>
+    `<div class="win-score-row ${i === winIdx ? 'winner' : ''}">
+      <span>${i === winIdx ? '🏆 ' : ''}${p}</span>
+      <span>${state.scores[i]} pts</span>
+    </div>`).join('');
+  document.getElementById('win-scores').innerHTML = rows;
+  showScreen('win-screen');
+}
+
+// ── SCREEN NAV ──
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+</script>
+</body>
+</html>

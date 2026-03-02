@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Skull King — Score Tracker</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap');
+
+  :root {
+    --gold: #d4a017;
+    --gold-light: #f0c040;
+    --dark: #0d0d1a;
+    --navy: #0f1e36;
+    --navy-mid: #162848;
+    --navy-light: #1e3560;
+    --red: #8b1a1a;
+    --red-light: #c0392b;
+    --text: #e8d5b0;
+    --text-dim: #a89070;
+    --success: #2ecc71;
+    --danger: #e74c3c;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background-color: var(--dark);
+    background-image:
+      radial-gradient(ellipse at 20% 50%, rgba(30,53,96,0.4) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 20%, rgba(139,26,26,0.2) 0%, transparent 50%),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Cpath d='M0 0h60v60H0z' fill='%230d0d1a'/%3E%3Ccircle cx='30' cy='30' r='1' fill='%23ffffff08'/%3E%3C/svg%3E");
+    color: var(--text);
+    font-family: 'Crimson Text', Georgia, serif;
+    min-height: 100vh;
+    font-size: 16px;
+  }
+
+  /* ═══ HEADER ═══ */
+  header {
+    text-align: center;
+    padding: 2rem 1rem 1.5rem;
+    border-bottom: 2px solid rgba(212,160,23,0.3);
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, rgba(139,26,26,0.15) 0%, transparent 100%);
+    pointer-events: none;
+  }
+  .skull-icon { font-size: 3rem; display: block; margin-bottom: 0.3rem; filter: drop-shadow(0 0 12px rgba(212,160,23,0.6)); }
+  h1 {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(1.8rem, 5vw, 3rem);
+    font-weight: 900;
+    color: var(--gold);
+    text-shadow: 0 0 30px rgba(212,160,23,0.5), 2px 2px 0 rgba(0,0,0,0.8);
+    letter-spacing: 0.1em;
+  }
+  .subtitle { color: var(--text-dim); font-style: italic; font-size: 1.1rem; margin-top: 0.3rem; }
+
+  /* ═══ LAYOUT ═══ */
+  main { max-width: 1200px; margin: 0 auto; padding: 1.5rem; }
+
+  /* ═══ SETUP SCREEN ═══ */
+  #setup-screen { display: block; }
+  #game-screen { display: none; }
+
+  .card {
+    background: linear-gradient(135deg, var(--navy-mid) 0%, var(--navy) 100%);
+    border: 1px solid rgba(212,160,23,0.25);
+    border-radius: 12px;
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5), inset 0 1px 0 rgba(212,160,23,0.1);
+  }
+  .card-title {
+    font-family: 'Cinzel', serif;
+    font-size: 1.3rem;
+    color: var(--gold);
+    margin-bottom: 1.2rem;
+    padding-bottom: 0.6rem;
+    border-bottom: 1px solid rgba(212,160,23,0.2);
+    display: flex; align-items: center; gap: 0.6rem;
+  }
+
+  /* ═══ SETUP FORM ═══ */
+  .setup-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; }
+  .player-input-wrap { position: relative; }
+  .player-input-wrap label {
+    display: block; font-size: 0.85rem; color: var(--text-dim);
+    margin-bottom: 0.3rem; font-family: 'Cinzel', serif; letter-spacing: 0.05em;
+  }
+  .player-input-wrap input {
+    width: 100%; padding: 0.6rem 0.9rem;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(212,160,23,0.3);
+    border-radius: 8px; color: var(--text);
+    font-family: 'Crimson Text', serif; font-size: 1.05rem;
+    transition: border-color 0.2s, background 0.2s;
+    outline: none;
+  }
+  .player-input-wrap input:focus {
+    border-color: var(--gold); background: rgba(212,160,23,0.08);
+  }
+
+  .player-count-row { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+  .player-count-row label { font-family: 'Cinzel', serif; font-size: 0.95rem; color: var(--text-dim); }
+  .count-btns { display: flex; gap: 0.5rem; }
+  .count-btn {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: var(--navy-light); border: 1px solid rgba(212,160,23,0.4);
+    color: var(--gold); font-size: 1.3rem; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s; font-family: 'Cinzel', serif;
+  }
+  .count-btn:hover { background: rgba(212,160,23,0.2); }
+  #player-count-display {
+    font-family: 'Cinzel', serif; font-size: 1.5rem; color: var(--gold);
+    min-width: 2rem; text-align: center;
+  }
+
+  /* ═══ BUTTONS ═══ */
+  .btn {
+    padding: 0.75rem 2rem; border-radius: 8px; cursor: pointer;
+    font-family: 'Cinzel', serif; font-size: 1rem; font-weight: 700;
+    letter-spacing: 0.08em; border: none; transition: all 0.2s;
+    display: inline-flex; align-items: center; gap: 0.5rem;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, #8b1a1a, #6b0f0f);
+    color: var(--gold);
+    border: 1px solid rgba(212,160,23,0.5);
+    box-shadow: 0 4px 15px rgba(139,26,26,0.4);
+  }
+  .btn-primary:hover { background: linear-gradient(135deg, #a02020, #8b1a1a); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(139,26,26,0.5); }
+  .btn-secondary {
+    background: rgba(255,255,255,0.05);
+    color: var(--text-dim); border: 1px solid rgba(255,255,255,0.15);
+  }
+  .btn-secondary:hover { background: rgba(255,255,255,0.1); color: var(--text); }
+  .btn-gold {
+    background: linear-gradient(135deg, var(--gold), #b8870e);
+    color: var(--dark); border: 1px solid var(--gold-light);
+  }
+  .btn-gold:hover { background: linear-gradient(135deg, var(--gold-light), var(--gold)); transform: translateY(-1px); }
+  .btn-sm { padding: 0.4rem 1rem; font-size: 0.85rem; }
+
+  .action-row { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-top: 1.5rem; }
+
+  /* ═══ ROUND HEADER ═══ */
+  .round-info-bar {
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 1rem;
+    background: linear-gradient(90deg, rgba(139,26,26,0.3), rgba(139,26,26,0.1), rgba(139,26,26,0.3));
+    border: 1px solid rgba(139,26,26,0.4);
+    border-radius: 10px; padding: 0.9rem 1.5rem; margin-bottom: 1.5rem;
+  }
+  .round-badge {
+    font-family: 'Cinzel', serif; font-size: 1.4rem; font-weight: 900;
+    color: var(--gold); text-shadow: 0 0 15px rgba(212,160,23,0.5);
+  }
+  .round-progress { display: flex; gap: 4px; }
+  .round-dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15);
+    transition: all 0.3s;
+  }
+  .round-dot.done { background: var(--gold); border-color: var(--gold-light); }
+  .round-dot.current { background: var(--red-light); border-color: #e74c3c; box-shadow: 0 0 8px rgba(231,76,60,0.6); }
+
+  /* ═══ SCORE TABLE ═══ */
+  .score-table-wrap { overflow-x: auto; }
+  .score-table {
+    width: 100%; border-collapse: collapse; min-width: 600px;
+  }
+  .score-table th {
+    background: rgba(212,160,23,0.1); color: var(--gold);
+    font-family: 'Cinzel', serif; font-size: 0.8rem;
+    padding: 0.6rem 0.5rem; text-align: center;
+    border-bottom: 2px solid rgba(212,160,23,0.3);
+    white-space: nowrap;
+  }
+  .score-table td { padding: 0.5rem; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.05); }
+  .score-table tr:hover td { background: rgba(255,255,255,0.03); }
+  .player-name-cell {
+    text-align: left !important; padding-left: 1rem !important;
+    font-weight: 600; white-space: nowrap;
+    display: flex; align-items: center; gap: 0.5rem;
+  }
+  .player-avatar {
+    width: 28px; height: 28px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.9rem; flex-shrink: 0;
+  }
+  .score-chip {
+    display: inline-block; padding: 0.2rem 0.5rem;
+    border-radius: 6px; font-size: 0.9rem; font-weight: 600;
+    min-width: 45px;
+  }
+  .score-chip.positive { background: rgba(46,204,113,0.2); color: var(--success); }
+  .score-chip.negative { background: rgba(231,76,60,0.2); color: var(--danger); }
+  .score-chip.zero { background: rgba(255,255,255,0.08); color: var(--text-dim); }
+  .total-cell {
+    font-family: 'Cinzel', serif; font-size: 1.1rem; font-weight: 700;
+  }
+  .leader-row td { background: rgba(212,160,23,0.06) !important; }
+
+  /* ═══ ROUND ENTRY ═══ */
+  .entry-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1rem;
+  }
+  .player-entry-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px; padding: 1.1rem;
+    transition: border-color 0.2s;
+  }
+  .player-entry-card:hover { border-color: rgba(212,160,23,0.3); }
+  .player-entry-card.completed { border-color: rgba(46,204,113,0.3); background: rgba(46,204,113,0.04); }
+  .entry-player-name {
+    font-family: 'Cinzel', serif; font-size: 1rem; font-weight: 700;
+    color: var(--gold); margin-bottom: 0.9rem;
+    display: flex; align-items: center; gap: 0.5rem;
+  }
+  .entry-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 0.7rem; margin-bottom: 0.7rem; }
+  .field-group label {
+    display: block; font-size: 0.8rem; color: var(--text-dim);
+    margin-bottom: 0.25rem; font-family: 'Cinzel', serif; letter-spacing: 0.04em;
+  }
+  .num-input {
+    width: 100%; padding: 0.5rem 0.4rem;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 7px; color: var(--text); text-align: center;
+    font-size: 1.2rem; font-family: 'Cinzel', serif; font-weight: 700;
+    outline: none; transition: all 0.2s;
+    -moz-appearance: textfield;
+  }
+  .num-input::-webkit-outer-spin-button, .num-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+  .num-input:focus { border-color: var(--gold); background: rgba(212,160,23,0.08); }
+
+  /* Stepper */
+  .stepper { display: flex; align-items: center; gap: 0; }
+  .stepper-btn {
+    width: 28px; height: 36px;
+    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15);
+    color: var(--text-dim); font-size: 1.1rem; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s; flex-shrink: 0;
+  }
+  .stepper-btn:first-child { border-radius: 7px 0 0 7px; border-right: none; }
+  .stepper-btn:last-child { border-radius: 0 7px 7px 0; border-left: none; }
+  .stepper-btn:hover { background: rgba(212,160,23,0.2); color: var(--gold); }
+  .stepper .num-input { border-radius: 0; border-left: 1px solid rgba(255,255,255,0.15); border-right: 1px solid rgba(255,255,255,0.15); }
+
+  /* Bonus section */
+  .bonus-section { margin-top: 0.5rem; }
+  .bonus-toggle {
+    width: 100%; padding: 0.35rem; background: none; border: 1px dashed rgba(212,160,23,0.2);
+    border-radius: 6px; color: var(--text-dim); font-size: 0.8rem; cursor: pointer;
+    font-family: 'Crimson Text', serif; transition: all 0.2s;
+  }
+  .bonus-toggle:hover { border-color: rgba(212,160,23,0.5); color: var(--gold); }
+  .bonus-fields { display: none; margin-top: 0.6rem; }
+  .bonus-fields.open { display: block; }
+  .bonus-item { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.4rem; }
+  .bonus-item label { font-size: 0.8rem; color: var(--text-dim); flex: 1; }
+  .bonus-item .num-input { width: 55px; border-radius: 6px; padding: 0.3rem; font-size: 1rem; }
+  .bonus-badge { font-size: 0.7rem; color: var(--gold); font-style: italic; margin-left: 0.3rem; }
+
+  /* Preview score */
+  .score-preview {
+    margin-top: 0.7rem; padding: 0.5rem;
+    background: rgba(255,255,255,0.04); border-radius: 6px;
+    text-align: center; font-family: 'Cinzel', serif;
+    font-size: 0.85rem;
+  }
+  .score-preview .preview-val { font-size: 1.3rem; font-weight: 700; }
+
+  /* ═══ TOTALS BAR ═══ */
+  .totals-bar {
+    display: flex; gap: 0.7rem; flex-wrap: wrap;
+    justify-content: center; margin-bottom: 1.5rem;
+  }
+  .total-pill {
+    background: linear-gradient(135deg, var(--navy-mid), var(--navy));
+    border: 1px solid rgba(212,160,23,0.25); border-radius: 30px;
+    padding: 0.4rem 1rem; display: flex; align-items: center; gap: 0.5rem;
+    transition: all 0.3s;
+  }
+  .total-pill.leader {
+    border-color: var(--gold); background: linear-gradient(135deg, rgba(212,160,23,0.2), rgba(139,26,26,0.2));
+    box-shadow: 0 0 15px rgba(212,160,23,0.3);
+  }
+  .total-pill .pill-name { font-family: 'Cinzel', serif; font-size: 0.85rem; color: var(--text-dim); }
+  .total-pill .pill-score { font-family: 'Cinzel', serif; font-size: 1.1rem; font-weight: 700; color: var(--gold); }
+  .crown { font-size: 0.9rem; }
+
+  /* ═══ GAME OVER ═══ */
+  #gameover-screen { display: none; }
+  .podium { display: flex; flex-direction: column; gap: 0.8rem; align-items: center; }
+  .podium-item {
+    width: 100%; max-width: 400px;
+    padding: 1rem 1.5rem; border-radius: 10px;
+    display: flex; align-items: center; gap: 1rem;
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+  .podium-item:nth-child(1) {
+    background: linear-gradient(135deg, rgba(212,160,23,0.3), rgba(212,160,23,0.1));
+    border-color: var(--gold); box-shadow: 0 0 25px rgba(212,160,23,0.3);
+  }
+  .podium-item:nth-child(2) {
+    background: linear-gradient(135deg, rgba(192,192,192,0.15), rgba(192,192,192,0.05));
+    border-color: #aaa;
+  }
+  .podium-item:nth-child(3) {
+    background: linear-gradient(135deg, rgba(205,127,50,0.15), rgba(205,127,50,0.05));
+    border-color: #cd7f32;
+  }
+  .podium-rank { font-family: 'Cinzel', serif; font-size: 1.8rem; font-weight: 900; min-width: 2rem; }
+  .podium-name { font-family: 'Cinzel', serif; font-size: 1.1rem; flex: 1; }
+  .podium-score { font-family: 'Cinzel', serif; font-size: 1.3rem; font-weight: 700; color: var(--gold); }
+
+  /* ═══ SCORE HISTORY ═══ */
+  .history-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+  .history-table th, .history-table td { padding: 0.4rem 0.5rem; border: 1px solid rgba(255,255,255,0.07); text-align: center; }
+  .history-table th { background: rgba(212,160,23,0.1); font-family: 'Cinzel', serif; font-size: 0.75rem; color: var(--gold); }
+  .history-table .r-num { color: var(--text-dim); font-size: 0.8rem; }
+  .cell-pos { color: var(--success); }
+  .cell-neg { color: var(--danger); }
+
+  /* ═══ TOOLTIP / RULES ═══ */
+  .rules-toggle {
+    position: fixed; bottom: 1.5rem; right: 1.5rem;
+    width: 48px; height: 48px; border-radius: 50%;
+    background: var(--navy-mid); border: 1px solid rgba(212,160,23,0.4);
+    color: var(--gold); font-size: 1.3rem; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    transition: all 0.2s; z-index: 100;
+  }
+  .rules-toggle:hover { background: rgba(212,160,23,0.2); }
+  .rules-panel {
+    position: fixed; bottom: 4.5rem; right: 1.5rem;
+    width: 300px; max-height: 70vh; overflow-y: auto;
+    background: var(--navy); border: 1px solid rgba(212,160,23,0.3);
+    border-radius: 12px; padding: 1.2rem;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.7); z-index: 99;
+    display: none;
+  }
+  .rules-panel.open { display: block; }
+  .rules-panel h3 { font-family: 'Cinzel', serif; color: var(--gold); margin-bottom: 0.8rem; font-size: 1rem; }
+  .rule-row { margin-bottom: 0.6rem; font-size: 0.88rem; line-height: 1.4; padding-bottom: 0.6rem; border-bottom: 1px solid rgba(255,255,255,0.06); }
+  .rule-row:last-child { border: none; }
+  .rule-val { color: var(--gold); font-weight: 600; }
+
+  /* ═══ RESPONSIVE ═══ */
+  @media (max-width: 600px) {
+    main { padding: 1rem 0.7rem; }
+    .card { padding: 1.2rem; }
+    .entry-fields { grid-template-columns: 1fr 1fr; }
+  }
+
+  /* ═══ OPTION TOGGLE ═══ */
+  .option-toggle-row {
+    display: flex; align-items: flex-start; gap: 1rem; cursor: pointer;
+    padding: 0.8rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08);
+    background: rgba(255,255,255,0.03); transition: background 0.2s;
+    user-select: none;
+  }
+  .option-toggle-row:hover { background: rgba(212,160,23,0.07); }
+  .toggle-track {
+    flex-shrink: 0; width: 44px; height: 24px; border-radius: 12px;
+    background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+    position: relative; transition: background 0.3s;
+    margin-top: 2px;
+  }
+  .toggle-track.on { background: rgba(46,204,113,0.5); border-color: var(--success); }
+  .toggle-thumb {
+    position: absolute; top: 2px; left: 2px;
+    width: 18px; height: 18px; border-radius: 50%;
+    background: var(--text-dim); transition: all 0.3s;
+  }
+  .toggle-track.on .toggle-thumb { left: 22px; background: var(--success); }
+
+  /* Option badge in game screen */
+  .option-badge {
+    font-size: 0.75rem; padding: 0.2rem 0.6rem; border-radius: 20px;
+    border: 1px solid; font-family: 'Cinzel', serif;
+  }
+  .option-badge.active { color: var(--success); border-color: rgba(46,204,113,0.4); background: rgba(46,204,113,0.1); }
+  .option-badge.inactive { color: var(--text-dim); border-color: rgba(255,255,255,0.15); background: rgba(255,255,255,0.05); }
+
+  /* Animations */
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  .fade-in { animation: fadeIn 0.3s ease; }
+  @keyframes pulse-gold { 0%,100% { box-shadow: 0 0 15px rgba(212,160,23,0.3); } 50% { box-shadow: 0 0 25px rgba(212,160,23,0.6); } }
+</style>
+</head>
+<body>
+
+<header>
+  <span class="skull-icon">☠️</span>
+  <h1>SKULL KING</h1>
+  <div class="subtitle">Score Tracker — Capitaine des Sept Mers</div>
+</header>
+
+<main>
+
+<!-- ═══ SETUP SCREEN ═══ -->
+<div id="setup-screen">
+  <div class="card">
+    <div class="card-title">⚓ Nouvelle Partie</div>
+
+    <div class="player-count-row">
+      <label>Nombre de pirates :</label>
+      <div class="count-btns">
+        <button class="count-btn" onclick="changeCount(-1)">−</button>
+        <span id="player-count-display">4</span>
+        <button class="count-btn" onclick="changeCount(1)">+</button>
+      </div>
+    </div>
+
+    <div class="setup-grid" id="player-inputs">
+    </div>
+
+    <div style="margin-top:1.5rem;padding-top:1.2rem;border-top:1px solid rgba(212,160,23,0.15);">
+      <div class="card-title" style="font-size:1rem;margin-bottom:0.8rem;">⚙️ Options de jeu</div>
+      <label class="option-toggle-row" onclick="toggleBonusOption()">
+        <div class="toggle-track" id="bonus-toggle-track">
+          <div class="toggle-thumb" id="bonus-toggle-thumb"></div>
+        </div>
+        <div>
+          <div style="font-family:'Cinzel',serif;font-size:0.95rem;color:var(--text);">Bonus toujours accordés</div>
+          <div style="font-size:0.85rem;color:var(--text-dim);margin-top:0.2rem;">
+            Si activé, les bonus spéciaux (cartes 14, Skull King…) sont comptés même si le pari n'est pas rempli.<br>
+            Si désactivé <em>(règle standard)</em>, les bonus ne s'appliquent qu'en cas de bid exact.
+          </div>
+        </div>
+      </label>
+    </div>
+
+    <div class="action-row">
+      <button class="btn btn-primary" onclick="startGame()">⚓ Appareiller !</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ GAME SCREEN ═══ -->
+<div id="game-screen">
+
+  <!-- Round info bar -->
+  <div class="round-info-bar">
+    <div class="round-badge" id="round-badge">MANCHE 1 / 10</div>
+    <div style="display:flex;align-items:center;gap:0.6rem;flex-wrap:wrap;">
+      <div class="round-progress" id="round-progress"></div>
+      <span class="option-badge" id="bonus-mode-badge"></span>
+    </div>
+    <button class="btn btn-secondary btn-sm" onclick="confirmRestart()">↩ Recommencer</button>
+  </div>
+
+  <!-- Totals bar -->
+  <div class="totals-bar" id="totals-bar"></div>
+
+  <!-- Entry form -->
+  <div class="card fade-in" id="entry-card">
+    <div class="card-title">🎯 Saisie — <span id="entry-round-label"></span></div>
+    <div class="entry-grid" id="entry-grid"></div>
+    <div class="action-row">
+      <button class="btn btn-secondary" onclick="prevRound()" id="btn-prev">← Manche préc.</button>
+      <button class="btn btn-gold" onclick="validateRound()">Valider la manche →</button>
+    </div>
+  </div>
+
+  <!-- Score history table -->
+  <div class="card" id="history-card" style="display:none">
+    <div class="card-title">📜 Historique</div>
+    <div class="score-table-wrap">
+      <table class="history-table" id="history-table"></table>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══ GAME OVER SCREEN ═══ -->
+<div id="gameover-screen">
+  <div class="card" style="text-align:center">
+    <div style="font-size:3rem;margin-bottom:0.5rem">🏴‍☠️</div>
+    <div class="card-title" style="justify-content:center;font-size:1.8rem">FIN DE PARTIE</div>
+    <div id="winner-text" style="font-size:1.2rem;color:var(--text-dim);margin-bottom:2rem;font-style:italic"></div>
+    <div class="podium" id="podium"></div>
+    <div class="action-row" style="margin-top:2rem">
+      <button class="btn btn-primary" onclick="confirmRestart()">⚓ Nouvelle Partie</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">📜 Tableau des scores complet</div>
+    <div class="score-table-wrap">
+      <table class="history-table" id="final-history-table"></table>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<!-- Rules panel -->
+<button class="rules-toggle" onclick="toggleRules()" title="Règles de scoring">?</button>
+<div class="rules-panel" id="rules-panel">
+  <h3>⚓ Règles de Scoring</h3>
+  <div class="rule-row">
+    <strong>Bid exact (≥1)</strong><br>
+    <span class="rule-val">+20 pts × nombre de plis misés</span>
+  </div>
+  <div class="rule-row">
+    <strong>Bid raté</strong><br>
+    <span class="rule-val">−10 pts × écart</span> (over ou under)
+  </div>
+  <div class="rule-row">
+    <strong>Bid 0 réussi</strong><br>
+    <span class="rule-val">+10 × numéro de manche</span>
+  </div>
+  <div class="rule-row">
+    <strong>Bid 0 raté</strong><br>
+    <span class="rule-val">−10 × numéro de manche</span>
+  </div>
+  <div class="rule-row">
+    <strong>🎯 Bonus (par défaut : si bid exact)</strong><br>
+    Skull King capture Pirates : <span class="rule-val">+30/pirate</span><br>
+    Sirène capture Skull King : <span class="rule-val">+40</span><br>
+    Pirate capture Sirène : <span class="rule-val">+20/sirène</span><br>
+    14 vert/jaune/violet capturé : <span class="rule-val">+10/carte</span><br>
+    14 noir capturé : <span class="rule-val">+20</span><br>
+    <em style="font-size:0.8rem;color:var(--text-dim)">Option "Bonus toujours actifs" : bonus accordés même si pari raté.</em>
+  </div>
+  <div class="rule-row">
+    <strong>10 manches</strong> — Le capitaine avec le plus de points gagne !
+  </div>
+</div>
+
+<script>
+// ═══ STATE ═══
+let players = [];
+let currentRound = 1;
+const MAX_ROUNDS = 10;
+let roundData = [];
+let tempData = {};
+let bonusAlways = false; // Option: bonus même si bid raté
+
+const AVATARS = ['🏴‍☠️','⚓','🦜','🗡️','🧭','💀','🌊','🐙'];
+const COLORS = ['#d4a017','#e74c3c','#2ecc71','#3498db','#9b59b6','#f39c12','#1abc9c','#e67e22'];
+
+// ═══ SETUP ═══
+let playerCount = 4;
+
+function changeCount(d) {
+  playerCount = Math.max(2, Math.min(8, playerCount + d));
+  document.getElementById('player-count-display').textContent = playerCount;
+  renderSetupInputs();
+}
+
+function renderSetupInputs() {
+  const grid = document.getElementById('player-inputs');
+  const existing = [...grid.querySelectorAll('input')].map(i => i.value);
+  grid.innerHTML = '';
+  for (let i = 0; i < playerCount; i++) {
+    const wrap = document.createElement('div');
+    wrap.className = 'player-input-wrap';
+    wrap.innerHTML = `
+      <label>${AVATARS[i]} Joueur ${i+1}</label>
+      <input type="text" placeholder="Pirate ${i+1}" value="${existing[i] || ''}" maxlength="20" />
+    `;
+    grid.appendChild(wrap);
+  }
+}
+
+function toggleBonusOption() {
+  bonusAlways = !bonusAlways;
+  const track = document.getElementById('bonus-toggle-track');
+  track.classList.toggle('on', bonusAlways);
+}
+
+function startGame() {
+  const inputs = document.querySelectorAll('#player-inputs input');
+  players = [...inputs].map((inp, i) => inp.value.trim() || `Pirate ${i+1}`);
+  roundData = [];
+  currentRound = 1;
+  initTempData();
+  document.getElementById('setup-screen').style.display = 'none';
+  document.getElementById('game-screen').style.display = 'block';
+  document.getElementById('gameover-screen').style.display = 'none';
+  renderRoundProgress();
+  renderTotalsBar();
+  renderEntryForm();
+  updateHistoryTable();
+}
+
+function initTempData() {
+  tempData = {};
+  players.forEach((p, i) => {
+    tempData[i] = { bid: 0, won: 0, sk_pirates: 0, mermaid_sk: 0, pirate_mermaid: 0, c14_color: 0, c14_black: 0 };
+  });
+}
+
+// ═══ SCORING ═══
+function computeScore(bid, won, roundNum, bonus) {
+  let score = 0;
+  if (bid === 0) {
+    score = (won === 0) ? 10 * roundNum : -10 * roundNum;
+    if (bonusAlways && bonus) score += bonus;
+  } else {
+    if (won === bid) {
+      score = 20 * bid + bonus;
+    } else {
+      score = -10 * Math.abs(won - bid);
+      if (bonusAlways && bonus) score += bonus;
+    }
+  }
+  return score;
+}
+
+function computeBonus(d) {
+  return (d.sk_pirates * 30) + (d.mermaid_sk * 40) + (d.pirate_mermaid * 20) + (d.c14_color * 10) + (d.c14_black * 20);
+}
+
+function getTotal(playerIdx) {
+  let total = 0;
+  roundData.forEach(round => {
+    if (round[playerIdx] !== undefined) total += round[playerIdx].score;
+  });
+  return total;
+}
+
+// ═══ RENDER ═══
+function renderRoundProgress() {
+  const bar = document.getElementById('round-progress');
+  bar.innerHTML = '';
+  for (let r = 1; r <= MAX_ROUNDS; r++) {
+    const dot = document.createElement('div');
+    dot.className = 'round-dot' + (r < currentRound ? ' done' : r === currentRound ? ' current' : '');
+    bar.appendChild(dot);
+  }
+  document.getElementById('round-badge').textContent = `MANCHE ${currentRound} / ${MAX_ROUNDS}`;
+  const badge = document.getElementById('bonus-mode-badge');
+  if (bonusAlways) {
+    badge.className = 'option-badge active';
+    badge.textContent = '🎯 Bonus toujours actifs';
+  } else {
+    badge.className = 'option-badge inactive';
+    badge.textContent = '🎯 Bonus si bid exact';
+  }
+}
+
+function renderTotalsBar() {
+  const bar = document.getElementById('totals-bar');
+  const scores = players.map((p, i) => ({ name: p, score: getTotal(i), idx: i }));
+  const maxScore = Math.max(...scores.map(s => s.score));
+  bar.innerHTML = '';
+  // Sort by score desc for display
+  [...scores].sort((a,b) => b.score - a.score).forEach(s => {
+    const pill = document.createElement('div');
+    const isLeader = scores.length > 1 && s.score === maxScore;
+    pill.className = 'total-pill' + (isLeader ? ' leader' : '');
+    pill.innerHTML = `
+      ${isLeader ? '<span class="crown">👑</span>' : `<span style="font-size:1rem">${AVATARS[s.idx]}</span>`}
+      <span class="pill-name">${s.name}</span>
+      <span class="pill-score" style="color:${s.score < 0 ? 'var(--danger)' : 'var(--gold)'}">
+        ${s.score > 0 ? '+' : ''}${s.score}
+      </span>
+    `;
+    bar.appendChild(pill);
+  });
+}
+
+function renderEntryForm() {
+  const label = document.getElementById('entry-round-label');
+  label.textContent = `Manche ${currentRound} (${currentRound} pli${currentRound>1?'s':''})`;
+
+  const grid = document.getElementById('entry-grid');
+  grid.innerHTML = '';
+
+  players.forEach((name, i) => {
+    const d = tempData[i];
+    const div = document.createElement('div');
+    div.className = 'player-entry-card';
+    div.id = `entry-card-${i}`;
+    div.innerHTML = `
+      <div class="entry-player-name">
+        <span style="font-size:1.2rem">${AVATARS[i]}</span>
+        ${name}
+      </div>
+      <div class="entry-fields">
+        <div class="field-group">
+          <label>Annonce (bid)</label>
+          <div class="stepper">
+            <button class="stepper-btn" onclick="stepVal(${i},'bid',-1)">−</button>
+            <input class="num-input" type="number" min="0" max="${currentRound}" id="bid-${i}" value="${d.bid}" onchange="onFieldChange(${i})" oninput="onFieldChange(${i})">
+            <button class="stepper-btn" onclick="stepVal(${i},'bid',1)">+</button>
+          </div>
+        </div>
+        <div class="field-group">
+          <label>Plis remportés</label>
+          <div class="stepper">
+            <button class="stepper-btn" onclick="stepVal(${i},'won',-1)">−</button>
+            <input class="num-input" type="number" min="0" max="${currentRound}" id="won-${i}" value="${d.won}" onchange="onFieldChange(${i})" oninput="onFieldChange(${i})">
+            <button class="stepper-btn" onclick="stepVal(${i},'won',1)">+</button>
+          </div>
+        </div>
+      </div>
+      <div class="bonus-section">
+        <button class="bonus-toggle" onclick="toggleBonus(${i})">🎯 Bonus spéciaux ▼</button>
+        <div class="bonus-fields" id="bonus-${i}">
+          <div class="bonus-item">
+            <label>☠️ Pirates capturés par Skull King <span class="bonus-badge">×30 pts</span></label>
+            <input class="num-input" type="number" min="0" max="5" id="skp-${i}" value="${d.sk_pirates}" onchange="onFieldChange(${i})" oninput="onFieldChange(${i})">
+          </div>
+          <div class="bonus-item">
+            <label>🧜 Sirène capture Skull King <span class="bonus-badge">+40 pts</span></label>
+            <input class="num-input" type="number" min="0" max="1" id="msk-${i}" value="${d.mermaid_sk}" onchange="onFieldChange(${i})" oninput="onFieldChange(${i})">
+          </div>
+          <div class="bonus-item">
+            <label>⚔️ Pirates capturent Sirènes <span class="bonus-badge">×20 pts</span></label>
+            <input class="num-input" type="number" min="0" max="2" id="pm-${i}" value="${d.pirate_mermaid}" onchange="onFieldChange(${i})" oninput="onFieldChange(${i})">
+          </div>
+          <div style="border-top:1px dashed rgba(255,255,255,0.08);margin:0.5rem 0;"></div>
+          <div class="bonus-item">
+            <label>🟢🟡🟣 Cartes 14 couleur capturées <span class="bonus-badge">×10 pts</span></label>
+            <input class="num-input" type="number" min="0" max="3" id="c14col-${i}" value="${d.c14_color}" onchange="onFieldChange(${i})" oninput="onFieldChange(${i})">
+          </div>
+          <div class="bonus-item">
+            <label>⚫ Carte 14 noire capturée <span class="bonus-badge">+20 pts</span></label>
+            <input class="num-input" type="number" min="0" max="1" id="c14blk-${i}" value="${d.c14_black}" onchange="onFieldChange(${i})" oninput="onFieldChange(${i})">
+          </div>
+        </div>
+      </div>
+      <div class="score-preview" id="preview-${i}"></div>
+    `;
+    grid.appendChild(div);
+    updatePreview(i);
+  });
+
+  // Show/hide prev button
+  document.getElementById('btn-prev').style.display = currentRound > 1 ? 'inline-flex' : 'none';
+
+  // Show history if we have data
+  document.getElementById('history-card').style.display = roundData.length > 0 ? 'block' : 'none';
+}
+
+function stepVal(playerIdx, field, delta) {
+  const inputId = field === 'bid' ? `bid-${playerIdx}` : `won-${playerIdx}`;
+  const input = document.getElementById(inputId);
+  let val = parseInt(input.value) || 0;
+  val = Math.max(0, Math.min(currentRound, val + delta));
+  input.value = val;
+  onFieldChange(playerIdx);
+}
+
+function onFieldChange(playerIdx) {
+  const bid = parseInt(document.getElementById(`bid-${playerIdx}`).value) || 0;
+  const won = parseInt(document.getElementById(`won-${playerIdx}`).value) || 0;
+  const skp = parseInt(document.getElementById(`skp-${playerIdx}`).value) || 0;
+  const msk = parseInt(document.getElementById(`msk-${playerIdx}`).value) || 0;
+  const pm = parseInt(document.getElementById(`pm-${playerIdx}`).value) || 0;
+  const c14col = parseInt(document.getElementById(`c14col-${playerIdx}`).value) || 0;
+  const c14blk = parseInt(document.getElementById(`c14blk-${playerIdx}`).value) || 0;
+  tempData[playerIdx] = { bid, won, sk_pirates: skp, mermaid_sk: msk, pirate_mermaid: pm, c14_color: c14col, c14_black: c14blk };
+  updatePreview(playerIdx);
+}
+
+function updatePreview(playerIdx) {
+  const d = tempData[playerIdx];
+  const bonus = computeBonus(d);
+  const score = computeScore(d.bid, d.won, currentRound, bonus);
+  const prev = document.getElementById(`preview-${playerIdx}`);
+  const color = score > 0 ? 'var(--success)' : score < 0 ? 'var(--danger)' : 'var(--text-dim)';
+  const bidExact = d.bid > 0 && d.bid === d.won;
+  const bonusApplied = bonus > 0 && (bidExact || bonusAlways);
+  let detail = '';
+  if (bonusApplied) detail = ` (+${bonus} bonus)`;
+  else if (bonus > 0 && !bidExact) detail = ` <span style="color:var(--text-dim);font-size:0.8rem">(+${bonus} bonus ignoré)</span>`;
+  prev.innerHTML = `Score cette manche : <span class="preview-val" style="color:${color}">${score > 0 ? '+' : ''}${score}</span>${detail}`;
+}
+
+function toggleBonus(playerIdx) {
+  const bf = document.getElementById(`bonus-${playerIdx}`);
+  bf.classList.toggle('open');
+}
+
+function validateRound() {
+  const roundScores = {};
+  players.forEach((p, i) => {
+    const d = tempData[i];
+    const bonus = computeBonus(d);
+    const score = computeScore(d.bid, d.won, currentRound, bonus);
+    roundScores[i] = { bid: d.bid, won: d.won, bonus, score };
+  });
+
+  // If editing a past round, replace; else push
+  if (roundData[currentRound - 1]) {
+    roundData[currentRound - 1] = roundScores;
+  } else {
+    roundData.push(roundScores);
+  }
+
+  if (currentRound === MAX_ROUNDS) {
+    showGameOver();
+  } else {
+    currentRound++;
+    initTempData();
+    renderRoundProgress();
+    renderTotalsBar();
+    renderEntryForm();
+    updateHistoryTable();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+}
+
+function prevRound() {
+  if (currentRound <= 1) return;
+  // Save current if not saved yet, discard
+  currentRound--;
+  // Load previous round data into tempData
+  const prev = roundData[currentRound - 1];
+  if (prev) {
+    players.forEach((p, i) => {
+      const d = prev[i];
+      tempData[i] = { bid: d.bid, won: d.won, sk_pirates: d.bonus / 30 | 0, mermaid_sk: 0, pirate_mermaid: 0 };
+      // Re-derive bonus breakdown isn't perfectly reversible, just reset
+      tempData[i] = { bid: d.bid, won: d.won, sk_pirates: 0, mermaid_sk: 0, pirate_mermaid: 0 };
+    });
+    // Remove that round from data so it can be re-entered
+    roundData.splice(currentRound - 1, 1);
+  }
+  renderRoundProgress();
+  renderTotalsBar();
+  renderEntryForm();
+  updateHistoryTable();
+}
+
+// ═══ HISTORY TABLE ═══
+function updateHistoryTable() {
+  renderHistoryTable('history-table');
+  document.getElementById('history-card').style.display = roundData.length > 0 ? 'block' : 'none';
+}
+
+function renderHistoryTable(tableId) {
+  const table = document.getElementById(tableId);
+  if (!table) return;
+  table.innerHTML = '';
+
+  // Header
+  const thead = table.createTHead();
+  const hrow = thead.insertRow();
+  const th0 = document.createElement('th'); th0.textContent = 'M'; hrow.appendChild(th0);
+  players.forEach(p => {
+    const th = document.createElement('th');
+    th.textContent = p;
+    hrow.appendChild(th);
+  });
+  const thTot = document.createElement('th');
+  hrow.appendChild(thTot); // spacer
+
+  const tbody = table.createTBody();
+
+  // Running totals
+  const running = players.map(() => 0);
+
+  roundData.forEach((round, ri) => {
+    const row = tbody.insertRow();
+    const td0 = row.insertCell(); td0.className = 'r-num'; td0.textContent = `M${ri+1}`;
+    players.forEach((p, pi) => {
+      const cell = round[pi];
+      const td = row.insertCell();
+      running[pi] += cell.score;
+      const s = cell.score;
+      td.className = s > 0 ? 'cell-pos' : s < 0 ? 'cell-neg' : '';
+      td.innerHTML = `<span title="Bid:${cell.bid} Won:${cell.won}">${s > 0 ? '+' : ''}${s}</span>`;
+    });
+    row.insertCell();
+  });
+
+  // Totals row
+  if (roundData.length > 0) {
+    const totRow = tbody.insertRow();
+    totRow.style.borderTop = '2px solid rgba(212,160,23,0.3)';
+    const tdLabel = totRow.insertCell();
+    tdLabel.innerHTML = '<strong style="color:var(--gold);font-family:Cinzel,serif;font-size:0.8rem">TOTAL</strong>';
+    players.forEach((p, pi) => {
+      const td = totRow.insertCell();
+      const s = running[pi];
+      td.style.fontFamily = 'Cinzel,serif';
+      td.style.fontWeight = '700';
+      td.style.color = s < 0 ? 'var(--danger)' : 'var(--gold)';
+      td.textContent = `${s > 0 ? '+' : ''}${s}`;
+    });
+    totRow.insertCell();
+  }
+}
+
+// ═══ GAME OVER ═══
+function showGameOver() {
+  renderTotalsBar();
+  document.getElementById('game-screen').style.display = 'none';
+  document.getElementById('gameover-screen').style.display = 'block';
+
+  const scores = players.map((name, i) => ({ name, score: getTotal(i), idx: i }));
+  scores.sort((a, b) => b.score - a.score);
+
+  const winner = scores[0];
+  document.getElementById('winner-text').textContent =
+    `${AVATARS[winner.idx]} ${winner.name} est le Capitaine des Sept Mers !`;
+
+  const podium = document.getElementById('podium');
+  podium.innerHTML = '';
+  const medals = ['🥇','🥈','🥉'];
+  scores.forEach((s, ri) => {
+    const div = document.createElement('div');
+    div.className = 'podium-item fade-in';
+    div.innerHTML = `
+      <span class="podium-rank">${medals[ri] || ri+1}</span>
+      <span style="font-size:1.5rem">${AVATARS[s.idx]}</span>
+      <span class="podium-name">${s.name}</span>
+      <span class="podium-score">${s.score > 0 ? '+' : ''}${s.score}</span>
+    `;
+    podium.appendChild(div);
+  });
+
+  renderHistoryTable('final-history-table');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ═══ UTILS ═══
+function confirmRestart() {
+  if (confirm('Recommencer une nouvelle partie ?')) {
+    document.getElementById('game-screen').style.display = 'none';
+    document.getElementById('gameover-screen').style.display = 'none';
+    document.getElementById('setup-screen').style.display = 'block';
+    renderSetupInputs();
+  }
+}
+
+function toggleRules() {
+  document.getElementById('rules-panel').classList.toggle('open');
+}
+
+// ═══ INIT ═══
+renderSetupInputs();
+</script>
+</body>
+</html>
