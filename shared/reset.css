@@ -1,0 +1,75 @@
+/* ============================================================
+   GameScorer — shared reset & baseline
+   Cross-game baseline every scorer app links: box-sizing reset,
+   body defaults, scrollbar styling, the screen-nav mechanism
+   (.screen / .screen.active), and the hub-link back-button.
+   This is the ONLY shared stylesheet every game is expected to
+   link — component styling (cards/buttons/forms/stepper) lives
+   separately in shared/components.css and is optional.
+
+   Each game sets its own look by defining these custom
+   properties on :root in its own <style> block (linked AFTER
+   this file), and may override any rule below where its layout
+   genuinely differs.
+
+   Required per-game variables:
+     --bg --card --card2 --primary --primary-light
+     --text --text-dim --danger --border --shadow
+     --font-display --font-body
+   Optional (fall back to sane defaults if unset):
+     --primary-shadow --danger-light --danger-border
+
+   Note: --danger is for destructive/error-state UI (e.g. a
+   delete/reset button or a negative-score indicator). A game
+   that also wants a decorative accent color unrelated to error/
+   destructive state should define its own additional custom var
+   for that rather than overloading --danger.
+   ============================================================ */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  font-family: var(--font-body, Georgia, serif);
+  background: var(--bg, #111);
+  color: var(--text, #eee);
+  min-height: 100vh;
+  min-height: -webkit-fill-available;
+  overflow-x: hidden;
+}
+
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border, rgba(255,255,255,0.2)); border-radius: 4px; }
+
+/* ── SCREENS ── */
+.screen { display: none; min-height: 100vh; min-height: -webkit-fill-available; }
+.screen.active { display: flex; flex-direction: column; }
+
+/* ── HUB LINK ── */
+.hub-link {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  text-decoration: none;
+  letter-spacing: 0.05em;
+  padding: 6px 12px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: var(--card);
+  z-index: 50;
+  opacity: 0.85;
+  transition: opacity 0.2s, color 0.2s, border-color 0.2s;
+}
+.hub-link:hover, .hub-link:active {
+  opacity: 1;
+  color: var(--primary);
+  border-color: var(--primary);
+}
