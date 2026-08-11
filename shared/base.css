@@ -1,0 +1,226 @@
+/* ============================================================
+   GameScorer — shared structural base
+   Structural/behavioral primitives reused across scorer apps.
+   Each game sets its own look by defining these custom
+   properties on :root in its own <style> block (linked AFTER
+   this file), and may override any rule below where its layout
+   genuinely differs.
+
+   Required per-game variables:
+     --bg --card --card2 --primary --primary-light
+     --text --text-dim --danger --border --shadow
+     --font-display --font-body
+   Optional (fall back to sane defaults if unset):
+     --primary-shadow --danger-light --danger-border
+   ============================================================ */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  font-family: var(--font-body, Georgia, serif);
+  background: var(--bg, #111);
+  color: var(--text, #eee);
+  min-height: 100vh;
+  min-height: -webkit-fill-available;
+  overflow-x: hidden;
+}
+
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border, rgba(255,255,255,0.2)); border-radius: 4px; }
+
+/* ── SCREENS ── */
+.screen { display: none; min-height: 100vh; min-height: -webkit-fill-available; }
+.screen.active { display: flex; flex-direction: column; }
+
+/* ── HUB LINK ── */
+.hub-link {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  text-decoration: none;
+  letter-spacing: 0.05em;
+  padding: 6px 12px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: var(--card);
+  z-index: 50;
+  opacity: 0.85;
+  transition: opacity 0.2s, color 0.2s, border-color 0.2s;
+}
+.hub-link:hover, .hub-link:active {
+  opacity: 1;
+  color: var(--primary);
+  border-color: var(--primary);
+}
+
+/* ── CARD ── */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  margin: 0 16px 16px;
+  box-shadow: var(--shadow);
+}
+.card-title {
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--primary);
+  margin-bottom: 14px;
+}
+
+/* ── FORM ELEMENTS ── */
+label {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 5px;
+}
+input[type="text"], input[type="number"] {
+  width: 100%;
+  background: var(--card2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 14px;
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 1.05rem;
+  outline: none;
+  margin-bottom: 12px;
+  transition: border-color 0.2s;
+}
+input:focus { border-color: var(--primary); }
+
+/* ── BUTTONS ── */
+.btn {
+  display: block;
+  width: calc(100% - 32px);
+  margin: 0 16px 12px;
+  padding: 16px;
+  border: none;
+  border-radius: 10px;
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+.btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,0);
+  transition: background 0.15s;
+}
+.btn:active::after { background: rgba(255,255,255,0.08); }
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 50%, var(--primary) 100%);
+  color: var(--bg);
+  font-weight: 700;
+  box-shadow: 0 2px 16px var(--primary-shadow, rgba(0,0,0,0.35));
+}
+.btn-secondary {
+  background: transparent;
+  color: var(--primary);
+  border: 1px solid var(--border);
+}
+.btn-danger {
+  background: transparent;
+  color: var(--danger-light, var(--danger));
+  border: 1px solid var(--danger-border, var(--danger));
+  font-size: 0.9rem;
+  padding: 12px;
+}
+.btn-sm {
+  display: inline-block;
+  width: auto;
+  margin: 0;
+  padding: 8px 18px;
+  font-size: 0.9rem;
+}
+
+/* ── PLAYER INPUT ROW (numbered input, e.g. player-name entry) ── */
+.player-input-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.player-input-row .player-num {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.player-input-row input { margin-bottom: 0; flex: 1; }
+
+/* ── STEPPER (− value + counter control) ── */
+.stepper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+}
+.stepper-btn {
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--border);
+  background: var(--card2);
+  color: var(--primary);
+  font-size: 1.1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  flex-shrink: 0;
+  transition: background 0.15s, color 0.15s;
+}
+.stepper-btn:first-child { border-radius: 6px 0 0 6px; border-right: none; }
+.stepper-btn:last-child { border-radius: 0 6px 6px 0; border-left: none; }
+.stepper-btn:hover { background: var(--primary); color: var(--bg); }
+.stepper-val {
+  min-width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 1rem;
+  color: var(--text);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  background: var(--card2);
+}
+
+/* ── UTILS ── */
+.spacer { flex: 1; }
+.divider { height: 1px; background: var(--border); margin: 12px 16px; }
+.text-center { text-align: center; }
+.text-muted { color: var(--text-dim); font-size: 0.85rem; }
+.mt8 { margin-top: 8px; }
+.pb-safe { padding-bottom: env(safe-area-inset-bottom, 16px); }

@@ -8,32 +8,24 @@
 <meta name="apple-mobile-web-app-title" content="Scopa">
 <title>Scopa Score</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Crimson+Pro:wght@300;400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../shared/base.css">
 <style>
   :root {
     --bg: #1a0f00;
     --card: #2a1a08;
     --card2: #3a2510;
-    --gold: #c9993a;
-    --gold-light: #e8c46a;
-    --cream: #f2e8d0;
-    --muted: #8a7060;
-    --accent: #8b2020;
-    --accent-light: #c04040;
-    --green: #2d6040;
-    --green-light: #4a9060;
+    --primary: #c9993a;
+    --primary-light: #e8c46a;
+    --primary-shadow: rgba(201,153,58,0.35);
+    --text: #f2e8d0;
+    --text-dim: #8a7060;
+    --danger: #8b2020;
+    --danger-light: #c04040;
+    --danger-border: rgba(139,32,32,0.3);
     --border: rgba(201,153,58,0.25);
     --shadow: 0 4px 24px rgba(0,0,0,0.5);
-  }
-
-  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-
-  body {
-    font-family: 'Crimson Pro', Georgia, serif;
-    background: var(--bg);
-    color: var(--cream);
-    min-height: 100vh;
-    min-height: -webkit-fill-available;
-    overflow-x: hidden;
+    --font-display: 'Playfair Display', serif;
+    --font-body: 'Crimson Pro', Georgia, serif;
   }
 
   /* Background texture */
@@ -50,10 +42,6 @@
 
   #app { position: relative; z-index: 1; }
 
-  /* ── SCREENS ── */
-  .screen { display: none; min-height: 100vh; min-height: -webkit-fill-available; }
-  .screen.active { display: flex; flex-direction: column; }
-
   /* ── HEADER ── */
   .app-header {
     text-align: center;
@@ -62,118 +50,26 @@
   .app-header h1 {
     font-family: 'Playfair Display', serif;
     font-size: 2.8rem;
-    color: var(--gold);
+    color: var(--primary);
     letter-spacing: 0.05em;
     line-height: 1;
   }
   .app-header .subtitle {
     font-size: 0.9rem;
-    color: var(--muted);
+    color: var(--text-dim);
     letter-spacing: 0.2em;
     text-transform: uppercase;
     margin-top: 4px;
   }
   .ornament {
-    color: var(--gold);
+    color: var(--primary);
     font-size: 1.2rem;
     opacity: 0.6;
     margin: 8px 0;
     letter-spacing: 0.3em;
   }
 
-  /* ── CARD ── */
-  .card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 20px;
-    margin: 0 16px 16px;
-    box-shadow: var(--shadow);
-  }
-  .card-title {
-    font-family: 'Playfair Display', serif;
-    font-size: 0.75rem;
-    letter-spacing: 0.25em;
-    text-transform: uppercase;
-    color: var(--gold);
-    margin-bottom: 14px;
-    opacity: 0.8;
-  }
-
-  /* ── FORM ELEMENTS ── */
-  label {
-    display: block;
-    font-size: 0.85rem;
-    color: var(--muted);
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    margin-bottom: 5px;
-  }
-  input[type="text"], input[type="number"] {
-    width: 100%;
-    background: var(--card2);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 12px 14px;
-    color: var(--cream);
-    font-family: 'Crimson Pro', serif;
-    font-size: 1.05rem;
-    outline: none;
-    margin-bottom: 12px;
-    transition: border-color 0.2s;
-  }
-  input:focus { border-color: var(--gold); }
-
-  /* ── BUTTONS ── */
-  .btn {
-    display: block;
-    width: calc(100% - 32px);
-    margin: 0 16px 12px;
-    padding: 16px;
-    border: none;
-    border-radius: 10px;
-    font-family: 'Playfair Display', serif;
-    font-size: 1.1rem;
-    letter-spacing: 0.05em;
-    cursor: pointer;
-    transition: all 0.2s;
-    position: relative;
-    overflow: hidden;
-  }
-  .btn::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: rgba(255,255,255,0);
-    transition: background 0.15s;
-  }
-  .btn:active::after { background: rgba(255,255,255,0.08); }
-
-  .btn-primary {
-    background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 50%, var(--gold) 100%);
-    color: var(--bg);
-    font-weight: 700;
-    box-shadow: 0 2px 16px rgba(201,153,58,0.35);
-  }
-  .btn-secondary {
-    background: transparent;
-    color: var(--gold);
-    border: 1px solid var(--border);
-  }
-  .btn-danger {
-    background: transparent;
-    color: var(--accent-light);
-    border: 1px solid rgba(139,32,32,0.3);
-    font-size: 0.9rem;
-    padding: 12px;
-  }
-  .btn-sm {
-    display: inline-block;
-    width: auto;
-    margin: 0;
-    padding: 8px 18px;
-    font-size: 0.9rem;
-  }
+  .card-title { opacity: 0.8; }
 
   /* ── MODE SELECTOR ── */
   .mode-row {
@@ -190,39 +86,16 @@
     text-align: center;
     cursor: pointer;
     transition: all 0.2s;
-    color: var(--cream);
+    color: var(--text);
   }
   .mode-btn .icon { font-size: 1.8rem; display: block; margin-bottom: 6px; }
   .mode-btn .label { font-family: 'Playfair Display', serif; font-size: 1rem; display: block; }
-  .mode-btn .sub { font-size: 0.75rem; color: var(--muted); display: block; margin-top: 2px; }
+  .mode-btn .sub { font-size: 0.75rem; color: var(--text-dim); display: block; margin-top: 2px; }
   .mode-btn.selected, .mode-btn:active {
-    border-color: var(--gold);
+    border-color: var(--primary);
     background: rgba(201,153,58,0.12);
-    box-shadow: 0 0 0 1px var(--gold);
+    box-shadow: 0 0 0 1px var(--primary);
   }
-
-  /* ── PLAYER INPUTS ── */
-  .player-input-row {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-    margin-bottom: 8px;
-  }
-  .player-input-row .player-num {
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    background: var(--gold);
-    color: var(--bg);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: 'Playfair Display', serif;
-    font-size: 0.85rem;
-    font-weight: 700;
-    flex-shrink: 0;
-  }
-  .player-input-row input { margin-bottom: 0; flex: 1; }
 
   /* ── SCOREBOARD ── */
   .score-header {
@@ -233,7 +106,7 @@
   }
   .target-badge {
     font-size: 0.8rem;
-    color: var(--muted);
+    color: var(--text-dim);
     border: 1px solid var(--border);
     border-radius: 20px;
     padding: 4px 12px;
@@ -259,7 +132,7 @@
     overflow: hidden;
   }
   .player-score-card.leader {
-    border-color: var(--gold);
+    border-color: var(--primary);
     background: rgba(201,153,58,0.08);
   }
   .player-score-card.leader::before {
@@ -268,13 +141,13 @@
     top: 6px;
     right: 8px;
     font-size: 0.7rem;
-    color: var(--gold);
+    color: var(--primary);
     opacity: 0.7;
   }
   .player-score-card .p-name {
     font-family: 'Playfair Display', serif;
     font-size: 1rem;
-    color: var(--cream);
+    color: var(--text);
     margin-bottom: 4px;
     white-space: nowrap;
     overflow: hidden;
@@ -283,13 +156,13 @@
   .player-score-card .p-score {
     font-family: 'Playfair Display', serif;
     font-size: 2.4rem;
-    color: var(--gold);
+    color: var(--primary);
     line-height: 1;
     font-weight: 700;
   }
   .player-score-card .p-rounds {
     font-size: 0.75rem;
-    color: var(--muted);
+    color: var(--text-dim);
     margin-top: 4px;
   }
 
@@ -299,7 +172,7 @@
     font-size: 0.7rem;
     letter-spacing: 0.25em;
     text-transform: uppercase;
-    color: var(--gold);
+    color: var(--primary);
     text-align: center;
     padding: 8px 0 4px;
     opacity: 0.7;
@@ -314,7 +187,7 @@
     font-size: 0.7rem;
     letter-spacing: 0.12em;
     text-transform: uppercase;
-    color: var(--muted);
+    color: var(--text-dim);
     padding: 6px 4px;
     font-weight: 400;
     text-align: center;
@@ -325,38 +198,9 @@
     text-align: center;
     border-top: 1px solid rgba(201,153,58,0.08);
   }
-  .scoring-table td:first-child { text-align: left; color: var(--cream); }
+  .scoring-table td:first-child { text-align: left; color: var(--text); }
 
   .scoring-table .cat-icon { font-size: 1.1rem; }
-
-  /* scopa count input */
-  .scopa-count {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0;
-  }
-  .scopa-count button {
-    width: 28px;
-    height: 28px;
-    border: 1px solid var(--border);
-    background: var(--card2);
-    color: var(--gold);
-    font-size: 1.1rem;
-    border-radius: 6px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    line-height: 1;
-  }
-  .scopa-count .count-val {
-    width: 28px;
-    text-align: center;
-    font-family: 'Playfair Display', serif;
-    font-size: 1rem;
-    color: var(--cream);
-  }
 
   /* radio-style winner selector */
   .winner-sel {
@@ -375,14 +219,14 @@
     align-items: center;
     justify-content: center;
     font-size: 0.7rem;
-    color: var(--muted);
+    color: var(--text-dim);
     transition: all 0.15s;
     font-family: 'Playfair Display', serif;
   }
   .winner-dot.active {
-    background: var(--gold);
+    background: var(--primary);
     color: var(--bg);
-    border-color: var(--gold);
+    border-color: var(--primary);
     font-weight: 700;
   }
   .winner-dot.tie-dot {
@@ -392,8 +236,8 @@
     border-radius: 4px;
   }
   .winner-dot.tie-dot.active {
-    background: var(--muted);
-    border-color: var(--muted);
+    background: var(--text-dim);
+    border-color: var(--text-dim);
     color: var(--bg);
   }
 
@@ -413,19 +257,19 @@
   }
   .history-row .hr-round {
     font-size: 0.7rem;
-    color: var(--muted);
+    color: var(--text-dim);
     width: 52px;
     flex-shrink: 0;
     letter-spacing: 0.05em;
   }
   .history-row .hr-pts {
     flex: 1;
-    color: var(--cream);
+    color: var(--text);
   }
   .history-row .hr-undo {
     background: none;
     border: none;
-    color: var(--muted);
+    color: var(--text-dim);
     cursor: pointer;
     font-size: 0.75rem;
     padding: 2px 6px;
@@ -448,10 +292,10 @@
   .win-name {
     font-family: 'Playfair Display', serif;
     font-size: 2.4rem;
-    color: var(--gold);
+    color: var(--primary);
     font-style: italic;
   }
-  .win-subtitle { color: var(--muted); font-size: 1rem; }
+  .win-subtitle { color: var(--text-dim); font-size: 1rem; }
   .win-scores {
     background: var(--card);
     border: 1px solid var(--border);
@@ -466,27 +310,12 @@
     padding: 4px 0;
     font-size: 1rem;
   }
-  .win-score-row.winner { color: var(--gold); font-family: 'Playfair Display', serif; }
+  .win-score-row.winner { color: var(--primary); font-family: 'Playfair Display', serif; }
 
-  /* ── UTILS ── */
-  .spacer { flex: 1; }
-  .divider {
-    height: 1px;
-    background: var(--border);
-    margin: 12px 16px;
-  }
-  .text-center { text-align: center; }
-  .text-muted { color: var(--muted); font-size: 0.85rem; }
-  .mt8 { margin-top: 8px; }
-  .pb-safe { padding-bottom: env(safe-area-inset-bottom, 16px); }
-
-  /* scroll */
-  ::-webkit-scrollbar { width: 4px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
 </style>
 </head>
 <body>
+<a href="../index.html" class="hub-link">← Hub</a>
 <div id="app">
 
   <!-- ═══ SETUP SCREEN ═══ -->
@@ -537,11 +366,11 @@
     <div id="teams-setup" class="card" style="display:none;">
       <div class="card-title">Teams</div>
       <div class="player-input-row">
-        <div class="player-num" style="background:#c9993a;">A</div>
+        <div class="player-num" style="background:var(--primary);">A</div>
         <input type="text" id="team1-name" placeholder="Team A" maxlength="16">
       </div>
       <div class="player-input-row">
-        <div class="player-num" style="background:#8b2020;">B</div>
+        <div class="player-num" style="background:var(--danger);">B</div>
         <input type="text" id="team2-name" placeholder="Team B" maxlength="16">
       </div>
     </div>
@@ -560,7 +389,7 @@
   <!-- ═══ GAME SCREEN ═══ -->
   <div id="game-screen" class="screen">
     <div class="score-header">
-      <div style="font-family:'Playfair Display',serif;font-size:1.3rem;color:var(--gold);">Scopa</div>
+      <div style="font-family:'Playfair Display',serif;font-size:1.3rem;color:var(--primary);">Scopa</div>
       <div class="target-badge" id="target-badge">First to 11</div>
     </div>
 
@@ -601,6 +430,7 @@
 
 </div>
 
+<script src="../shared/base.js"></script>
 <script>
 // ── STATE ──
 let state = {
@@ -720,10 +550,10 @@ function buildScoringTable() {
       // scopa: individual counters
       let tds = state.players.map((_, i) => `
         <td>
-          <div class="scopa-count">
-            <button onclick="adjScopa(${i},-1)">−</button>
-            <span class="count-val" id="scopa-${i}">0</span>
-            <button onclick="adjScopa(${i},1)">+</button>
+          <div class="stepper">
+            <button class="stepper-btn" onclick="adjScopa(${i},-1)">−</button>
+            <span class="stepper-val" id="scopa-${i}">0</span>
+            <button class="stepper-btn" onclick="adjScopa(${i},1)">+</button>
           </div>
         </td>`).join('');
       body += `<tr><td><span class="cat-icon">${cat.icon}</span> ${cat.label}</td>${tds}</tr>`;
@@ -810,7 +640,7 @@ function renderHistory() {
     const totals = entry.scores.map((s, pi) => `${state.players[pi]}: ${s}`).join(' · ');
     return `<div class="history-row">
       <span class="hr-round">Rnd ${entry.round}</span>
-      <span class="hr-pts">${pts} <span style="color:var(--muted);font-size:0.8rem;">(${totals})</span></span>
+      <span class="hr-pts">${pts} <span style="color:var(--text-dim);font-size:0.8rem;">(${totals})</span></span>
       <button class="hr-undo" onclick="undoRound(${i})">undo</button>
     </div>`;
   }).join('');
@@ -854,12 +684,6 @@ function showWin(winIdx) {
   showScreen('win-screen');
 }
 
-// ── SCREEN NAV ──
-function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  window.scrollTo(0, 0);
-}
 </script>
 </body>
 </html>
