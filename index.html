@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="GameScorer">
+<title>GameScorer</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --felt: #0e2018;
+    --paper: #f3ecd8;
+    --paper-shadow: #d8cca4;
+    --ink: #241c12;
+    --ink-dim: #6b6152;
+    --brass: #c9a227;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: 'Space Grotesk', system-ui, sans-serif;
+    background: var(--felt);
+    background-image:
+      radial-gradient(ellipse 90% 60% at 50% -10%, rgba(201,162,39,0.10) 0%, transparent 55%),
+      repeating-linear-gradient(135deg, rgba(255,255,255,0.015) 0px, rgba(255,255,255,0.015) 1px, transparent 1px, transparent 14px);
+    color: var(--paper);
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+    overflow-x: hidden;
+  }
+
+  header {
+    text-align: center;
+    padding: 3.5rem 1.5rem 1.5rem;
+  }
+  header .kicker {
+    font-size: 0.75rem;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--brass);
+    opacity: 0.85;
+  }
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-optical-sizing: auto;
+    font-weight: 600;
+    font-size: clamp(2.4rem, 8vw, 3.6rem);
+    color: var(--paper);
+    margin-top: 0.3rem;
+    letter-spacing: -0.01em;
+  }
+  header p {
+    color: var(--paper);
+    opacity: 0.55;
+    font-size: 0.95rem;
+    margin-top: 0.5rem;
+    font-style: italic;
+    font-family: 'Fraunces', serif;
+  }
+
+  main {
+    max-width: 620px;
+    margin: 0 auto;
+    padding: 1rem 1.25rem 4rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.6rem;
+  }
+
+  .ticket {
+    display: block;
+    position: relative;
+    background: var(--paper);
+    color: var(--ink);
+    text-decoration: none;
+    border-radius: 6px;
+    padding: 1.5rem 1.5rem 1.5rem 1.75rem;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.35), 0 2px 0 var(--paper-shadow);
+    transform: rotate(var(--tilt, -1deg));
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+  .ticket:nth-child(even) { --tilt: 1.2deg; }
+  .ticket:hover, .ticket:focus-visible {
+    transform: rotate(0deg) translateY(-4px);
+    box-shadow: 0 16px 40px rgba(0,0,0,0.45), 0 2px 0 var(--paper-shadow);
+  }
+  .ticket::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 10%; bottom: 10%;
+    width: 6px;
+    border-radius: 3px;
+    background: var(--accent, var(--brass));
+  }
+  .ticket::after {
+    content: '';
+    position: absolute;
+    left: -3px; top: 50%;
+    width: 10px; height: 10px;
+    background: var(--felt);
+    border-radius: 50%;
+    transform: translateY(-50%);
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,0.15);
+  }
+
+  .ticket-top {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+  .ticket-icon { font-size: 1.6rem; line-height: 1; }
+  .ticket-name {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 1.5rem;
+    flex: 1;
+  }
+  .ticket-tag {
+    margin-top: 0.4rem;
+    font-size: 0.9rem;
+    color: var(--ink-dim);
+    line-height: 1.4;
+  }
+  .ticket-play {
+    margin-top: 1rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.75rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent, var(--brass));
+    font-weight: 600;
+  }
+  .ticket-play::after { content: '→'; transition: transform 0.2s; }
+  .ticket:hover .ticket-play::after { transform: translateX(3px); }
+
+  footer {
+    text-align: center;
+    padding-bottom: 2.5rem;
+    color: var(--paper);
+    opacity: 0.35;
+    font-size: 0.8rem;
+    letter-spacing: 0.05em;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="kicker">The Cabinet</div>
+  <h1>GameScorer</h1>
+  <p>Pick a table.</p>
+</header>
+
+<main id="tickets"></main>
+
+<footer>+ more scorers as they get made</footer>
+
+<script>
+const GAMES = [
+  {
+    name: 'Scopa',
+    tagline: 'Italian trick-taking. Scopa, coins, primiera — first to 11.',
+    icon: '🃏',
+    href: 'scopa/index.html',
+    accent: '#c9993a'
+  },
+  {
+    name: 'Skull King',
+    tagline: 'Pirate bidding across 10 rounds. Mind the mermaids.',
+    icon: '☠️',
+    href: 'skull-king/index.html',
+    accent: '#d4a017'
+  }
+];
+
+document.getElementById('tickets').innerHTML = GAMES.map(g => `
+  <a class="ticket" href="${g.href}" style="--accent:${g.accent}">
+    <div class="ticket-top">
+      <span class="ticket-icon">${g.icon}</span>
+      <span class="ticket-name">${g.name}</span>
+    </div>
+    <div class="ticket-tag">${g.tagline}</div>
+    <div class="ticket-play">Play</div>
+  </a>
+`).join('');
+</script>
+
+</body>
+</html>

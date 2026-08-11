@@ -62,6 +62,10 @@ Pirate trick-taking game scorer (2–8 players, 10 rounds).
 
 ```
 GameScorer/
+├── index.html
+├── shared/
+│   ├── base.css
+│   └── base.js
 ├── scopa/
 │   └── index.html
 ├── skull-king/
@@ -74,5 +78,6 @@ GameScorer/
 ## 🚀 GitHub Pages
 
 Once enabled, the apps are accessible at:
+- `https://hugorichar.github.io/GameScorer/` — hub, links to every scorer
 - `https://hugorichar.github.io/GameScorer/scopa/`
 - `https://hugorichar.github.io/GameScorer/skull-king/`
