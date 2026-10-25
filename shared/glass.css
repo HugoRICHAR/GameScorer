@@ -56,7 +56,7 @@ h1, h2, h3 { text-wrap: balance; }
    visibly repeats. Only `transform` animates, so it stays on the GPU.
    On a screen change GS.shiftField moves all three via `translate`
    (independent of the drift) to a new spot. */
-.gs-field { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; background: var(--field-base); view-transition-name: gs-field; }
+.gs-field { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; background: var(--field-base); }
 .gs-field i {
   position: absolute;
   width: 95vmax;
@@ -80,12 +80,13 @@ h1, h2, h3 { text-wrap: balance; }
 .gs-field::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0.12), rgba(0,0,0,0.38)); }
 
 /* ── PAGE + SCREEN TRANSITIONS ──
-   View Transitions (iOS 18+). Page loads cross-fade with a slight zoom while
-   the color field melts from one theme to the next; in-page screens push
-   forward / pop back (GS.transition sets data-nav). Unsupported browsers
-   just swap instantly. */
+   View Transitions (iOS 18+). Page loads cross-fade with a slight zoom (the
+   hub's launch panel already fills the screen in the game's colors, so the
+   game page fades in on top of a matching picture); in-page screens push
+   forward / pop back (GS.transition sets data-nav). The field is not given
+   its own layer: named layers draw above the page and would hide it.
+   Unsupported browsers just swap instantly. */
 @view-transition { navigation: auto; }
-::view-transition-group(gs-field) { animation-duration: 0.8s; }
 ::view-transition-old(root) { animation: 0.26s ease-in both vt-out; }
 ::view-transition-new(root) { animation: 0.55s var(--spring) both vt-in; }
 html[data-nav="forward"]::view-transition-old(root) { animation: 0.34s cubic-bezier(0.4, 0, 0.2, 1) both vt-push-out; }
@@ -94,10 +95,10 @@ html[data-nav="back"]::view-transition-old(root) { animation: 0.34s cubic-bezier
 html[data-nav="back"]::view-transition-new(root) { animation: 0.6s var(--spring) both vt-pop-in; }
 @keyframes vt-out { to { opacity: 0; transform: scale(0.96); } }
 @keyframes vt-in { from { opacity: 0; transform: scale(1.04); } }
-@keyframes vt-push-out { to { opacity: 0; transform: translateX(-14%); } }
-@keyframes vt-push-in { from { opacity: 0; transform: translateX(30%); } }
-@keyframes vt-pop-out { to { opacity: 0; transform: translateX(14%); } }
-@keyframes vt-pop-in { from { opacity: 0; transform: translateX(-30%); } }
+@keyframes vt-push-out { to { opacity: 0; transform: translateX(-6%); } }
+@keyframes vt-push-in { from { opacity: 0; transform: translateX(12%); } }
+@keyframes vt-pop-out { to { opacity: 0; transform: translateX(6%); } }
+@keyframes vt-pop-in { from { opacity: 0; transform: translateX(-12%); } }
 /* with view transitions, screens don't also run their own entrance */
 @supports (view-transition-name: none) { .screen.active { animation: none; } }
 
@@ -116,6 +117,9 @@ html[data-nav="back"]::view-transition-new(root) { animation: 0.6s var(--spring)
 
 /* Line icons from shared/icons.svg (GS.icon) */
 svg.i { width: 1.25em; height: 1.25em; flex-shrink: 0; vertical-align: -0.25em; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; overflow: visible; }
+
+/* Language: <span data-l="fr">…</span><span data-l="en">…</span>, html[lang] picks one */
+html[lang="fr"] [data-l="en"], html:not([lang="fr"]) [data-l="fr"] { display: none !important; }
 
 /* Haptic switch overlay (see base.js): invisible, covers its button */
 button { position: relative; }

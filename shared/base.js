@@ -32,6 +32,9 @@ var GS = {
     return '<svg class="i' + (cls ? ' ' + cls : '') + '" aria-hidden="true"><use href="' + GS.ICONS + '#' + id + '"/></svg>';
   },
 
+  // Script-side text in the current language (static text uses data-l spans, see glass.css).
+  L: function (fr, en) { return document.documentElement.lang === 'fr' ? fr : en; },
+
   esc: function (s) {
     return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   },
@@ -303,6 +306,12 @@ function stayAwake() {
 document.addEventListener('visibilitychange', stayAwake);
 document.addEventListener('click', stayAwake); // some browsers only grant it after a tap
 stayAwake();
+
+// Remember which game the hub link leaves, so the hub can shrink back into its card.
+document.addEventListener('click', function (e) {
+  if (!e.target.closest('a.hub-link')) return;
+  try { sessionStorage.setItem('gs-back', location.pathname.split('/').slice(-2)[0]); } catch (err) {}
+});
 
 // Offline: sw.js lives at the site root, one level above this script.
 if ('serviceWorker' in navigator && isSecureContext) {

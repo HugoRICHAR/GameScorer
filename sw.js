@@ -3,7 +3,7 @@
 // background, so the app opens with no signal and picks up a new deploy
 // on the following launch. Google Fonts are cached the same way.
 // Bump VERSION when the SHELL list changes.
-const VERSION = 'gs-v2';
+const VERSION = 'gs-v3';
 const SHELL = [
   './', 'index.html', 'manifest.webmanifest', 'apple-touch-icon.png', 'icon-192.png', 'icon-512.png',
   'shared/reset.css', 'shared/components.css', 'shared/glass.css', 'shared/base.js', 'shared/icons.svg',
