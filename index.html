@@ -137,6 +137,9 @@ const GAMES = [
   }
 ];
 
+// iOS Safari only shows :active press states when a touch listener exists.
+document.addEventListener('touchstart', () => {}, { passive: true });
+
 // A game left mid-play gets a "Resume" tag.
 function inProgress(key) {
   try {

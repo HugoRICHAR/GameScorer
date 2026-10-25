@@ -12,7 +12,7 @@
 <title>Scopa Score</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,700&display=block" rel="stylesheet">
 <link rel="stylesheet" href="../shared/glass.css">
 <link rel="stylesheet" href="../shared/reset.css">
 <link rel="stylesheet" href="../shared/components.css">
@@ -36,9 +36,9 @@
     font-family: var(--font-display);
     font-style: italic;
     font-weight: 700;
-    font-size: 3.6rem;
-    line-height: 1;
-    letter-spacing: -0.01em;
+    font-size: 3.8rem;
+    line-height: 0.95;
+    letter-spacing: -0.025em;
     text-shadow: 0 6px 30px rgba(0,0,0,0.25);
   }
   .app-header .subtitle { font-size: 0.95rem; color: var(--ink-2); margin-top: 6px; }
@@ -80,12 +80,12 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    transition: background 0.25s, color 0.25s, box-shadow 0.25s, transform 0.4s var(--spring);
+    transition: color 0.25s, transform 0.4s var(--spring);
   }
   .seg button:active { transform: scale(0.93); transition-duration: 0.1s; }
-  .seg button.on { background: var(--control-on); color: var(--on-tint); box-shadow: 0 3px 10px rgba(0,0,0,0.2); }
+  .seg button.on { color: var(--on-tint); } /* the sliding .seg-thumb (glass.css) draws the fill */
   .seg button.tie { flex: 0 0 auto; padding: 0 12px; font-style: italic; font-weight: 500; }
-  .seg button.tie.on { background: rgba(255,255,255,0.4); color: var(--ink); }
+  .seg button.tie.on { color: var(--ink); }
 
   .target-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
   .target-row .seg { flex: 1; max-width: 180px; }
@@ -119,6 +119,7 @@
   .p-name { font-weight: 600; font-size: 0.98rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .p-score {
     font-family: var(--font-display);
+    letter-spacing: -0.02em;
     font-size: 2.9rem;
     font-weight: 700;
     line-height: 1.15;
@@ -134,7 +135,7 @@
   }
   .p-pending.show { opacity: 1; transform: none; }
   .p-bar { height: 5px; border-radius: 3px; background: rgba(255,255,255,0.15); overflow: hidden; margin-top: 6px; }
-  .p-bar i { display: block; height: 100%; width: 0; background: var(--tint); border-radius: 3px; transition: width 0.8s var(--spring); }
+  .p-bar i { display: block; height: 100%; width: 100%; background: var(--tint); border-radius: 3px; transform: scaleX(0); transform-origin: left; transition: transform 0.9s var(--spring); }
 
   /* ── ROUND ENTRY ── */
   .round-title { font-family: var(--font-display); font-style: italic; font-size: 1.3rem; text-align: center; margin-bottom: 4px; }
@@ -322,12 +323,14 @@ function selectMode(m) {
   document.querySelectorAll('.mode-btn[data-mode]').forEach(b => b.classList.toggle('selected', b.dataset.mode === m));
   document.getElementById('players-setup').style.display = m === 'players' ? '' : 'none';
   document.getElementById('teams-setup').style.display = m === 'teams' ? '' : 'none';
+  GS.seg(document.getElementById('count-seg'));
 }
 
 let playerCount = 2;
 function setPlayerCount(n) {
   playerCount = n;
   document.querySelectorAll('#count-seg button').forEach(b => b.classList.toggle('on', +b.dataset.n === n));
+  GS.seg(document.getElementById('count-seg'));
   renderPlayerNames();
 }
 
@@ -350,8 +353,10 @@ function setTarget(t) {
   target = Math.max(1, Math.min(99, t));
   GS.roll(document.getElementById('target-val'), target);
   document.querySelectorAll('#target-seg button').forEach(b => b.classList.toggle('on', +b.dataset.t === target));
+  GS.seg(document.getElementById('target-seg'));
 }
 setTarget(11);
+GS.seg(document.getElementById('count-seg'));
 
 function startGame() {
   state.target = target;
@@ -412,7 +417,7 @@ function renderScoreCards() {
   state.players.forEach((_, i) => {
     const s = state.scores[i];
     GS.roll(document.getElementById(`score-${i}`), s);
-    document.getElementById(`bar-${i}`).style.width = Math.min(100, s / state.target * 100) + '%';
+    document.getElementById(`bar-${i}`).style.transform = `scaleX(${Math.min(1, s / state.target)})`;
     document.getElementById(`psc-${i}`).classList.toggle('leader', s === maxScore && maxScore > 0);
   });
 }
@@ -451,6 +456,7 @@ function buildScoringTable() {
 
   document.getElementById('scoring-body').innerHTML = body;
   document.getElementById('round-title').textContent = `Round ${state.round}`;
+  document.querySelectorAll('#scoring-body .seg').forEach(GS.seg);
   renderPending();
 }
 
@@ -468,6 +474,7 @@ function selectWinner(cat, idx) {
   const sel = state.roundData[cat];
   state.players.forEach((_, i) => document.getElementById(`dot-${cat}-${i}`).classList.toggle('on', i === sel));
   document.getElementById(`dot-${cat}-tie`).classList.toggle('on', sel === 'tie');
+  GS.seg(document.getElementById(`dot-${cat}-tie`).parentNode);
   renderPending();
 }
 
@@ -528,16 +535,17 @@ function renderHistory(fresh) {
   if (state.history.length === 0) { card.style.display = 'none'; return; }
   card.style.display = '';
   document.getElementById('rounds-played').textContent = `${state.history.length} round${state.history.length > 1 ? 's' : ''}`;
-  list.innerHTML = state.history.slice().reverse().map((entry, revI) => {
+  // rows already on screen slide down to make room instead of jumping
+  GS.flip(list, () => list.innerHTML = state.history.slice().reverse().map((entry, revI) => {
     const i = state.history.length - 1 - revI;
     const pts = entry.pts.map((p, pi) =>
       `<span>${esc(state.players[pi])} <b>${p > 0 ? '+' + p : p}</b> <em>${entry.scores[pi]}</em></span>`).join('');
-    return `<div class="history-row${fresh && revI === 0 ? ' fresh' : ''}">
+    return `<div class="history-row${fresh && revI === 0 ? ' fresh' : ''}" data-flip="${entry.round}">
       <span class="hr-round">R${entry.round}</span>
       <span class="hr-pts">${pts}</span>
       <button class="hr-undo" onclick="undoRound(${i})">Undo</button>
     </div>`;
-  }).join('');
+  }).join(''));
 }
 
 function undoRound(idx) {
