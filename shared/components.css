@@ -46,12 +46,12 @@ input[type="text"], input[type="number"] {
   padding: 12px 14px;
   color: var(--text);
   font-family: var(--font-body);
-  font-size: 1.05rem;
+  font-size: max(16px, 1.05rem); /* under 16px iOS zooms the page on focus */
   outline: none;
   margin-bottom: 12px;
-  transition: border-color 0.2s;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
-input:focus { border-color: var(--primary); }
+input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-shadow, rgba(255,255,255,0.1)); }
 
 /* ── BUTTONS ── */
 .btn {
@@ -65,10 +65,11 @@ input:focus { border-color: var(--primary); }
   font-size: 1.1rem;
   letter-spacing: 0.05em;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: transform 0.12s ease-out, box-shadow 0.2s, opacity 0.2s;
   position: relative;
   overflow: hidden;
 }
+.btn:active { transform: scale(0.97); }
 .btn::after {
   content: '';
   position: absolute;
@@ -135,31 +136,31 @@ input:focus { border-color: var(--primary); }
   gap: 0;
 }
 .stepper-btn {
-  width: 28px;
-  height: 28px;
+  width: 40px;
+  height: 40px;
   border: 1px solid var(--border);
   background: var(--card2);
   color: var(--primary);
-  font-size: 1.1rem;
+  font-size: 1.3rem;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   line-height: 1;
   flex-shrink: 0;
-  transition: background 0.15s, color 0.15s;
+  transition: background 0.1s, color 0.1s;
 }
-.stepper-btn:first-child { border-radius: 6px 0 0 6px; border-right: none; }
-.stepper-btn:last-child { border-radius: 0 6px 6px 0; border-left: none; }
-.stepper-btn:hover { background: var(--primary); color: var(--bg); }
+.stepper-btn:first-child { border-radius: 10px 0 0 10px; border-right: none; }
+.stepper-btn:last-child { border-radius: 0 10px 10px 0; border-left: none; }
+.stepper-btn:active { background: var(--primary); color: var(--bg); }
 .stepper-val {
-  min-width: 28px;
-  height: 28px;
+  min-width: 36px;
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-family: var(--font-display);
-  font-size: 1rem;
+  font-size: 1.15rem;
   color: var(--text);
   border-top: 1px solid var(--border);
   border-bottom: 1px solid var(--border);
@@ -172,4 +173,4 @@ input:focus { border-color: var(--primary); }
 .text-center { text-align: center; }
 .text-muted { color: var(--text-dim); font-size: 0.85rem; }
 .mt8 { margin-top: 8px; }
-.pb-safe { padding-bottom: env(safe-area-inset-bottom, 16px); }
+.pb-safe { padding-bottom: calc(16px + env(safe-area-inset-bottom)); }

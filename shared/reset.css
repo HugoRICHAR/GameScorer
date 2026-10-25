@@ -1,11 +1,11 @@
 /* ============================================================
    GameScorer — shared reset & baseline
    Cross-game baseline every scorer app links: box-sizing reset,
-   body defaults, scrollbar styling, the screen-nav mechanism
-   (.screen / .screen.active), and the hub-link back-button.
-   This is the ONLY shared stylesheet every game is expected to
-   link — component styling (cards/buttons/forms/stepper) lives
-   separately in shared/components.css and is optional.
+   iPhone safe areas, the screen-nav mechanism (.screen /
+   .screen.active), the hub-link pill, and the shared motion
+   vocabulary (screen enter, stagger, bump, confetti).
+   Component styling (cards/buttons/forms/stepper) lives in
+   shared/components.css and is optional.
 
    Each game sets its own look by defining these custom
    properties on :root in its own <style> block (linked AFTER
@@ -24,6 +24,11 @@
    that also wants a decorative accent color unrelated to error/
    destructive state should define its own additional custom var
    for that rather than overloading --danger.
+
+   Pages use viewport-fit=cover + black-translucent status bar,
+   so the top of every screen must clear env(safe-area-inset-top)
+   (body does it) and bottom bars must add
+   env(safe-area-inset-bottom) themselves.
    ============================================================ */
 
 *, *::before, *::after {
@@ -33,43 +38,119 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+html { -webkit-text-size-adjust: 100%; }
+
 body {
   font-family: var(--font-body, Georgia, serif);
   background: var(--bg, #111);
   color: var(--text, #eee);
   min-height: 100vh;
-  min-height: -webkit-fill-available;
+  min-height: 100dvh;
   overflow-x: hidden;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) 0 env(safe-area-inset-left);
+  -webkit-font-smoothing: antialiased;
 }
 
-::-webkit-scrollbar { width: 4px; }
+/* No double-tap zoom on controls; pinch zoom still works. */
+a, button, input, label, [onclick] { touch-action: manipulation; }
+button { font: inherit; color: inherit; background: none; border: none; cursor: pointer; }
+
+::-webkit-scrollbar { width: 4px; height: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border, rgba(255,255,255,0.2)); border-radius: 4px; }
 
 /* ── SCREENS ── */
-.screen { display: none; min-height: 100vh; min-height: -webkit-fill-available; }
-.screen.active { display: flex; flex-direction: column; }
+.screen { display: none; min-height: 100vh; min-height: 100dvh; }
+.screen.active { display: flex; flex-direction: column; animation: gs-screen-in 0.38s cubic-bezier(0.2, 0.8, 0.2, 1) backwards; }
 
-/* ── HUB LINK ── */
+/* ── TOP BAR + HUB LINK ── */
+.top-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  min-height: 56px;
+}
 .hub-link {
-  position: fixed;
-  top: 12px;
-  left: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
   font-family: var(--font-display);
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   color: var(--text-dim);
   text-decoration: none;
-  letter-spacing: 0.05em;
-  padding: 6px 12px;
+  letter-spacing: 0.04em;
+  padding: 8px 14px 8px 10px;
+  min-height: 36px;
   border: 1px solid var(--border);
-  border-radius: 20px;
-  background: var(--card);
-  z-index: 50;
-  opacity: 0.85;
-  transition: opacity 0.2s, color 0.2s, border-color 0.2s;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--card) 70%, transparent);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  transition: color 0.2s, border-color 0.2s, transform 0.12s ease-out;
 }
-.hub-link:hover, .hub-link:active {
-  opacity: 1;
-  color: var(--primary);
-  border-color: var(--primary);
+.hub-link:active { color: var(--primary); border-color: var(--primary); transform: scale(0.95); }
+
+/* ── MOTION VOCABULARY ── */
+/* Children of .stagger rise in one after another. */
+.stagger > * { animation: gs-rise 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) backwards; }
+.stagger > :nth-child(2) { animation-delay: 50ms; }
+.stagger > :nth-child(3) { animation-delay: 100ms; }
+.stagger > :nth-child(4) { animation-delay: 150ms; }
+.stagger > :nth-child(5) { animation-delay: 200ms; }
+.stagger > :nth-child(6) { animation-delay: 250ms; }
+.stagger > :nth-child(7) { animation-delay: 300ms; }
+.stagger > :nth-child(n+8) { animation-delay: 350ms; }
+
+/* GS.bump(el) — a value just changed. */
+.bump { animation: gs-bump 0.42s cubic-bezier(0.3, 1.6, 0.5, 1); }
+
+@keyframes gs-screen-in { from { opacity: 0; transform: translateY(14px); } }
+@keyframes gs-rise { from { opacity: 0; transform: translateY(18px) scale(0.98); } }
+@keyframes gs-bump { 40% { transform: scale(1.18); } }
+@keyframes gs-fade { from { opacity: 0; } }
+
+/* GS.confetti() */
+.gs-confetti { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 500; }
+.gs-confetti i {
+  position: absolute;
+  top: -20px;
+  left: var(--x);
+  width: 8px;
+  height: 14px;
+  border-radius: 2px;
+  background: var(--c);
+  animation: gs-fall var(--t) cubic-bezier(0.25, 0.4, 0.6, 1) var(--d) forwards;
+}
+@keyframes gs-fall {
+  to { transform: translate(var(--dx), 110vh) rotate(var(--r)); opacity: 0.9; }
+}
+
+/* ── BOTTOM SHEET (scrim + sheet that slides up) ── */
+.sheet-scrim {
+  position: fixed; inset: 0; z-index: 200;
+  display: none; align-items: flex-end; justify-content: center;
+  background: rgba(0,0,0,0.6);
+}
+.sheet-scrim.open { display: flex; animation: gs-fade 0.25s ease-out; }
+.sheet {
+  width: 100%; max-width: 560px; max-height: 85dvh; overflow-y: auto;
+  border-radius: 22px 22px 0 0;
+  padding: 10px 20px calc(24px + env(safe-area-inset-bottom));
+  animation: gs-sheet-in 0.42s cubic-bezier(0.2, 0.9, 0.25, 1);
+}
+.sheet::before {
+  content: ''; display: block; width: 38px; height: 5px; border-radius: 3px;
+  background: currentColor; opacity: 0.25; margin: 0 auto 14px;
+}
+@keyframes gs-sheet-in { from { transform: translateY(100%); } }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
+    transition-duration: 0.01ms !important;
+  }
+  .gs-confetti { display: none; }
 }
