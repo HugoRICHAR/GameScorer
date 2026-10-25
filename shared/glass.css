@@ -41,10 +41,20 @@
   }
 }
 
-html { background: var(--field-base, #111); color-scheme: dark; }
+html {
+  background: var(--field-base, #111);
+  color-scheme: dark;
+  font-synthesis: none;            /* never fake a bold or italic the font doesn't ship */
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+h1, h2, h3 { text-wrap: balance; }
 
-/* ── COLOR FIELD ── */
-.gs-field { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; background: var(--field-base); }
+/* ── COLOR FIELD ──
+   Breathes in on page load, then glides to a new spot on each screen
+   change (GS.shiftField sets --fx/--fy/--fr). No infinite loop: a moving
+   field under glass would force a re-blur every frame. */
+.gs-field { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; background: var(--field-base); view-transition-name: gs-field; }
 .gs-field::before {
   content: '';
   position: absolute;
@@ -53,11 +63,35 @@ html { background: var(--field-base, #111); color-scheme: dark; }
     radial-gradient(34% 30% at 18% 16%, var(--field-1), transparent 70%),
     radial-gradient(40% 34% at 86% 34%, var(--field-2), transparent 70%),
     radial-gradient(48% 42% at 38% 96%, var(--field-3), transparent 70%);
-  animation: field-drift 22s ease-in-out infinite alternate;
+  transform: translate(var(--fx, 0%), var(--fy, 0%)) rotate(var(--fr, 0deg));
+  transition: transform 1.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+  animation: field-in 1.4s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
 }
 /* scrim keeps white text legible over the brightest glows */
 .gs-field::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0.12), rgba(0,0,0,0.38)); }
-@keyframes field-drift { to { transform: translate(-6%, 4%) rotate(9deg) scale(1.08); } }
+@keyframes field-in { from { opacity: 0.3; transform: scale(1.18) rotate(-10deg); } }
+
+/* ── PAGE + SCREEN TRANSITIONS ──
+   View Transitions (iOS 18+). Page loads cross-fade with a slight zoom while
+   the color field melts from one theme to the next; in-page screens push
+   forward / pop back (GS.transition sets data-nav). Unsupported browsers
+   just swap instantly. */
+@view-transition { navigation: auto; }
+::view-transition-group(gs-field) { animation-duration: 0.8s; }
+::view-transition-old(root) { animation: 0.26s ease-in both vt-out; }
+::view-transition-new(root) { animation: 0.55s var(--spring) both vt-in; }
+html[data-nav="forward"]::view-transition-old(root) { animation: 0.34s cubic-bezier(0.4, 0, 0.2, 1) both vt-push-out; }
+html[data-nav="forward"]::view-transition-new(root) { animation: 0.6s var(--spring) both vt-push-in; }
+html[data-nav="back"]::view-transition-old(root) { animation: 0.34s cubic-bezier(0.4, 0, 0.2, 1) both vt-pop-out; }
+html[data-nav="back"]::view-transition-new(root) { animation: 0.6s var(--spring) both vt-pop-in; }
+@keyframes vt-out { to { opacity: 0; transform: scale(0.96); } }
+@keyframes vt-in { from { opacity: 0; transform: scale(1.04); } }
+@keyframes vt-push-out { to { opacity: 0; transform: translateX(-14%); } }
+@keyframes vt-push-in { from { opacity: 0; transform: translateX(30%); } }
+@keyframes vt-pop-out { to { opacity: 0; transform: translateX(14%); } }
+@keyframes vt-pop-in { from { opacity: 0; transform: translateX(-30%); } }
+/* with view transitions, screens don't also run their own entrance */
+@supports (view-transition-name: none) { .screen.active { animation: none; } }
 
 /* ── MATERIAL ── */
 .glass {
@@ -72,13 +106,29 @@ html { background: var(--field-base, #111); color-scheme: dark; }
 .roll { display: inline-grid; overflow: hidden; vertical-align: bottom; }
 .roll > span { grid-area: 1 / 1; }
 
+/* Segmented control thumb (GS.seg) */
+.seg { position: relative; }
+.seg > button { position: relative; z-index: 1; }
+.seg-thumb {
+  position: absolute; top: 3px; bottom: 3px; left: 0;
+  border-radius: 11px;
+  background: var(--control-on);
+  box-shadow: 0 3px 10px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.8);
+  pointer-events: none;
+  transition: transform 0.5s var(--spring), width 0.5s var(--spring), background 0.25s, opacity 0.2s;
+}
+.seg-thumb.tie { background: rgba(255,255,255,0.4); }
+
+/* Buttons never select text or pop the iOS callout on long press */
+button, .btn, a { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+
 @media (prefers-reduced-transparency: reduce) {
   :root { --glass-fill: rgba(28,28,36,0.94); --glass-fill-strong: rgba(48,48,60,0.96); --glass-blur: none; }
-  .gs-field::before { animation: none; }
 }
 @media (prefers-contrast: more) {
   :root { --glass-fill: rgba(20,20,26,0.92); --glass-edge: rgba(255,255,255,0.7); --ink-2: #fff; --ink-3: rgba(255,255,255,0.85); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .gs-field::before { animation: none; }
+  .gs-field::before { animation: none; transition: none; }
+  ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }
 }
