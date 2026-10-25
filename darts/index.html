@@ -269,7 +269,7 @@ input{font-family:var(--ui);outline:none}
 .pp-score{letter-spacing:.5px}
 @supports (view-transition-name:none){.screen.active{animation:none}}
 /* tap dartboard */
-.board-wrap{display:none;flex:1;min-height:0;align-items:center;justify-content:center;padding:2px 0 6px}
+.board-wrap{position:relative;display:none;flex:1;min-height:0;align-items:center;justify-content:center;padding:2px 0 6px}
 .board-mode .mult-row,.board-mode .num-grid{display:none}
 .board-mode .board-wrap{display:flex}
 .board-wrap svg{height:100%;max-width:100%;aspect-ratio:1;display:block;touch-action:manipulation;-webkit-user-select:none;user-select:none}
@@ -891,8 +891,8 @@ function confirmTurn(){
   // Animate score
   const sc=document.getElementById('sc'+G.cur);
   if(sc){sc.style.color='';GS.roll(sc,p.score);}
-  if(newScore===0){banner('GAME SHOT','var(--green)');GS.haptic(2);}
-  else if(total===180){banner('180!','var(--accent2)');GS.haptic(3);}
+  if(newScore===0) banner('GAME SHOT','var(--green)');
+  else if(total===180) banner('180!','var(--accent2)');
 
   if(newScore===0){
     p.coSuccesses++;
@@ -914,7 +914,7 @@ function nextPlayer(){
 // ─────────────────────────────────────────────────────────────────
 //  BUST ANIMATION
 // ─────────────────────────────────────────────────────────────────
-function showBust(){banner('BUST!','var(--red)');GS.haptic(3);}
+function showBust(){banner('BUST!','var(--red)');}
 
 // ─────────────────────────────────────────────────────────────────
 //  TAP DARTBOARD (optional X01 input)
@@ -940,12 +940,16 @@ function buildBoard(){
   });
   h+=`<circle class="bd-gr" data-n="25" data-m="1" r="${R.outer}"/><circle class="bd-rd" data-n="25" data-m="2" r="${R.bull}"/></svg>`;
   w.innerHTML=h;
+  // one haptic switch over the whole board; boardTap maps the tap to the segment under it
+  if(GS.HAPTICS) w.appendChild(GS.hapSwitch());
 }
 function boardTap(e){
-  const t=e.target.closest('[data-n]');
+  const hap=e.currentTarget.querySelector('.gs-hap');
+  let el=e.target;
+  if(hap&&(e.clientX||e.clientY)){hap.style.visibility='hidden';el=document.elementFromPoint(e.clientX,e.clientY);hap.style.visibility='';}
+  const t=el&&el.closest('[data-n]');
   if(!t) return;
   t.classList.remove('bd-hit');t.getBoundingClientRect();t.classList.add('bd-hit');
-  GS._tick();
   enterDart(+t.dataset.n,+t.dataset.m);
 }
 function banner(text,bg){

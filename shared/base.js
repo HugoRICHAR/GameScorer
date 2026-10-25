@@ -229,25 +229,6 @@ var GS = {
       { duration: dur, fill: 'forwards' });
   },
 
-  // Haptic tap. iPhone Safari has no vibration API, but toggling a native
-  // switch (<input type="checkbox" switch>, iOS 18+) plays the system tick,
-  // so a hidden one is clicked. Must run during a tap. n > 1 = a short burst.
-  haptic: function (n) {
-    for (var k = 0; k < (n || 1); k++) setTimeout(GS._tick, k * 110);
-  },
-  _tick: function () {
-    if (navigator.vibrate) { navigator.vibrate(12); return; }
-    var label = document.createElement('label'), input = document.createElement('input');
-    input.type = 'checkbox';
-    input.setAttribute('switch', '');
-    label.appendChild(input);
-    label.style.display = 'none';
-    label.setAttribute('aria-hidden', 'true');
-    document.head.appendChild(label);
-    label.click();
-    label.remove();
-  },
-
   // Glass pill above the bottom controls, with an optional action (e.g. Undo).
   // Hides itself after 5 s; returns a function that hides it now.
   toast: function (text, action, onAction) {
@@ -268,7 +249,6 @@ var GS = {
   },
 
   confetti: function (colors) {
-    GS.haptic(3);
     var box = document.createElement('div');
     box.className = 'gs-confetti';
     var html = '';
@@ -285,10 +265,33 @@ var GS = {
 
 addEventListener('resize', function () { document.querySelectorAll('.seg').forEach(GS.seg); });
 
-// Every button tap gets a light haptic tick.
-document.addEventListener('click', function (e) {
-  if (e.target.closest('button, a.hub-link')) GS._tick();
-}, true);
+// Haptics: iOS only plays the tick when a finger itself flips a native
+// switch (<input type="checkbox" switch>, iOS 18+); flipping one from code
+// stays silent. So every button carries an invisible switch stretched over
+// it (.gs-hap in glass.css): the tap flips it, then bubbles to the button.
+// A watcher arms buttons that get rendered later.
+GS.HAPTICS = 'switch' in document.createElement('input');
+GS.hapSwitch = function () {
+  var s = document.createElement('input');
+  s.type = 'checkbox';
+  s.setAttribute('switch', '');
+  s.className = 'gs-hap';
+  s.tabIndex = -1;
+  s.setAttribute('aria-hidden', 'true');
+  return s;
+};
+function armHaptics() {
+  document.querySelectorAll('button:not(:has(> .gs-hap))').forEach(function (b) { b.appendChild(GS.hapSwitch()); });
+}
+if (GS.HAPTICS) {
+  var armQueued = false;
+  new MutationObserver(function () {
+    if (armQueued) return;
+    armQueued = true;
+    queueMicrotask(function () { armQueued = false; armHaptics(); });
+  }).observe(document.body, { childList: true, subtree: true });
+  armHaptics();
+}
 
 // Keep the screen on while a scorer is open (the lock is dropped by the
 // browser whenever the page is hidden, so take it again on return).
