@@ -209,6 +209,9 @@
   .bonus-item .i { color: var(--tint); width: 18px; height: 18px; margin-right: 2px; }
   .dots { display: inline-flex; gap: 2px; margin-right: 3px; vertical-align: -1px; }
   .dots i { width: 10px; height: 10px; border-radius: 50%; background: var(--c); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.35); }
+  .opt + .opt { margin-top: 8px; }
+  .bonus-group { margin-top: 0.9rem; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); }
+  .numcard { display: inline-grid; place-items: center; width: 16px; height: 21px; margin-right: 4px; vertical-align: -5px; border-radius: 3px; border: 1.5px solid var(--tint); color: var(--tint); font-size: 0.72rem; font-weight: 800; }
   .bonus-sep { border-top: 1px solid rgba(255,255,255,0.1); margin-top: 0.65rem; }
 
   /* ═══ HISTORY TABLE ═══ */
@@ -283,6 +286,20 @@
           <small>Bonus (14, Skull King…) comptés même si le pari est raté. Désactivé = règle standard : bonus seulement si le pari est exact.</small>
         </span>
         <input type="checkbox" switch id="bonus-opt" onchange="bonusAlways = this.checked">
+      </label>
+      <label class="opt">
+        <span>
+          <b>Butin &amp; Rascal</b>
+          <small>Cartes avancées : alliance Butin (+20 chacun si les deux paris sont justes) et pari du Rascal de Roatán (0, 10 ou 20 points).</small>
+        </span>
+        <input type="checkbox" switch id="loot-opt" onchange="options.loot = this.checked">
+      </label>
+      <label class="opt">
+        <span>
+          <b>L'Extension</b>
+          <small>Nouveaux 7 (−5) et 8 (+5), Second (+30 à qui le capture), Casier de Davy Jones (+20 par léviathan), Mary Throne (6ᵉ pirate).</small>
+        </span>
+        <input type="checkbox" switch id="ext-opt" onchange="options.ext = this.checked">
       </label>
     </div>
   </div>
@@ -361,6 +378,18 @@
       14 noir capturé : <span class="rule-val">+20</span><br>
       <em style="font-size:0.9rem;color:var(--ink-3)">Option « Bonus toujours accordés » : bonus comptés même si le pari est raté.</em>
     </div>
+    <div class="rule-row">
+      <strong>Butin &amp; Rascal</strong><br>
+      Alliance Butin réussie : <span class="rule-val">+20</span> chacun, si les deux paris sont justes<br>
+      Rascal de Roatán : pari de <span class="rule-val">0, 10 ou 20</span>, gagné si le pari est juste, perdu sinon
+    </div>
+    <div class="rule-row">
+      <strong>L'Extension</strong><br>
+      Nouveau 8 capturé : <span class="rule-val">+5</span> · nouveau 7 : <span class="rule-val">−5</span> (si pari juste)<br>
+      Second capturé par le Skull King ou une Sirène : <span class="rule-val">+30</span><br>
+      Casier de Davy Jones : <span class="rule-val">+20</span> par léviathan détruit<br>
+      Mary Throne compte comme un Pirate (jusqu'à 6 pour le Skull King)
+    </div>
     <div class="rule-row"><strong>10 manches</strong> — le capitaine avec le plus de points gagne !</div>
   </div>
 </div>
@@ -374,23 +403,34 @@ const MAX_ROUNDS = 10;
 let roundData = [];
 let tempData = {};
 let bonusAlways = false; // Option: bonus même si bid raté
+let options = { loot: false, ext: false }; // Butin & Rascal / L'Extension
 const SAVE_KEY = 'skullking-game';
 const esc = GS.esc;
 
 const AVATARS = ['anchor', 'compass', 'wheel', 'swords', 'skull', 'map', 'spyglass', 'bottle'];
 const COLORS = ['#f5c451', '#ff6b6b', '#51cf66', '#4dabf7', '#b197fc', '#ffa94d', '#3bc9db', '#f783ac'];
 
-// Bonus fields: [key, label, points note, max]
+// Bonus fields: [key, label, points note, max, group, step]
+// group 'base' always shows; 'ext' / 'loot' only when that option is on.
 const BONUSES = [
-  ['sk_pirates', GS.icon('skull') + ' Pirates capturés par le Skull King', '×30 pts', 5],
-  ['mermaid_sk', GS.icon('wave') + ' Sirène capture le Skull King', '+40 pts', 1],
-  ['pirate_mermaid', GS.icon('swords') + ' Pirates capturent des Sirènes', '×20 pts', 2],
-  ['c14_color', '<span class="dots"><i style="--c:#51cf66"></i><i style="--c:#fcc419"></i><i style="--c:#b197fc"></i></span> Cartes 14 de couleur', '×10 pts', 3],
-  ['c14_black', '<span class="dots"><i style="--c:#111"></i></span> Carte 14 noire', '+20 pts', 1],
+  ['sk_pirates', GS.icon('skull') + ' Pirates capturés par le Skull King', '×30 pts', 5, 'base'],
+  ['mermaid_sk', GS.icon('wave') + ' Sirène capture le Skull King', '+40 pts', 1, 'base'],
+  ['pirate_mermaid', GS.icon('swords') + ' Pirates capturent des Sirènes', '×20 pts', 2, 'base'],
+  ['c14_color', '<span class="dots"><i style="--c:#51cf66"></i><i style="--c:#fcc419"></i><i style="--c:#b197fc"></i></span> Cartes 14 de couleur', '×10 pts', 3, 'base'],
+  ['c14_black', '<span class="dots"><i style="--c:#111"></i></span> Carte 14 noire', '+20 pts', 1, 'base'],
+  ['c8', '<span class="numcard">8</span> Nouveaux 8 capturés', '×5 pts', 4, 'ext'],
+  ['c7', '<span class="numcard">7</span> Nouveaux 7 capturés', '×−5 pts', 4, 'ext'],
+  ['second', GS.icon('crown') + ' Second capturé (Skull King ou Sirène)', '+30 pts', 1, 'ext'],
+  ['davy', GS.icon('anchor') + ' Léviathans détruits par le Casier de Davy Jones', '×20 pts', 3, 'ext'],
+  ['loot', GS.icon('coin') + ' Alliances Butin réussies', '+20 pts chacune', 2, 'loot'],
+  ['rascal', GS.icon('swords') + ' Pari du Rascal de Roatán', 'gagné si pari juste, perdu sinon', 20, 'loot', 10],
 ];
+const GROUP_NAMES = { ext: "L'Extension", loot: 'Butin & Rascal' };
+const activeBonuses = () => BONUSES.filter(b => b[4] === 'base' || options[b[4]]);
+const blankEntry = () => Object.fromEntries([['bid', 0], ['won', 0], ...BONUSES.map(b => [b[0], 0])]);
 
 function persist(screen) {
-  GS.save(SAVE_KEY, { players, currentRound, roundData, tempData, bonusAlways, screen });
+  GS.save(SAVE_KEY, { players, currentRound, roundData, tempData, bonusAlways, options, screen });
 }
 
 function avatar(i) {
@@ -438,7 +478,7 @@ function startGame() {
 function initTempData() {
   tempData = {};
   players.forEach((p, i) => {
-    tempData[i] = { bid: 0, won: 0, sk_pirates: 0, mermaid_sk: 0, pirate_mermaid: 0, c14_color: 0, c14_black: 0 };
+    tempData[i] = blankEntry();
   });
 }
 
@@ -460,7 +500,18 @@ function computeScore(bid, won, roundNum, bonus) {
 }
 
 function computeBonus(d) {
-  return (d.sk_pirates * 30) + (d.mermaid_sk * 40) + (d.pirate_mermaid * 20) + (d.c14_color * 10) + (d.c14_black * 20);
+  return (d.sk_pirates * 30) + (d.mermaid_sk * 40) + (d.pirate_mermaid * 20) + (d.c14_color * 10) + (d.c14_black * 20)
+    + (d.c8 || 0) * 5 - (d.c7 || 0) * 5 + (d.second || 0) * 30 + (d.davy || 0) * 20;
+}
+
+// Base + card bonuses (per the bonus rule), then the advanced cards:
+// a Butin alliance pays only when your own bid is right; the Rascal bet is won or lost on it.
+function roundScore(d) {
+  const bonus = computeBonus(d);
+  const made = d.bid === d.won;
+  const loot = made ? (d.loot || 0) * 20 : 0;
+  const rascal = (d.rascal || 0) * (made ? 1 : -1);
+  return { bonus, loot, rascal, score: computeScore(d.bid, d.won, currentRound, bonus) + loot + rascal };
 }
 
 function getTotal(playerIdx) {
@@ -517,13 +568,17 @@ function renderEntryForm() {
 
   document.getElementById('entry-grid').innerHTML = players.map((name, i) => {
     const d = tempData[i];
-    const nBonus = BONUSES.reduce((n, b) => n + (d[b[0]] ? 1 : 0), 0);
-    const bonusRows = BONUSES.map(([key, label, pts, max], bi) => `
-      ${bi === 3 ? '<div class="bonus-sep"></div>' : ''}
+    const list = activeBonuses();
+    const nBonus = list.reduce((n, b) => n + (d[b[0]] ? 1 : 0), 0);
+    const bonusRows = list.map(([key, label, pts, , group], bi) => {
+      const head = bi && group !== list[bi - 1][4] ? `<div class="bonus-group">${GROUP_NAMES[group]}</div>`
+        : key === 'c14_color' ? '<div class="bonus-sep"></div>' : '';
+      return `${head}
       <div class="bonus-item">
         <span>${label}<em>${pts}</em></span>
-        ${stepperHTML(i, key, d[key])}
-      </div>`).join('');
+        ${stepperHTML(i, key, d[key] || 0)}
+      </div>`;
+    }).join('');
     return `
     <div class="card entry-card">
       <div class="entry-head">
@@ -558,12 +613,14 @@ function stepperHTML(i, field, val, big) {
 
 function fieldMax(field) {
   if (field === 'bid' || field === 'won') return currentRound;
+  if (field === 'sk_pirates' && options.ext) return 6; // Mary Throne is a sixth pirate
   return BONUSES.find(b => b[0] === field)[3];
 }
 
 function stepVal(i, field, delta) {
   const d = tempData[i];
-  const next = Math.max(0, Math.min(fieldMax(field), d[field] + delta));
+  const step = (BONUSES.find(b => b[0] === field) || [])[5] || 1;
+  const next = Math.max(0, Math.min(fieldMax(field), (d[field] || 0) + delta * step));
   if (next === d[field]) return;
   d[field] = next;
   const el = document.getElementById(`${field}-${i}`);
@@ -571,7 +628,7 @@ function stepVal(i, field, delta) {
   updatePreview(i);
   if (field === 'won') updateTrickSum();
   if (field !== 'bid' && field !== 'won') {
-    const n = BONUSES.reduce((c, b) => c + (d[b[0]] ? 1 : 0), 0);
+    const n = activeBonuses().reduce((c, b) => c + (d[b[0]] ? 1 : 0), 0);
     const badge = document.getElementById(`bcount-${i}`);
     badge.textContent = n;
     badge.hidden = !n;
@@ -581,13 +638,14 @@ function stepVal(i, field, delta) {
 
 function updatePreview(i) {
   const d = tempData[i];
-  const bonus = computeBonus(d);
-  const score = computeScore(d.bid, d.won, currentRound, bonus);
+  const { bonus, loot, rascal, score } = roundScore(d);
   const bidExact = d.bid > 0 && d.bid === d.won;
-  const bonusApplied = bonus > 0 && (bidExact || bonusAlways);
-  let detail = 'cette manche';
-  if (bonusApplied) detail = `dont +${bonus} bonus`;
-  else if (bonus > 0) detail = `+${bonus} bonus ignoré`;
+  const parts = [];
+  if (bonus && (bidExact || bonusAlways)) parts.push(`bonus ${signed(bonus)}`);
+  else if (bonus) parts.push('bonus ignoré');
+  if (loot) parts.push(`butin +${loot}`);
+  if (rascal) parts.push(`rascal ${signed(rascal)}`);
+  const detail = parts.join(' · ') || 'cette manche';
   const el = document.getElementById(`preview-${i}`);
   const prev = el.querySelector('.preview-val');
   const from = prev ? parseInt(prev.textContent) || 0 : score;
@@ -612,8 +670,7 @@ function validateRound() {
   const roundScores = {};
   players.forEach((p, i) => {
     const d = tempData[i];
-    const bonus = computeBonus(d);
-    const score = computeScore(d.bid, d.won, currentRound, bonus);
+    const { bonus, score } = roundScore(d);
     roundScores[i] = { bid: d.bid, won: d.won, bonus, score, raw: { ...d } };
   });
 
@@ -643,7 +700,7 @@ function prevRound() {
   if (prev) {
     players.forEach((p, i) => {
       const d = prev[i];
-      tempData[i] = d.raw ? { ...d.raw } : { bid: d.bid, won: d.won, sk_pirates: 0, mermaid_sk: 0, pirate_mermaid: 0, c14_color: 0, c14_black: 0 };
+      tempData[i] = { ...blankEntry(), ...(d.raw || { bid: d.bid, won: d.won }) };
     });
     roundData.splice(currentRound - 1, 1);
   }
@@ -724,7 +781,12 @@ GS.sheet(document.getElementById('rules-panel'));
     ({ players, currentRound, roundData, tempData, bonusAlways } = s);
     playerCount = players.length;
     document.getElementById('player-count-display').textContent = playerCount;
+    options = s.options || options;
+    // games saved before new bonus fields existed get them as zeros
+    players.forEach((_, i) => { tempData[i] = { ...blankEntry(), ...tempData[i] }; });
     document.getElementById('bonus-opt').checked = bonusAlways;
+    document.getElementById('loot-opt').checked = options.loot;
+    document.getElementById('ext-opt').checked = options.ext;
     renderSetupInputs();
     document.querySelectorAll('#player-inputs input').forEach((inp, i) => { inp.value = players[i]; });
     if (s.screen === 'game-screen') {
