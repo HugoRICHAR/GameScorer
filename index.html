@@ -7,34 +7,27 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="GameScorer">
-<meta name="theme-color" content="#0e2018">
+<meta name="theme-color" content="#140f22">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <title>GameScorer</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared/glass.css">
 <style>
+  /* Hub field mixes the three games: Scopa amber, Skull King sea, Darts ember. */
   :root {
-    --felt: #0e2018;
-    --paper: #f3ecd8;
-    --paper-shadow: #d8cca4;
-    --ink: #241c12;
-    --ink-dim: #6b6152;
-    --brass: #c9a227;
+    --field-base: #140f22;
+    --field-1: #f59f00;
+    --field-2: #0c8599;
+    --field-3: #e8590c;
+    --tint: #fff;
+    --on-tint: #140f22;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
   body {
-    font-family: 'Space Grotesk', system-ui, sans-serif;
-    background: var(--felt);
-    background-image:
-      radial-gradient(ellipse 90% 60% at 50% -10%, rgba(201,162,39,0.14) 0%, transparent 55%),
-      radial-gradient(ellipse 70% 40% at 50% 110%, rgba(0,0,0,0.45) 0%, transparent 70%),
-      repeating-linear-gradient(135deg, rgba(255,255,255,0.015) 0px, rgba(255,255,255,0.015) 1px, transparent 1px, transparent 14px);
-    background-attachment: fixed;
-    color: var(--paper);
+    font-family: var(--ui);
+    color: var(--ink);
     min-height: 100vh;
     min-height: 100dvh;
     overflow-x: hidden;
@@ -42,200 +35,104 @@
     -webkit-font-smoothing: antialiased;
   }
 
-  header {
-    text-align: center;
-    padding: 3rem 1.5rem 1.25rem;
-    animation: fade-down 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
-  }
-  header .kicker {
-    font-size: 0.72rem;
-    letter-spacing: 0.35em;
-    text-transform: uppercase;
-    color: var(--brass);
-    opacity: 0.9;
-  }
-  h1 {
-    font-family: 'Fraunces', serif;
-    font-optical-sizing: auto;
-    font-weight: 600;
-    font-size: clamp(2.6rem, 11vw, 3.6rem);
-    line-height: 1.05;
-    color: var(--paper);
-    margin-top: 0.35rem;
-    letter-spacing: -0.02em;
-  }
-  header p {
-    color: var(--paper);
-    opacity: 0.55;
-    font-size: 1rem;
-    margin-top: 0.4rem;
-    font-style: italic;
-    font-family: 'Fraunces', serif;
-  }
+  main { max-width: 560px; margin: 0 auto; padding: 1.25rem 1.1rem 2rem; }
 
-  main {
-    max-width: 560px;
-    margin: 0 auto;
-    padding: 1rem 1.25rem 3rem;
+  header { padding: 1.6rem 0.25rem 1.4rem; animation: rise 0.7s var(--spring) backwards; }
+  header .kicker { font-size: 0.8rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-2); }
+  h1 { font-size: 2.6rem; font-weight: 800; letter-spacing: -0.03em; line-height: 1.05; margin-top: 0.2rem; }
+
+  .games { display: flex; flex-direction: column; gap: 14px; }
+
+  .game {
     display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-  }
-
-  .ticket {
-    display: block;
-    position: relative;
-    background: var(--paper);
-    background-image: linear-gradient(160deg, rgba(255,255,255,0.5), transparent 40%);
-    color: var(--ink);
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px 14px 14px;
+    border-radius: 28px;
+    color: inherit;
     text-decoration: none;
-    border-radius: 10px;
-    padding: 1.35rem 1.4rem 1.25rem 1.75rem;
-    box-shadow: 0 12px 30px rgba(0,0,0,0.35), 0 2px 0 var(--paper-shadow);
-    transform: rotate(var(--tilt, -1deg));
-    transition: transform 0.35s cubic-bezier(0.2, 0.9, 0.3, 1.2), box-shadow 0.25s ease;
-    animation: deal 0.65s cubic-bezier(0.2, 0.9, 0.3, 1.1) backwards;
-    animation-delay: calc(var(--i) * 90ms + 150ms);
+    /* each card carries a glow of its own game color under the glass */
+    background:
+      radial-gradient(120% 140% at 0% 0%, color-mix(in srgb, var(--accent) 38%, transparent), transparent 60%),
+      var(--glass-fill);
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-edge);
+    box-shadow: var(--glass-shadow);
+    transition: transform 0.45s var(--spring), background-color 0.2s;
+    animation: rise 0.7s var(--spring) backwards;
+    animation-delay: calc(var(--i) * 70ms + 120ms);
   }
-  .ticket:nth-child(even) { --tilt: 1.2deg; }
-  .ticket:active {
-    transform: rotate(0deg) scale(0.97);
-    box-shadow: 0 6px 16px rgba(0,0,0,0.35), 0 1px 0 var(--paper-shadow);
-    transition-duration: 0.12s;
-  }
-  @media (hover: hover) {
-    .ticket:hover {
-      transform: rotate(0deg) translateY(-4px);
-      box-shadow: 0 18px 40px rgba(0,0,0,0.45), 0 2px 0 var(--paper-shadow);
-    }
-    .ticket:hover .ticket-play::after { transform: translateX(4px); }
-  }
-  .ticket:focus-visible { outline: 2px solid var(--brass); outline-offset: 4px; }
-  .ticket::before {
-    content: '';
-    position: absolute;
-    left: 0; top: 12%; bottom: 12%;
-    width: 6px;
-    border-radius: 3px;
-    background: var(--accent, var(--brass));
-  }
-  /* punched hole + perforation */
-  .ticket::after {
-    content: '';
-    position: absolute;
-    right: 4.6rem; top: 10px; bottom: 10px;
-    border-left: 2px dashed rgba(36,28,18,0.12);
-  }
+  .game:active { transform: scale(0.96); transition-duration: 0.1s; }
+  .game:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
 
-  .ticket-top {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
+  .game img {
+    width: 64px; height: 64px; flex-shrink: 0;
+    border-radius: 16px;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.3), inset 0 0 0 1px rgba(255,255,255,0.2);
   }
-  .ticket-icon {
-    width: 3.4rem; height: 3.4rem;
-    position: absolute; right: 0.6rem; top: 50%;
-    transform: translateY(-50%) rotate(-8deg);
-    display: grid; place-items: center;
-    font-size: 2.1rem; line-height: 1;
-    filter: drop-shadow(0 3px 4px rgba(0,0,0,0.18));
+  .game-text { flex: 1; min-width: 0; }
+  .game-name { font-size: 1.3rem; font-weight: 700; letter-spacing: -0.01em; }
+  .game-tag { font-size: 0.92rem; color: var(--ink-2); line-height: 1.35; margin-top: 2px; }
+  .resume {
+    display: inline-block; margin-top: 7px;
+    padding: 3px 10px; border-radius: 999px;
+    font-size: 0.75rem; font-weight: 700;
+    background: var(--control-on); color: var(--on-tint);
   }
-  .ticket-name {
-    font-family: 'Fraunces', serif;
-    font-optical-sizing: auto;
-    font-weight: 600;
-    font-size: 1.6rem;
-    letter-spacing: -0.01em;
-  }
-  .ticket-tag {
-    margin-top: 0.3rem;
-    font-size: 0.92rem;
-    color: var(--ink-dim);
-    line-height: 1.4;
-    padding-right: 4.6rem;
-  }
-  .ticket-play {
-    margin-top: 0.9rem;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    font-size: 0.75rem;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    color: var(--accent, var(--brass));
-    filter: brightness(0.8);
-    font-weight: 600;
-  }
-  .ticket-play::after { content: '→'; transition: transform 0.2s; }
-  .ticket-resume {
-    margin-left: 0.4rem;
-    padding: 0.15rem 0.5rem;
-    border-radius: 999px;
-    background: var(--accent);
-    color: #fff;
-    font-size: 0.65rem;
-    letter-spacing: 0.1em;
-    filter: none;
-  }
+  .chev { font-size: 1.4rem; color: var(--ink-3); flex-shrink: 0; }
 
   footer {
-    text-align: center;
-    padding: 0 1.5rem 2rem;
-    color: var(--paper);
-    opacity: 0.4;
-    font-size: 0.8rem;
-    letter-spacing: 0.03em;
-    line-height: 1.5;
-    animation: fade 1s 0.8s backwards;
+    margin: 1.6rem auto 0; width: fit-content; max-width: 100%;
+    padding: 10px 16px; border-radius: 999px;
+    font-size: 0.85rem; color: var(--ink-2); text-align: center;
+    animation: rise 0.7s 0.5s var(--spring) backwards;
   }
 
-  @keyframes deal {
-    from { opacity: 0; transform: translateY(40px) rotate(calc(var(--tilt, -1deg) * 6)) scale(0.96); }
-  }
-  @keyframes fade-down { from { opacity: 0; transform: translateY(-12px); } }
-  @keyframes fade { from { opacity: 0; } }
-
+  @keyframes rise { from { opacity: 0; transform: translateY(24px) scale(0.97); } }
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation-duration: 0.01ms !important; animation-delay: 0ms !important; transition-duration: 0.01ms !important; }
   }
 </style>
 </head>
 <body>
+<div class="gs-field"></div>
 
-<header>
-  <div class="kicker">The Cabinet</div>
-  <h1>GameScorer</h1>
-  <p>Pick a table.</p>
-</header>
+<main>
+  <header>
+    <div class="kicker">Score keepers</div>
+    <h1>GameScorer</h1>
+  </header>
 
-<main id="tickets"></main>
+  <div class="games" id="games"></div>
 
-<footer id="footer">+ more scorers as they get made</footer>
+  <footer class="glass" id="footer">More scorers as they get made</footer>
+</main>
 
 <script>
 const GAMES = [
   {
     name: 'Scopa',
     tagline: 'Italian trick-taking. Scopa, coins, primiera — first to 11.',
-    icon: '🃏',
     href: 'scopa/index.html',
-    accent: '#b8862c',
+    icon: 'scopa/apple-touch-icon.png',
+    accent: '#f59f00',
     save: 'scopa-game'
   },
   {
     name: 'Skull King',
     tagline: 'Pirate bidding across 10 rounds. Mind the mermaids.',
-    icon: '☠️',
     href: 'skull-king/index.html',
-    accent: '#8b1a1a',
+    icon: 'skull-king/apple-touch-icon.png',
+    accent: '#1c7ed6',
     save: 'skullking-game'
   },
   {
     name: 'Darts',
     tagline: 'X01 and Cricket. Per-dart input, checkout hints, match stats.',
-    icon: '🎯',
     href: 'darts/index.html',
-    accent: '#e0501f',
+    icon: 'darts/apple-touch-icon.png',
+    accent: '#f76707',
     save: 'darts-game'
   }
 ];
@@ -248,20 +145,21 @@ function inProgress(key) {
   } catch (e) { return false; }
 }
 
-document.getElementById('tickets').innerHTML = GAMES.map((g, i) => `
-  <a class="ticket" href="${g.href}" style="--accent:${g.accent};--i:${i}">
-    <div class="ticket-top">
-      <span class="ticket-name">${g.name}</span>
+document.getElementById('games').innerHTML = GAMES.map((g, i) => `
+  <a class="game" href="${g.href}" style="--accent:${g.accent};--i:${i}">
+    <img src="${g.icon}" alt="">
+    <div class="game-text">
+      <div class="game-name">${g.name}</div>
+      <div class="game-tag">${g.tagline}</div>
+      ${inProgress(g.save) ? '<span class="resume">Resume game</span>' : ''}
     </div>
-    <span class="ticket-icon" aria-hidden="true">${g.icon}</span>
-    <div class="ticket-tag">${g.tagline}</div>
-    <div class="ticket-play">${inProgress(g.save) ? 'Resume<span class="ticket-resume">In progress</span>' : 'Play'}</div>
+    <span class="chev" aria-hidden="true">›</span>
   </a>
 `).join('');
 
 // Outside the home-screen app on iPhone, tell people how to install it.
 if (/iPhone|iPad/.test(navigator.userAgent) && !navigator.standalone) {
-  document.getElementById('footer').textContent = 'Tip: Share → Add to Home Screen for the full-screen app.';
+  document.getElementById('footer').textContent = 'Share → Add to Home Screen for the full-screen app';
 }
 </script>
 
