@@ -700,6 +700,14 @@ function validateRound() {
     roundData.push(roundScores);
   }
 
+  // A mis-tap is one tap away from being undone, even from the game-over screen:
+  // Annuler reloads the round into the form, like the ← button.
+  GS.toast(`Manche ${currentRound} validée`, 'Annuler', () => {
+    if (roundData.length === MAX_ROUNDS && currentRound === MAX_ROUNDS) currentRound = MAX_ROUNDS + 1;
+    prevRound();
+    if (!document.getElementById('game-screen').classList.contains('active')) showScreen('game-screen');
+  });
+
   if (currentRound === MAX_ROUNDS) {
     showGameOver();
   } else {

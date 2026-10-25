@@ -517,6 +517,12 @@ function confirmRound() {
   });
   state.round++;
 
+  // A mis-tap is one tap away from being undone, even from the win screen.
+  GS.toast(`Round ${state.round - 1} saved`, 'Undo', () => {
+    undoRound(state.history.length - 1);
+    if (!document.getElementById('game-screen').classList.contains('active')) showScreen('game-screen');
+  });
+
   // Win: highest score at or past the target
   const best = Math.max(...state.scores);
   if (best >= state.target) {
