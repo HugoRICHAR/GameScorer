@@ -268,6 +268,18 @@ input{font-family:var(--ui);outline:none}
 .pp-glow{position:absolute;top:0;bottom:0;left:0;background:rgba(255,255,255,.14);box-shadow:inset 0 -3px 0 var(--accent);pointer-events:none}
 .pp-score{letter-spacing:.5px}
 @supports (view-transition-name:none){.screen.active{animation:none}}
+/* tap dartboard */
+.board-wrap{display:none;flex:1;min-height:0;align-items:center;justify-content:center;padding:2px 0 6px}
+.board-mode .mult-row,.board-mode .num-grid{display:none}
+.board-mode .board-wrap{display:flex}
+.board-wrap svg{height:100%;max-width:100%;aspect-ratio:1;display:block;touch-action:manipulation;-webkit-user-select:none;user-select:none}
+.board-wrap [data-n]{stroke:rgba(0,0,0,.45);stroke-width:.5;cursor:pointer}
+.board-wrap [data-n]:active{opacity:.6}
+.bd-dk{fill:#221d1c}.bd-lt{fill:#ecdcb8}.bd-rd{fill:#e03131}.bd-gr{fill:#2f9e44}
+.bd-frame{fill:rgba(0,0,0,.55);stroke:rgba(255,255,255,.2);stroke-width:.6}
+.bd-num{fill:#fff;font-family:'Bebas Neue',Impact,sans-serif;font-size:11px;text-anchor:middle;dominant-baseline:central;pointer-events:none}
+.bd-hit{animation:bd-hit .4s ease-out}
+@keyframes bd-hit{from{opacity:.3}}
 .c-controls{background:var(--glass-fill);-webkit-backdrop-filter:var(--glass-blur);backdrop-filter:var(--glass-blur);border-top:1px solid var(--glass-edge);border-radius:30px 30px 0 0;padding-top:12px}
 @keyframes scoreAnim{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
 .score-anim{animation:scoreAnim .22s ease-out}
@@ -305,6 +317,13 @@ input{font-family:var(--ui);outline:none}
         <button class="btn-opt" data-val="straight">Straight</button>
         <button class="btn-opt active" data-val="double">Double</button>
         <button class="btn-opt" data-val="master">Master</button>
+      </div>
+    </div>
+    <div class="setup-section x01-only">
+      <div class="setup-label">Input</div>
+      <div class="btn-group" id="grp-input">
+        <button class="btn-opt active" data-val="keypad">Keypad</button>
+        <button class="btn-opt" data-val="board">Dartboard</button>
       </div>
     </div>
     <div class="setup-section">
@@ -371,6 +390,7 @@ input{font-family:var(--ui);outline:none}
       <button class="mult-btn" id="mT" onclick="setMult(3)">TRIPLE</button>
     </div>
     <div class="num-grid" id="num-grid"></div>
+    <div class="board-wrap" id="board-wrap" onclick="boardTap(event)"></div>
     <div class="specials-row">
       <button class="spc-btn" onclick="enterDart(25,1)">BULL<small>25</small></button>
       <button class="spc-btn" onclick="enterDart(25,2)">D-BULL<small>50</small></button>
@@ -551,7 +571,7 @@ function getCheckout(score, dartsLeft, rule){
 //  SETTINGS STATE
 // ─────────────────────────────────────────────────────────────────
 const cfg={
-  mode:'x01', startScore:501, outRule:'double', legsToWin:2, setsToWin:2, numPlayers:2,
+  mode:'x01', startScore:501, outRule:'double', legsToWin:2, setsToWin:2, numPlayers:2, input:'keypad',
   names:['Player 1','Player 2','Player 3','Player 4']
 };
 let G=null; // game state
@@ -565,6 +585,7 @@ function initSetup(){
   mkBtnGroup('grp-mode',setMode);
   mkBtnGroup('grp-type',v=>{cfg.startScore=+v;});
   mkBtnGroup('grp-out',v=>{cfg.outRule=v;});
+  mkBtnGroup('grp-input',v=>{cfg.input=v;});
   mkBtnGroup('grp-players',v=>{cfg.numPlayers=+v;renderNames();});
   renderNames();
 }
@@ -638,6 +659,7 @@ function initGame(){
 //  GAME RENDER
 // ─────────────────────────────────────────────────────────────────
 function buildNumGrid(){
+  buildBoard();
   const g=document.getElementById('num-grid');
   if(g.children.length) return;
   for(let n=1;n<=20;n++){
@@ -649,6 +671,7 @@ function buildNumGrid(){
 }
 
 function renderGame(){
+  document.getElementById('screen-game').classList.toggle('board-mode',G.cfg.input==='board');
   buildScoreboard();
   updateMatchInfo();
   updateTurnLabel();
@@ -868,8 +891,8 @@ function confirmTurn(){
   // Animate score
   const sc=document.getElementById('sc'+G.cur);
   if(sc){sc.style.color='';GS.roll(sc,p.score);}
-  if(newScore===0) banner('GAME SHOT','var(--green)');
-  else if(total===180) banner('180!','var(--accent2)');
+  if(newScore===0){banner('GAME SHOT','var(--green)');GS.haptic(2);}
+  else if(total===180){banner('180!','var(--accent2)');GS.haptic(3);}
 
   if(newScore===0){
     p.coSuccesses++;
@@ -891,7 +914,40 @@ function nextPlayer(){
 // ─────────────────────────────────────────────────────────────────
 //  BUST ANIMATION
 // ─────────────────────────────────────────────────────────────────
-function showBust(){banner('BUST!','var(--red)');}
+function showBust(){banner('BUST!','var(--red)');GS.haptic(3);}
+
+// ─────────────────────────────────────────────────────────────────
+//  TAP DARTBOARD (optional X01 input)
+//  Not to scale: treble and double rings are widened so they're easy to hit.
+// ─────────────────────────────────────────────────────────────────
+const BOARD_ORDER=[20,1,18,4,13,6,10,15,2,17,3,19,7,16,8,11,14,9,12,5];
+function buildBoard(){
+  const w=document.getElementById('board-wrap');
+  if(w.firstChild) return;
+  const R={bull:7,outer:15,tIn:50,tOut:63,dIn:80,dOut:95,num:104};
+  const pt=(r,a)=>[(r*Math.sin(a)).toFixed(2),(-r*Math.cos(a)).toFixed(2)];
+  const ring=(r1,r2,a1,a2)=>{
+    const [x1,y1]=pt(r2,a1),[x2,y2]=pt(r2,a2),[x3,y3]=pt(r1,a2),[x4,y4]=pt(r1,a1);
+    return `M${x1} ${y1}A${r2} ${r2} 0 0 1 ${x2} ${y2}L${x3} ${y3}A${r1} ${r1} 0 0 0 ${x4} ${y4}Z`;
+  };
+  let h='<svg viewBox="-112 -112 224 224" role="img" aria-label="Dartboard"><circle class="bd-frame" r="111"/>';
+  BOARD_ORDER.forEach((n,i)=>{
+    const a1=(i-.5)*Math.PI/10,a2=(i+.5)*Math.PI/10,single=i%2?'lt':'dk',rings=i%2?'gr':'rd';
+    const seg=(m,c,r1,r2)=>`<path class="bd-${c}" data-n="${n}" data-m="${m}" d="${ring(r1,r2,a1,a2)}"/>`;
+    h+=seg(1,single,R.outer,R.tIn)+seg(3,rings,R.tIn,R.tOut)+seg(1,single,R.tOut,R.dIn)+seg(2,rings,R.dIn,R.dOut);
+    const [x,y]=pt(R.num,i*Math.PI/10);
+    h+=`<text class="bd-num" x="${x}" y="${y}">${n}</text>`;
+  });
+  h+=`<circle class="bd-gr" data-n="25" data-m="1" r="${R.outer}"/><circle class="bd-rd" data-n="25" data-m="2" r="${R.bull}"/></svg>`;
+  w.innerHTML=h;
+}
+function boardTap(e){
+  const t=e.target.closest('[data-n]');
+  if(!t) return;
+  t.classList.remove('bd-hit');t.getBoundingClientRect();t.classList.add('bd-hit');
+  GS._tick();
+  enterDart(+t.dataset.n,+t.dataset.m);
+}
 function banner(text,bg){
   const b=document.getElementById('bust-banner');
   b.textContent=text; b.style.background=bg;
@@ -1062,7 +1118,7 @@ function resume(){
   const s=GS.load('darts-game');
   if(!s||!(s.screen==='game'&&s.G||s.screen==='cricket'&&s.C)) return;
   Object.assign(cfg,s.cfg); G=s.G; C=s.C;
-  [['grp-mode',cfg.mode],['grp-type',cfg.startScore],['grp-out',cfg.outRule],['grp-players',cfg.numPlayers]].forEach(([id,v])=>
+  [['grp-mode',cfg.mode],['grp-type',cfg.startScore],['grp-out',cfg.outRule],['grp-input',cfg.input||'keypad'],['grp-players',cfg.numPlayers]].forEach(([id,v])=>
     document.querySelectorAll('#'+id+' .btn-opt').forEach(b=>b.classList.toggle('active',b.dataset.val==String(v))));
   document.getElementById('legs-val').textContent=cfg.legsToWin;
   document.getElementById('sets-val').textContent=cfg.setsToWin;
