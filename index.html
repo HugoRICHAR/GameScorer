@@ -137,6 +137,9 @@ const GAMES = [
   }
 ];
 
+// Offline: cache the whole app (see sw.js).
+if ('serviceWorker' in navigator && isSecureContext) navigator.serviceWorker.register('sw.js').catch(() => {});
+
 // iOS Safari only shows :active press states when a touch listener exists.
 document.addEventListener('touchstart', () => {}, { passive: true });
 

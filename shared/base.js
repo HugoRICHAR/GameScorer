@@ -229,7 +229,46 @@ var GS = {
       { duration: dur, fill: 'forwards' });
   },
 
+  // Haptic tap. iPhone Safari has no vibration API, but toggling a native
+  // switch (<input type="checkbox" switch>, iOS 18+) plays the system tick,
+  // so a hidden one is clicked. Must run during a tap. n > 1 = a short burst.
+  haptic: function (n) {
+    for (var k = 0; k < (n || 1); k++) setTimeout(GS._tick, k * 110);
+  },
+  _tick: function () {
+    if (navigator.vibrate) { navigator.vibrate(12); return; }
+    var label = document.createElement('label'), input = document.createElement('input');
+    input.type = 'checkbox';
+    input.setAttribute('switch', '');
+    label.appendChild(input);
+    label.style.display = 'none';
+    label.setAttribute('aria-hidden', 'true');
+    document.head.appendChild(label);
+    label.click();
+    label.remove();
+  },
+
+  // Glass pill above the bottom controls, with an optional action (e.g. Undo).
+  // Hides itself after 5 s; returns a function that hides it now.
+  toast: function (text, action, onAction) {
+    var prev = document.querySelector('.gs-toast');
+    if (prev) prev.remove();
+    var t = document.createElement('div');
+    t.className = 'gs-toast glass';
+    t.innerHTML = '<span>' + GS.esc(text) + '</span>' + (action ? '<button>' + GS.esc(action) + '</button>' : '');
+    document.body.appendChild(t);
+    var timer = setTimeout(hide, 5000);
+    function hide() {
+      clearTimeout(timer);
+      t.classList.add('out');
+      setTimeout(function () { t.remove(); }, 300);
+    }
+    if (action) t.querySelector('button').onclick = function () { hide(); onAction(); };
+    return hide;
+  },
+
   confetti: function (colors) {
+    GS.haptic(3);
     var box = document.createElement('div');
     box.className = 'gs-confetti';
     var html = '';
@@ -245,3 +284,24 @@ var GS = {
 };
 
 addEventListener('resize', function () { document.querySelectorAll('.seg').forEach(GS.seg); });
+
+// Every button tap gets a light haptic tick.
+document.addEventListener('click', function (e) {
+  if (e.target.closest('button, a.hub-link')) GS._tick();
+}, true);
+
+// Keep the screen on while a scorer is open (the lock is dropped by the
+// browser whenever the page is hidden, so take it again on return).
+var awake = null;
+function stayAwake() {
+  if (!('wakeLock' in navigator) || document.visibilityState !== 'visible' || (awake && !awake.released)) return;
+  navigator.wakeLock.request('screen').then(function (l) { awake = l; }).catch(function () {});
+}
+document.addEventListener('visibilitychange', stayAwake);
+document.addEventListener('click', stayAwake); // some browsers only grant it after a tap
+stayAwake();
+
+// Offline: sw.js lives at the site root, one level above this script.
+if ('serviceWorker' in navigator && isSecureContext) {
+  navigator.serviceWorker.register(GS.ICONS.replace(/shared\/icons\.svg$/, 'sw.js')).catch(function () {});
+}
