@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<script>/* language picked on the hub; default from the phone */try{document.documentElement.lang=localStorage.getItem('gs-lang')||(/^fr/i.test(navigator.language)?'fr':'en')}catch(e){document.documentElement.lang='en'}</script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -24,6 +25,7 @@
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  button { font: inherit; color: inherit; background: none; border: none; cursor: pointer; touch-action: manipulation; }
 
   body {
     font-family: var(--ui);
@@ -37,9 +39,25 @@
 
   main { max-width: 560px; margin: 0 auto; padding: 1.25rem 1.1rem 2rem; }
 
-  header { padding: 1.6rem 0.25rem 1.4rem; animation: rise 0.7s var(--spring) backwards; }
+  header { padding: 1.2rem 0.25rem 1.4rem; animation: rise 0.7s var(--spring) backwards; }
+  .head-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
   header .kicker { font-size: 0.8rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-2); }
   h1 { font-size: 2.6rem; font-weight: 800; letter-spacing: -0.03em; line-height: 1.05; margin-top: 0.2rem; }
+
+  /* FR / EN pill: the white thumb slides to the active language */
+  .lang {
+    position: relative; display: flex; padding: 3px; border-radius: 999px;
+    background: var(--glass-fill); -webkit-backdrop-filter: var(--glass-blur); backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-edge); box-shadow: var(--glass-shadow);
+  }
+  .lang::before {
+    content: ''; position: absolute; top: 3px; bottom: 3px; left: 3px; width: calc(50% - 3px);
+    border-radius: 999px; background: var(--control-on); box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+    transition: transform 0.5s var(--spring);
+  }
+  html[lang="en"] .lang::before { transform: translateX(100%); }
+  .lang button { position: relative; z-index: 1; min-width: 44px; padding: 7px 12px; font-size: 0.85rem; font-weight: 700; color: var(--ink-2); transition: color 0.25s; }
+  html[lang="fr"] .lang [data-lang="fr"], html[lang="en"] .lang [data-lang="en"] { color: var(--on-tint); }
 
   .games { display: flex; flex-direction: column; gap: 14px; }
 
@@ -89,6 +107,12 @@
     animation: rise 0.7s 0.5s var(--spring) backwards;
   }
 
+  /* Opening / closing a game: a panel in the game's colors grows out of
+     (or shrinks back into) its card, like launching an iPhone app. */
+  .launch { position: fixed; inset: 0; z-index: 1000; display: grid; place-items: center; pointer-events: none; will-change: clip-path; }
+  .launch img { width: 96px; height: 96px; border-radius: 22px; box-shadow: 0 16px 40px rgba(0,0,0,0.4), inset 0 0 0 1px rgba(255,255,255,0.2); }
+  .returning header, .returning .game, .returning footer { animation: none; }
+
   @keyframes rise { from { opacity: 0; transform: translateY(24px) scale(0.97); } }
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation-duration: 0.01ms !important; animation-delay: 0ms !important; transition-duration: 0.01ms !important; }
@@ -100,39 +124,55 @@
 
 <main>
   <header>
-    <div class="kicker">Score keepers</div>
+    <div class="head-row">
+      <div class="kicker"><span data-l="fr">Compteurs de points</span><span data-l="en">Score keepers</span></div>
+      <div class="lang" role="group" aria-label="Language">
+        <button data-lang="fr" onclick="setLang('fr')">FR</button>
+        <button data-lang="en" onclick="setLang('en')">EN</button>
+      </div>
+    </div>
     <h1>GameScorer</h1>
   </header>
 
   <div class="games" id="games"></div>
 
-  <footer class="glass" id="footer">More scorers as they get made</footer>
+  <footer class="glass" id="footer"></footer>
 </main>
 
 <script>
+const L = (fr, en) => document.documentElement.lang === 'fr' ? fr : en;
+const STILL = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const SPRING = getComputedStyle(document.documentElement).getPropertyValue('--spring').trim() || 'ease-out';
+
 const GAMES = [
   {
-    name: 'Scopa',
-    tagline: 'Italian trick-taking. Scopa, coins, primiera — first to 11.',
+    key: 'scopa',
+    name: ['Scopa', 'Scopa'],
+    tagline: ['Jeu de plis italien. Scopa, deniers, primiera — premier à 11.', 'Italian trick-taking. Scopa, coins, primiera — first to 11.'],
     href: 'scopa/index.html',
     icon: 'scopa/apple-touch-icon.png',
     accent: '#f59f00',
+    field: ['#2a0d06', '#f59f00', '#c2255c', '#5c940d'],
     save: 'scopa-game'
   },
   {
-    name: 'Skull King',
-    tagline: 'Pirate bidding across 10 rounds. Mind the mermaids.',
+    key: 'skull-king',
+    name: ['Skull King', 'Skull King'],
+    tagline: ['Paris de pirates sur 10 manches. Gare aux sirènes.', 'Pirate bidding across 10 rounds. Mind the mermaids.'],
     href: 'skull-king/index.html',
     icon: 'skull-king/apple-touch-icon.png',
     accent: '#1c7ed6',
+    field: ['#04101c', '#0c8599', '#1c3d8f', '#a61e1e'],
     save: 'skullking-game'
   },
   {
-    name: 'Darts',
-    tagline: 'X01 and Cricket. Per-dart input, checkout hints, match stats.',
+    key: 'darts',
+    name: ['Fléchettes', 'Darts'],
+    tagline: ['X01 et Cricket. Saisie fléchette par fléchette, aides au finish, stats de match.', 'X01 and Cricket. Per-dart input, checkout hints, match stats.'],
     href: 'darts/index.html',
     icon: 'darts/apple-touch-icon.png',
     accent: '#f76707',
+    field: ['#140806', '#f76707', '#c92a2a', '#2b8a3e'],
     save: 'darts-game'
   }
 ];
@@ -151,22 +191,76 @@ function inProgress(key) {
   } catch (e) { return false; }
 }
 
-document.getElementById('games').innerHTML = GAMES.map((g, i) => `
-  <a class="game" href="${g.href}" style="--accent:${g.accent};--i:${i}">
-    <img src="${g.icon}" alt="">
-    <div class="game-text">
-      <div class="game-name">${g.name}</div>
-      <div class="game-tag">${g.tagline}</div>
-      ${inProgress(g.save) ? '<span class="resume">Resume game</span>' : ''}
-    </div>
-    <span class="chev" aria-hidden="true">›</span>
-  </a>
-`).join('');
-
-// Outside the home-screen app on iPhone, tell people how to install it.
-if (/iPhone|iPad/.test(navigator.userAgent) && !navigator.standalone) {
-  document.getElementById('footer').textContent = 'Share → Add to Home Screen for the full-screen app';
+function render() {
+  document.getElementById('games').innerHTML = GAMES.map((g, i) => `
+    <a class="game" href="${g.href}" data-key="${g.key}" style="--accent:${g.accent};--i:${i}">
+      <img src="${g.icon}" alt="">
+      <div class="game-text">
+        <div class="game-name">${L(...g.name)}</div>
+        <div class="game-tag">${L(...g.tagline)}</div>
+        ${inProgress(g.save) ? `<span class="resume">${L('Reprendre la partie', 'Resume game')}</span>` : ''}
+      </div>
+      <span class="chev" aria-hidden="true">›</span>
+    </a>
+  `).join('');
+  // Outside the home-screen app on iPhone, tell people how to install it.
+  document.getElementById('footer').textContent = /iPhone|iPad/.test(navigator.userAgent) && !navigator.standalone
+    ? L("Partager → Sur l'écran d'accueil pour l'app plein écran", 'Share → Add to Home Screen for the full-screen app')
+    : L("D'autres jeux arrivent", 'More scorers as they get made');
 }
+
+function setLang(l) {
+  try { localStorage.setItem('gs-lang', l); } catch (e) {}
+  document.documentElement.lang = l;
+  document.documentElement.classList.add('returning'); // re-rendered cards shouldn't replay their entrance
+  render();
+}
+
+// ── open / close a game ──
+function cover(g) {
+  const c = document.createElement('div');
+  c.className = 'launch';
+  c.style.background = `radial-gradient(60% 45% at 20% 12%, ${g.field[1]}, transparent 70%),
+    radial-gradient(60% 50% at 95% 40%, ${g.field[2]}, transparent 70%),
+    radial-gradient(70% 50% at 35% 105%, ${g.field[3]}, transparent 70%), ${g.field[0]}`;
+  c.innerHTML = `<img src="${g.icon}" alt="">`;
+  document.body.appendChild(c);
+  return c;
+}
+const cardClip = r => `inset(${r.top}px ${innerWidth - r.right}px ${innerHeight - r.bottom}px ${r.left}px round 28px)`;
+const FULL = 'inset(0px 0px 0px 0px round 0px)';
+
+document.getElementById('games').addEventListener('click', e => {
+  const card = e.target.closest('.game');
+  if (!card || STILL || e.metaKey || e.ctrlKey || e.shiftKey) return;
+  e.preventDefault();
+  const g = GAMES.find(x => x.key === card.dataset.key);
+  const c = cover(g);
+  c.animate([{ clipPath: cardClip(card.getBoundingClientRect()) }, { clipPath: FULL }], { duration: 560, easing: SPRING, fill: 'forwards' });
+  c.firstChild.animate([{ transform: 'scale(0.6)', opacity: 0 }, { transform: 'scale(1)', opacity: 1 }], { duration: 480, delay: 60, easing: SPRING, fill: 'backwards' });
+  setTimeout(() => { location.href = g.href; }, 420);
+});
+
+// Coming back with Safari's back gesture restores this page as it was: drop the panel.
+addEventListener('pageshow', e => { if (e.persisted) document.querySelectorAll('.launch').forEach(n => n.remove()); });
+
+render();
+
+// Back from a game via its Hub button: its panel shrinks back into its card.
+(function closeGame() {
+  let key = null;
+  try { key = sessionStorage.getItem('gs-back'); sessionStorage.removeItem('gs-back'); } catch (e) {}
+  const g = GAMES.find(x => x.key === key);
+  if (!g || STILL) return;
+  document.documentElement.classList.add('returning');
+  const c = cover(g);
+  requestAnimationFrame(() => {
+    const card = document.querySelector(`.game[data-key="${key}"]`);
+    c.animate([{ clipPath: FULL }, { clipPath: cardClip(card.getBoundingClientRect()) }], { duration: 560, easing: SPRING, fill: 'forwards' });
+    c.firstChild.animate([{ transform: 'scale(1)', opacity: 1 }, { transform: 'scale(0.6)', opacity: 0 }], { duration: 300, fill: 'forwards' });
+    c.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 200, delay: 440, fill: 'forwards' }).onfinish = () => c.remove();
+  });
+})();
 </script>
 
 </body>
