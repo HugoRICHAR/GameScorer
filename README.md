@@ -10,6 +10,7 @@ A collection of mobile-friendly HTML scoring apps for card games — no install 
 |------|------|--------|
 | 🃏 Scopa | `scopa/index.html` | ✅ Ready |
 | ☠️ Skull King | `skull-king/index.html` | ✅ Ready |
+| 🎯 Darts (X01, Cricket) | `darts/index.html` | ✅ Ready |
 
 ---
 
@@ -50,6 +51,14 @@ Pirate trick-taking game scorer (2–8 players, 10 rounds).
 
 ---
 
+## 🎯 Darts
+
+X01 (301/501/701, straight/double/master out, sets & legs) and Cricket (20–15 + Bull, 2–4 players).
+
+**Features:** per-dart input, live averages, checkout hints, undo, post-game stats, match history (stored on the device).
+
+---
+
 ## 📱 How to use on iPhone
 
 1. Open the HTML file in **Safari**
@@ -70,6 +79,8 @@ GameScorer/
 │   └── index.html
 ├── skull-king/
 │   └── index.html
+├── darts/
+│   └── index.html
 └── README.md
 ```
 
@@ -81,3 +92,4 @@ Once enabled, the apps are accessible at:
 - `https://hugorichar.github.io/GameScorer/` — hub, links to every scorer
 - `https://hugorichar.github.io/GameScorer/scopa/`
 - `https://hugorichar.github.io/GameScorer/skull-king/`
+- `https://hugorichar.github.io/GameScorer/darts/`

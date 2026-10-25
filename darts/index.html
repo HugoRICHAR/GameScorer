@@ -1,0 +1,1082 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>🎯 Dart Scorer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{width:100%;height:100%;overflow:hidden;background:#0b0c14;color:#d4ccc4;font-family:'Rajdhani',sans-serif;-webkit-font-smoothing:antialiased}
+button{font-family:'Rajdhani',sans-serif;cursor:pointer;border:none;outline:none;user-select:none}
+input{font-family:'Rajdhani',sans-serif;outline:none}
+:root{
+  --bg:#0b0c14;--bg2:#12131e;--bg3:#1a1c2a;--border:#252737;
+  --accent:#f05a28;--accent2:#e8a83a;--text:#d4ccc4;--text2:#8a8494;--text3:#5a5464;
+  --green:#27ae60;--red:#e74c3c;--white:#f0ece8;
+}
+.screen{display:none;flex-direction:column;width:100%;height:100%;overflow:hidden;position:absolute;top:0;left:0}
+.screen.active{display:flex}
+
+/* ── SETUP ── */
+#screen-setup{overflow-y:auto;padding-bottom:24px}
+.setup-header{padding:28px 20px 16px;border-bottom:1px solid var(--border);background:var(--bg2)}
+.setup-header h1{font-family:'Bebas Neue',cursive;font-size:44px;color:var(--accent);letter-spacing:3px;line-height:1}
+.setup-header p{color:var(--text3);font-size:12px;font-weight:700;letter-spacing:2px;margin-top:3px;text-transform:uppercase}
+.setup-body{padding:18px 20px}
+.setup-section{margin-bottom:22px}
+.setup-label{font-size:10px;font-weight:700;letter-spacing:2px;color:var(--text3);text-transform:uppercase;margin-bottom:9px}
+.btn-group{display:flex;gap:8px}
+.btn-opt{flex:1;padding:12px 4px;background:var(--bg3);border:2px solid var(--border);border-radius:10px;color:var(--text2);font-size:15px;font-weight:700;letter-spacing:.3px;transition:all .15s}
+.btn-opt.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn-opt:active{transform:scale(.95)}
+.player-inputs{display:flex;flex-direction:column;gap:9px}
+.player-row{display:flex;align-items:center;gap:10px}
+.player-row span{font-size:12px;color:var(--text3);font-weight:700;letter-spacing:.5px;min-width:24px}
+.player-name-input{flex:1;background:var(--bg3);border:2px solid var(--border);border-radius:10px;padding:10px 14px;color:var(--text);font-size:16px;font-weight:600}
+.player-name-input:focus{border-color:var(--accent)}
+.setup-row-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.num-input-group{display:flex;align-items:center;background:var(--bg3);border:2px solid var(--border);border-radius:10px;overflow:hidden}
+.num-input-group button{width:42px;height:44px;background:transparent;color:var(--text2);font-size:22px;font-weight:700;flex-shrink:0}
+.num-input-group button:active{background:var(--border)}
+.num-input-group .nig-val{flex:1;text-align:center;font-size:20px;font-weight:700;color:var(--text)}
+.btn-start{width:100%;padding:16px;background:var(--accent);border-radius:14px;color:#fff;font-size:21px;font-weight:700;letter-spacing:1.5px;margin-top:8px}
+.btn-start:active{transform:scale(.97);background:#d04a1a}
+.btn-history{width:100%;padding:12px;background:var(--bg3);border:2px solid var(--border);border-radius:14px;color:var(--text2);font-size:15px;font-weight:600;letter-spacing:.5px;margin-top:8px}
+.btn-history:active{background:var(--border)}
+
+/* ── GAME ── */
+.game-header{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:var(--bg2);border-bottom:1px solid var(--border);flex-shrink:0}
+.game-match-info{font-size:13px;font-weight:700;color:var(--text3);letter-spacing:.5px}
+.game-match-info b{color:var(--accent2);font-weight:700}
+.btn-menu{width:36px;height:36px;background:var(--bg3);border-radius:8px;color:var(--text2);font-size:18px;display:flex;align-items:center;justify-content:center}
+
+/* SCOREBOARD */
+.scoreboard{display:flex;flex-shrink:0;border-bottom:1px solid var(--border)}
+.player-panel{flex:1;padding:10px 12px;transition:background .2s}
+.player-panel.is-active{background:var(--bg3)}
+.player-panel+.player-panel{border-left:1px solid var(--border)}
+.pp-name{font-size:10px;font-weight:700;letter-spacing:1.2px;color:var(--text3);text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.is-active .pp-name{color:var(--accent)}
+.pp-score{font-family:'Bebas Neue',cursive;font-size:54px;line-height:.95;color:var(--white);transition:all .2s}
+.is-active .pp-score{color:var(--accent)}
+.pp-stats{display:flex;gap:10px;margin-top:3px}
+.pp-stat{font-size:11px;font-weight:600;color:var(--text3)}
+.pp-stat em{color:var(--text2);font-style:normal}
+.pp-sets-legs{display:flex;align-items:center;gap:5px;margin-top:5px;flex-wrap:wrap}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--border);display:inline-block;transition:background .2s}
+.dot.lit{background:var(--accent2)}
+.pip{width:8px;height:8px;border-radius:2px;background:var(--border);display:inline-block;transition:background .2s}
+.pip.lit{background:var(--accent)}
+.pp-sep{color:var(--border);font-size:12px}
+
+/* TURN */
+.turn-display{flex-shrink:0;padding:8px 14px;background:var(--bg2);border-bottom:1px solid var(--border)}
+.turn-label{font-size:11px;font-weight:700;letter-spacing:1px;color:var(--text3);text-transform:uppercase;margin-bottom:6px}
+.turn-label b{color:var(--accent)}
+.dart-row{display:flex;align-items:center;gap:6px}
+.dart-slots{display:flex;gap:6px;flex:1}
+.dart-slot{flex:1;height:38px;background:var(--bg3);border:2px solid var(--border);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--text3);transition:all .15s}
+.dart-slot.filled{border-color:var(--accent);color:var(--white);background:rgba(240,90,40,.1)}
+.dart-slot.bust{border-color:var(--red)!important;color:var(--red)!important}
+.turn-total-wrap{text-align:right;min-width:46px}
+.turn-total{font-family:'Bebas Neue',cursive;font-size:28px;color:var(--text2);line-height:1}
+.checkout-hint{font-size:12px;font-weight:600;color:var(--text3);margin-top:5px;min-height:17px;letter-spacing:.2px}
+.checkout-hint b{color:var(--accent2)}
+
+/* KEYBOARD */
+.keyboard{flex:1;display:flex;flex-direction:column;padding:8px 10px 6px;overflow:hidden;min-height:0}
+.mult-row{display:flex;gap:7px;flex-shrink:0;margin-bottom:7px}
+.mult-btn{flex:1;height:42px;background:var(--bg3);border:2px solid var(--border);border-radius:10px;color:var(--text2);font-size:14px;font-weight:700;letter-spacing:.5px;transition:all .15s}
+.mult-btn.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.mult-btn:active{transform:scale(.93)}
+.num-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;flex:1;min-height:0}
+.num-btn{background:var(--bg2);border:1.5px solid var(--border);border-radius:8px;color:var(--text);font-size:17px;font-weight:700;display:flex;align-items:center;justify-content:center;min-height:0;transition:background .08s,transform .08s}
+.num-btn:active{background:var(--accent);border-color:var(--accent);color:#fff;transform:scale(.91)}
+.specials-row{display:flex;gap:5px;flex-shrink:0;margin-top:5px}
+.spc-btn{flex:1;height:40px;background:var(--bg2);border:1.5px solid var(--border);border-radius:8px;color:var(--text2);font-size:13px;font-weight:700;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;line-height:1;transition:background .08s,transform .08s}
+.spc-btn small{font-size:10px;opacity:.6;font-weight:600}
+.spc-btn:active{background:var(--accent2);border-color:var(--accent2);color:#000;transform:scale(.93)}
+.spc-btn.miss:active{background:var(--bg3);color:var(--text2)}
+.actions-row{display:flex;gap:8px;flex-shrink:0;margin-top:5px}
+.btn-undo{flex:1;height:46px;background:var(--bg3);border:2px solid var(--border);border-radius:12px;color:var(--text2);font-size:14px;font-weight:700;letter-spacing:.3px}
+.btn-undo:active{background:var(--border)}
+.btn-confirm{flex:2;height:46px;background:var(--green);border-radius:12px;color:#fff;font-size:17px;font-weight:700;letter-spacing:.5px;transition:background .1s,transform .08s}
+.btn-confirm:active{transform:scale(.96);background:#219a52}
+.btn-confirm:disabled{background:var(--bg3);color:var(--text3);pointer-events:none}
+
+/* BUST BANNER */
+.bust-banner{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0);background:var(--red);color:#fff;font-family:'Bebas Neue',cursive;font-size:72px;padding:10px 40px;border-radius:16px;letter-spacing:4px;z-index:300;pointer-events:none;opacity:0;transition:transform .18s cubic-bezier(.34,1.56,.64,1),opacity .1s}
+.bust-banner.show{transform:translate(-50%,-50%) scale(1);opacity:1}
+
+/* ── POST GAME ── */
+#screen-postgame{overflow-y:auto}
+.pg-header{padding:24px 20px 16px;text-align:center;background:var(--bg2);border-bottom:1px solid var(--border)}
+.pg-winner{font-family:'Bebas Neue',cursive;font-size:52px;color:var(--accent2);letter-spacing:2px;line-height:1}
+.pg-sub{color:var(--text3);font-size:12px;font-weight:700;letter-spacing:1px;margin-top:3px;text-transform:uppercase}
+.win-bar{height:3px;margin:14px 20px 0;border-radius:2px;background:linear-gradient(90deg,var(--accent),var(--accent2),var(--green));animation:wbar .6s .2s ease-out both;transform-origin:left}
+@keyframes wbar{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.stats-container{padding:14px 20px}
+.stats-card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:12px;animation:fadeup .35s ease-out both}
+.stats-card.winner{border-color:var(--accent2)}
+@keyframes fadeup{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.sc-name{font-size:12px;font-weight:700;letter-spacing:1px;color:var(--text2);text-transform:uppercase;margin-bottom:10px}
+.sc-name.winner{color:var(--accent2)}
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.sg-item{background:var(--bg3);border-radius:8px;padding:8px 10px}
+.sg-label{font-size:9px;font-weight:700;color:var(--text3);letter-spacing:1px;text-transform:uppercase}
+.sg-val{font-family:'Bebas Neue',cursive;font-size:26px;color:var(--text);line-height:1.1}
+.sg-val.hi{color:var(--accent)}
+.pg-actions{display:flex;gap:10px;padding:0 20px 32px}
+.btn-rematch{flex:1;padding:15px;background:var(--accent);border-radius:14px;color:#fff;font-size:19px;font-weight:700;letter-spacing:.5px}
+.btn-rematch:active{transform:scale(.96)}
+.btn-new{flex:1;padding:15px;background:var(--bg3);border:2px solid var(--border);border-radius:14px;color:var(--text);font-size:19px;font-weight:700}
+.btn-new:active{transform:scale(.96)}
+
+/* ── HISTORY ── */
+#screen-history{overflow-y:auto}
+.hist-header{display:flex;align-items:center;gap:12px;padding:18px 16px;border-bottom:1px solid var(--border);background:var(--bg2)}
+.btn-back{width:36px;height:36px;background:var(--bg3);border-radius:8px;color:var(--text);font-size:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.hist-header h2{font-family:'Bebas Neue',cursive;font-size:30px;color:var(--text);letter-spacing:1px;flex:1}
+.btn-clr{padding:6px 12px;background:transparent;border:1.5px solid var(--border);border-radius:8px;color:var(--text3);font-size:12px;font-weight:600}
+.hist-list{padding:12px 16px}
+.hi-item{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:10px}
+.hi-top{display:flex;justify-content:space-between;margin-bottom:5px}
+.hi-game{font-size:13px;font-weight:700;color:var(--accent)}
+.hi-date{font-size:11px;color:var(--text3)}
+.hi-winner{font-size:16px;font-weight:700;color:var(--text);margin-bottom:3px}
+.hi-stats{font-size:12px;color:var(--text2)}
+.hist-empty{text-align:center;padding:40px;color:var(--text3);font-size:14px;font-weight:600}
+
+/* ── MODAL ── */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:200;align-items:flex-end}
+.modal-overlay.open{display:flex}
+.modal-sheet{background:var(--bg2);border-radius:20px 20px 0 0;padding:20px 20px 40px;width:100%}
+.modal-title{font-family:'Bebas Neue',cursive;font-size:26px;color:var(--text);margin-bottom:14px;letter-spacing:1px}
+.modal-btn{width:100%;padding:14px;background:var(--bg3);border:1.5px solid var(--border);border-radius:12px;color:var(--text);font-size:16px;font-weight:600;text-align:left;margin-bottom:8px}
+.modal-btn:active{background:var(--border)}
+.modal-btn.danger{color:var(--red)}
+.modal-cancel{width:100%;padding:14px;background:transparent;border:2px solid var(--border);border-radius:12px;color:var(--text2);font-size:16px;font-weight:600;margin-top:4px}
+
+/* ── CRICKET ── */
+#screen-setup.cricket .x01-only{display:none}
+.c-board{flex:1;min-height:0;display:grid;gap:5px;padding:8px 10px;grid-template-rows:auto repeat(7,1fr)}
+.c-head{text-align:center;padding:4px 2px;border-radius:8px;min-width:0}
+.c-head.is-active{background:var(--bg3)}
+.c-head .n{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.c-head.is-active .n{color:var(--accent)}
+.c-head .p{font-family:'Bebas Neue',cursive;font-size:34px;line-height:1;color:var(--white)}
+.c-head.is-active .p{color:var(--accent)}
+.c-num{background:var(--bg2);border:1.5px solid var(--border);border-radius:8px;color:var(--text);font-family:'Bebas Neue',cursive;font-size:24px;min-height:0}
+.c-num:active{background:var(--accent);border-color:var(--accent);color:#fff}
+.c-num.dead{opacity:.35}
+.c-cell{display:flex;align-items:center;justify-content:center;background:var(--bg2);border-radius:8px;font-size:26px;font-weight:700;color:var(--text2)}
+.c-cell.is-active{background:var(--bg3)}
+.c-cell.closed{color:var(--green)}
+.c-controls{flex-shrink:0;padding:6px 10px 8px}
+
+@keyframes scoreAnim{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+.score-anim{animation:scoreAnim .22s ease-out}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════ SETUP ══════════════════ -->
+<div id="screen-setup" class="screen active">
+  <div class="setup-header">
+    <h1>🎯 DART SCORER</h1>
+    <p id="setup-sub">X01 · Sets &amp; Legs</p>
+  </div>
+  <div class="setup-body">
+    <div class="setup-section">
+      <div class="setup-label">Mode</div>
+      <div class="btn-group" id="grp-mode">
+        <button class="btn-opt active" data-val="x01">X01</button>
+        <button class="btn-opt" data-val="cricket">Cricket</button>
+      </div>
+    </div>
+    <div class="setup-section x01-only">
+      <div class="setup-label">Game Type</div>
+      <div class="btn-group" id="grp-type">
+        <button class="btn-opt" data-val="301">301</button>
+        <button class="btn-opt active" data-val="501">501</button>
+        <button class="btn-opt" data-val="701">701</button>
+      </div>
+    </div>
+    <div class="setup-section x01-only">
+      <div class="setup-label">Out Rule</div>
+      <div class="btn-group" id="grp-out">
+        <button class="btn-opt" data-val="straight">Straight</button>
+        <button class="btn-opt active" data-val="double">Double</button>
+        <button class="btn-opt" data-val="master">Master</button>
+      </div>
+    </div>
+    <div class="setup-section">
+      <div class="setup-label">Players</div>
+      <div class="btn-group" id="grp-players">
+        <button class="btn-opt" data-val="1">1</button>
+        <button class="btn-opt active" data-val="2">2</button>
+        <button class="btn-opt" data-val="3">3</button>
+        <button class="btn-opt" data-val="4">4</button>
+      </div>
+    </div>
+    <div class="setup-section">
+      <div class="setup-label">Player Names</div>
+      <div class="player-inputs" id="player-inputs"></div>
+    </div>
+    <div class="setup-section setup-row-2 x01-only">
+      <div>
+        <div class="setup-label">Legs per Set</div>
+        <div class="num-input-group">
+          <button onclick="adj('legs',-1)">−</button>
+          <span class="nig-val" id="legs-val">2</span>
+          <button onclick="adj('legs',1)">+</button>
+        </div>
+      </div>
+      <div>
+        <div class="setup-label">Sets to Win</div>
+        <div class="num-input-group">
+          <button onclick="adj('sets',-1)">−</button>
+          <span class="nig-val" id="sets-val">2</span>
+          <button onclick="adj('sets',1)">+</button>
+        </div>
+      </div>
+    </div>
+    <button class="btn-start" onclick="startGame()">▶ START GAME</button>
+    <button class="btn-history" onclick="showScreen('history')">📋 Match History</button>
+  </div>
+</div>
+
+<!-- ══════════════════ GAME ══════════════════ -->
+<div id="screen-game" class="screen">
+  <div class="game-header">
+    <div class="game-match-info" id="match-info">SET <b>1</b> · LEG <b>1</b></div>
+    <button class="btn-menu" onclick="openMenu()">☰</button>
+  </div>
+  <div class="scoreboard" id="scoreboard"></div>
+  <div class="turn-display">
+    <div class="turn-label" id="turn-label">► <b></b>'S TURN</div>
+    <div class="dart-row">
+      <div class="dart-slots">
+        <div class="dart-slot" id="ds0">–</div>
+        <div class="dart-slot" id="ds1">–</div>
+        <div class="dart-slot" id="ds2">–</div>
+      </div>
+      <div class="turn-total-wrap">
+        <div class="turn-total" id="turn-total"></div>
+      </div>
+    </div>
+    <div class="checkout-hint" id="checkout-hint"></div>
+  </div>
+  <div class="keyboard">
+    <div class="mult-row">
+      <button class="mult-btn active" id="mS" onclick="setMult(1)">SINGLE</button>
+      <button class="mult-btn" id="mD" onclick="setMult(2)">DOUBLE</button>
+      <button class="mult-btn" id="mT" onclick="setMult(3)">TRIPLE</button>
+    </div>
+    <div class="num-grid" id="num-grid"></div>
+    <div class="specials-row">
+      <button class="spc-btn" onclick="enterDart(25,1)">BULL<small>25</small></button>
+      <button class="spc-btn" onclick="enterDart(25,2)">D-BULL<small>50</small></button>
+      <button class="spc-btn miss" onclick="enterDart(0,1)">MISS<small>0</small></button>
+    </div>
+    <div class="actions-row">
+      <button class="btn-undo" onclick="undoDart()">← UNDO</button>
+      <button class="btn-confirm" id="btn-confirm" onclick="confirmTurn()" disabled>CONFIRM ✓</button>
+    </div>
+  </div>
+  <div class="bust-banner" id="bust-banner">BUST!</div>
+</div>
+
+<!-- ══════════════════ CRICKET ══════════════════ -->
+<div id="screen-cricket" class="screen">
+  <div class="game-header">
+    <div class="game-match-info" id="c-info">CRICKET · ROUND <b>1</b></div>
+    <button class="btn-menu" onclick="openMenu()">☰</button>
+  </div>
+  <div class="c-board" id="c-board"></div>
+  <div class="turn-display">
+    <div class="turn-label" id="c-turn-label"></div>
+    <div class="dart-slots">
+      <div class="dart-slot" id="cd0">–</div>
+      <div class="dart-slot" id="cd1">–</div>
+      <div class="dart-slot" id="cd2">–</div>
+    </div>
+  </div>
+  <div class="c-controls">
+    <div class="mult-row">
+      <button class="mult-btn active" id="cmS" onclick="cMult(1)">SINGLE</button>
+      <button class="mult-btn" id="cmD" onclick="cMult(2)">DOUBLE</button>
+      <button class="mult-btn" id="cmT" onclick="cMult(3)">TRIPLE</button>
+      <button class="mult-btn" onclick="cDart(0,1)">MISS</button>
+    </div>
+    <div class="actions-row">
+      <button class="btn-undo" onclick="cUndoDart()">← UNDO</button>
+      <button class="btn-confirm" id="c-end" onclick="cEnd()" disabled>END TURN ✓</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════ POST GAME ══════════════════ -->
+<div id="screen-postgame" class="screen">
+  <div class="pg-header">
+    <div style="font-size:11px;font-weight:700;letter-spacing:2px;color:var(--text3);text-transform:uppercase;margin-bottom:4px">🏆 MATCH WINNER</div>
+    <div class="pg-winner" id="pg-winner">PLAYER 1</div>
+    <div class="pg-sub" id="pg-sub">WINS THE MATCH</div>
+    <div class="win-bar"></div>
+  </div>
+  <div class="stats-container" id="stats-container"></div>
+  <div class="pg-actions">
+    <button class="btn-rematch" onclick="rematch()">🔄 REMATCH</button>
+    <button class="btn-new" onclick="showScreen('setup')">NEW GAME</button>
+  </div>
+</div>
+
+<!-- ══════════════════ HISTORY ══════════════════ -->
+<div id="screen-history" class="screen">
+  <div class="hist-header">
+    <button class="btn-back" onclick="showScreen('setup')">←</button>
+    <h2>HISTORY</h2>
+    <button class="btn-clr" onclick="clearHist()">CLEAR</button>
+  </div>
+  <div class="hist-list" id="hist-list"></div>
+</div>
+
+<!-- ══════════════════ PAUSE MENU ══════════════════ -->
+<div class="modal-overlay" id="modal" onclick="closeMenuOut(event)">
+  <div class="modal-sheet">
+    <div class="modal-title">⏸ GAME MENU</div>
+    <button class="modal-btn" onclick="undoTurnAny();closeModal()">↩ Undo Last Turn</button>
+    <button class="modal-btn danger" onclick="abandonGame()">✕ Abandon Game</button>
+    <button class="modal-cancel" onclick="closeModal()">Cancel</button>
+  </div>
+</div>
+
+<script>
+// ─────────────────────────────────────────────────────────────────
+//  CHECKOUT TABLE  (precomputed at load for double / master / straight)
+// ─────────────────────────────────────────────────────────────────
+const CO = {}; // CO[outRule][score] = "T20 T20 D20"
+
+(function(){
+  const N=[20,19,18,17,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1];
+  function lbl(m,n){
+    if(m===1) return n===25?'BULL':String(n);
+    if(m===2) return n===25?'D-BULL':'D'+n;
+    return 'T'+n;
+  }
+  function fin1(s,rule){
+    if(rule==='double'){
+      for(const n of [...N,25]) if(n*2===s) return lbl(2,n);
+    } else if(rule==='master'){
+      for(const n of [...N,25]) if(n*2===s) return lbl(2,n);
+      for(const n of N) if(n*3===s) return lbl(3,n);
+    } else { // straight
+      for(const n of [...N,25]){
+        if(n===s) return lbl(1,n);
+        if(n*2===s) return lbl(2,n);
+        if(n!==25&&n*3===s) return lbl(3,n);
+      }
+    }
+    return null;
+  }
+  // first-dart options ordered high-value first
+  const opts=[];
+  for(const n of N) opts.push([n*3,lbl(3,n)]);
+  for(const n of N) opts.push([n*2,lbl(2,n)]);
+  for(const n of N) opts.push([n,lbl(1,n)]);
+  opts.push([25,'BULL']);
+
+  for(const rule of ['double','master','straight']){
+    CO[rule]={};
+    for(let s=2;s<=170;s++){
+      // 1-dart
+      const f=fin1(s,rule);
+      if(f){CO[rule][s]=f;continue;}
+      // 2-dart
+      let found=null;
+      for(const [v,l] of opts){
+        const r=s-v;
+        if(r<=0) continue;
+        const f2=fin1(r,rule);
+        if(f2){found=l+' '+f2;break;}
+      }
+      if(found){CO[rule][s]=found;continue;}
+      // 3-dart
+      outer:for(const [v1,l1] of opts){
+        const r1=s-v1;
+        if(r1<=0) continue;
+        for(const [v2,l2] of opts){
+          const r2=r1-v2;
+          if(r2<=0) continue;
+          const f3=fin1(r2,rule);
+          if(f3){found=l1+' '+l2+' '+f3;break outer;}
+        }
+      }
+      if(found) CO[rule][s]=found;
+    }
+  }
+})();
+
+function getCheckout(score, dartsLeft, rule){
+  if(score<2||score>170) return null;
+  const tbl=CO[rule]||CO['double'];
+  const full=tbl[score];
+  if(!full) return null;
+  const parts=full.split(' ');
+  if(parts.length<=dartsLeft) return full;
+  if(dartsLeft===1){
+    const N=[20,19,18,17,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1];
+    if(rule==='double'){for(const n of [...N,25]) if(n*2===score) return n===25?'D-BULL':'D'+n;}
+    else if(rule==='master'){
+      for(const n of [...N,25]) if(n*2===score) return n===25?'D-BULL':'D'+n;
+      for(const n of N) if(n*3===score) return 'T'+n;
+    } else {
+      for(const n of [...N,25]){if(n===score) return n===25?'BULL':String(n);if(n*2===score) return n===25?'D-BULL':'D'+n;if(n!==25&&n*3===score) return 'T'+n;}
+    }
+    return null;
+  }
+  if(dartsLeft===2){
+    const opts=[];const N=[20,19,18,17,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1];
+    for(const n of N) opts.push([n*3,'T'+n],[n*2,'D'+n],[n,String(n)]);opts.push([25,'BULL']);
+    function fin1s(s){
+      if(rule==='double'){for(const n of [...N,25]) if(n*2===s) return n===25?'D-BULL':'D'+n;}
+      else if(rule==='master'){for(const n of [...N,25]) if(n*2===s) return n===25?'D-BULL':'D'+n;for(const n of N) if(n*3===s) return 'T'+n;}
+      else {for(const n of [...N,25]){if(n===s) return n===25?'BULL':String(n);if(n*2===s) return n===25?'D-BULL':'D'+n;if(n!==25&&n*3===s) return 'T'+n;}}
+      return null;
+    }
+    for(const [v,l] of opts){const r=score-v;if(r<=0) continue;const f=fin1s(r);if(f) return l+' '+f;}
+  }
+  return null;
+}
+
+// ─────────────────────────────────────────────────────────────────
+//  SETTINGS STATE
+// ─────────────────────────────────────────────────────────────────
+const cfg={
+  mode:'x01', startScore:501, outRule:'double', legsToWin:2, setsToWin:2, numPlayers:2,
+  names:['Player 1','Player 2','Player 3','Player 4']
+};
+let G=null; // game state
+
+// ─────────────────────────────────────────────────────────────────
+//  SETUP
+// ─────────────────────────────────────────────────────────────────
+function initSetup(){
+  const saved=JSON.parse(localStorage.getItem('dnames')||'[]');
+  saved.forEach((n,i)=>{if(n) cfg.names[i]=n;});
+  mkBtnGroup('grp-mode',setMode);
+  mkBtnGroup('grp-type',v=>{cfg.startScore=+v;});
+  mkBtnGroup('grp-out',v=>{cfg.outRule=v;});
+  mkBtnGroup('grp-players',v=>{cfg.numPlayers=+v;renderNames();});
+  renderNames();
+}
+
+function mkBtnGroup(id,cb){
+  const g=document.getElementById(id);
+  g.querySelectorAll('.btn-opt').forEach(b=>{
+    b.onclick=()=>{
+      g.querySelectorAll('.btn-opt').forEach(x=>x.classList.remove('active'));
+      b.classList.add('active'); cb(b.dataset.val);
+    };
+  });
+}
+
+function setMode(v){
+  cfg.mode=v;
+  document.getElementById('screen-setup').classList.toggle('cricket',v==='cricket');
+  document.getElementById('setup-sub').textContent=v==='cricket'?'Cricket · 20–15 & Bull':'X01 · Sets & Legs';
+  document.querySelector('#grp-players [data-val="1"]').style.display=v==='cricket'?'none':'';
+  if(v==='cricket'&&cfg.numPlayers<2) document.querySelector('#grp-players [data-val="2"]').click();
+}
+
+function renderNames(){
+  const c=document.getElementById('player-inputs');c.innerHTML='';
+  for(let i=0;i<cfg.numPlayers;i++){
+    const r=document.createElement('div');r.className='player-row';
+    r.innerHTML=`<span>P${i+1}</span><input class="player-name-input" id="pn${i}" value="${cfg.names[i]}" maxlength="16" placeholder="Player ${i+1}">`;
+    c.appendChild(r);
+  }
+}
+
+function adj(t,d){
+  if(t==='legs'){cfg.legsToWin=Math.max(1,Math.min(7,cfg.legsToWin+d));document.getElementById('legs-val').textContent=cfg.legsToWin;}
+  else{cfg.setsToWin=Math.max(1,Math.min(7,cfg.setsToWin+d));document.getElementById('sets-val').textContent=cfg.setsToWin;}
+}
+
+function startGame(){
+  for(let i=0;i<cfg.numPlayers;i++){
+    const el=document.getElementById('pn'+i);
+    if(el) cfg.names[i]=el.value.trim()||'Player '+(i+1);
+  }
+  localStorage.setItem('dnames',JSON.stringify(cfg.names));
+  rematch();
+}
+
+// ─────────────────────────────────────────────────────────────────
+//  GAME INIT
+// ─────────────────────────────────────────────────────────────────
+function mkPlayer(name){
+  return {
+    name, score:cfg.startScore, sets:0, legs:0,
+    dartsThrown:0, turns:[],
+    coAttempts:0, coSuccesses:0,
+    totalDarts:0, allTurns:[]
+  };
+}
+
+function initGame(){
+  G={
+    cfg:{...cfg,names:[...cfg.names]},
+    players:Array.from({length:cfg.numPlayers},(_,i)=>mkPlayer(cfg.names[i])),
+    cur:0, legFirst:0, setNum:1, legNum:1,
+    turn:{darts:[],mult:1},
+    hist:[] // undo stack
+  };
+  buildNumGrid();
+  renderGame();
+}
+
+// ─────────────────────────────────────────────────────────────────
+//  GAME RENDER
+// ─────────────────────────────────────────────────────────────────
+function buildNumGrid(){
+  const g=document.getElementById('num-grid');
+  if(g.children.length) return;
+  for(let n=1;n<=20;n++){
+    const b=document.createElement('button');
+    b.className='num-btn';b.textContent=n;
+    b.onclick=()=>enterDart(n,G.turn.mult);
+    g.appendChild(b);
+  }
+}
+
+function renderGame(){
+  buildScoreboard();
+  updateMatchInfo();
+  updateTurnLabel();
+  refreshSlots();
+  updateCheckoutHint();
+}
+
+function buildScoreboard(){
+  const sb=document.getElementById('scoreboard');sb.innerHTML='';
+  G.players.forEach((p,i)=>{
+    const d=document.createElement('div');
+    d.className='player-panel'+(i===G.cur?' is-active':'');
+    d.id='pp'+i;
+    const avg=calcAvg(p);
+    d.innerHTML=`
+      <div class="pp-name">${esc(p.name)}</div>
+      <div class="pp-score" id="sc${i}" style="">${p.score}</div>
+      <div class="pp-stats">
+        <div class="pp-stat">AVG <em>${avg}</em></div>
+        <div class="pp-stat">🎯 <em>${p.dartsThrown}</em></div>
+      </div>
+      <div class="pp-sets-legs">
+        ${makeDots(p.sets,G.cfg.setsToWin,'dot')}
+        <span class="pp-sep">·</span>
+        ${makeDots(p.legs,G.cfg.legsToWin,'pip')}
+      </div>`;
+    sb.appendChild(d);
+  });
+}
+
+function makeDots(won,total,cls){
+  let h='';
+  for(let i=0;i<total;i++) h+=`<span class="${cls}${i<won?' lit':''}"></span>`;
+  return h;
+}
+
+function calcAvg(p){
+  if(!p.dartsThrown) return '–.–';
+  const scored=G.cfg.startScore-p.score;
+  return ((scored/p.dartsThrown)*3).toFixed(1);
+}
+
+function updateMatchInfo(){
+  document.getElementById('match-info').innerHTML=`SET <b>${G.setNum}</b> · LEG <b>${G.legNum}</b>`;
+}
+
+function updateTurnLabel(){
+  const name=G.players[G.cur].name;
+  document.getElementById('turn-label').innerHTML=`► <b>${esc(name)}</b>'S TURN`;
+}
+
+function refreshSlots(){
+  const darts=G.turn.darts;
+  for(let i=0;i<3;i++){
+    const el=document.getElementById('ds'+i);
+    if(i<darts.length){
+      el.textContent=darts[i].lbl;
+      el.className='dart-slot filled';
+    } else {
+      el.textContent='–'; el.className='dart-slot';
+    }
+  }
+  const tot=darts.reduce((s,d)=>s+d.val,0);
+  document.getElementById('turn-total').textContent=tot||'';
+  document.getElementById('btn-confirm').disabled=darts.length===0;
+  // ── Live score for active player ──
+  const p=G.players[G.cur];
+  const liveScore=p.score-tot;
+  const sc=document.getElementById('sc'+G.cur);
+  if(sc){
+    const isBust=liveScore<0||(liveScore===1&&G.cfg.outRule!=='straight');
+    sc.textContent=isBust?p.score:liveScore;
+    sc.style.color=isBust?'var(--red)':'';
+  }
+}
+
+function updateCheckoutHint(){
+  const p=G.players[G.cur];
+  const dLeft=3-G.turn.darts.length;
+  const tot=G.turn.darts.reduce((s,d)=>s+d.val,0);
+  const rem=p.score-tot;
+  const hint=document.getElementById('checkout-hint');
+  if(rem<2||rem>170){hint.innerHTML='';return;}
+  const co=getCheckout(rem,dLeft,G.cfg.outRule);
+  if(co) hint.innerHTML=`🎯 <b>${co}</b>`;
+  else hint.innerHTML=`<span style="color:var(--red);opacity:.7">No finish in ${dLeft} dart${dLeft!==1?'s':''}</span>`;
+}
+
+function setMult(m){
+  G.turn.mult=m;
+  ['S','D','T'].forEach((x,i)=>{
+    document.getElementById('m'+x).classList.toggle('active',i+1===m);
+  });
+}
+
+// ─────────────────────────────────────────────────────────────────
+//  DART ENTRY
+// ─────────────────────────────────────────────────────────────────
+function enterDart(num,mult){
+  if(G.turn.darts.length>=3) return;
+  if(num===25&&mult===3) return; // no triple bull
+  const val=num*mult;
+  let lbl;
+  if(num===0) lbl='MISS';
+  else if(num===25&&mult===1) lbl='BULL';
+  else if(num===25&&mult===2) lbl='D-BULL';
+  else if(mult===1) lbl=String(num);
+  else if(mult===2) lbl='D'+num;
+  else lbl='T'+num;
+
+  saveSnap();
+  G.turn.darts.push({val,lbl,mult,num});
+
+  // Track checkout attempt (started turn with ≤170)
+  const p=G.players[G.cur];
+  if(G.turn.darts.length===1 && p.score<=170) p.coAttempts++;
+
+  setMult(1); // reset to single
+  refreshSlots();
+  updateCheckoutHint();
+
+  if(G.turn.darts.length===3) setTimeout(confirmTurn,300);
+}
+
+function undoDart(){
+  if(!G.hist.length) return;
+  if(G.turn.darts.length===0){
+    // No darts entered yet — undo the entire previous player's turn
+    undoTurn();
+  } else {
+    restoreSnap();
+    setMult(G.turn.mult);
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────
+//  SNAPSHOTS
+// ─────────────────────────────────────────────────────────────────
+function saveSnap(){
+  G.hist.push({
+    turn:JSON.parse(JSON.stringify(G.turn)),
+    players:JSON.parse(JSON.stringify(G.players)),
+    cur:G.cur, setNum:G.setNum, legNum:G.legNum, legFirst:G.legFirst
+  });
+  if(G.hist.length>30) G.hist.shift();
+}
+
+function restoreSnap(){
+  if(!G.hist.length) return;
+  const s=G.hist.pop();
+  G.turn=s.turn; G.players=s.players; G.cur=s.cur;
+  G.setNum=s.setNum; G.legNum=s.legNum; G.legFirst=s.legFirst;
+  buildScoreboard(); updateMatchInfo(); updateTurnLabel(); refreshSlots(); updateCheckoutHint();
+}
+
+function undoTurn(){
+  // Pop back to a snapshot where it's a different player's fresh turn
+  const startCur=G.cur;
+  while(G.hist.length){
+    const top=G.hist[G.hist.length-1];
+    if(top.turn.darts.length===0 && top.cur!==startCur){
+      restoreSnap(); return;
+    }
+    G.hist.pop();
+  }
+  // fallback: restore one level
+  if(G.hist.length) restoreSnap();
+}
+
+// ─────────────────────────────────────────────────────────────────
+//  CONFIRM TURN
+// ─────────────────────────────────────────────────────────────────
+function confirmTurn(){
+  const darts=G.turn.darts;
+  if(!darts.length) return;
+  const p=G.players[G.cur];
+  const total=darts.reduce((s,d)=>s+d.val,0);
+  const newScore=p.score-total;
+  const outRule=G.cfg.outRule;
+  const lastD=darts[darts.length-1];
+
+  saveSnap(); // snapshot for undo last turn
+
+  // ── BUST CHECK ──
+  let bust=false;
+  if(newScore<0) bust=true;
+  if(newScore===1 && outRule!=='straight') bust=true;
+  if(newScore===0){
+    if(outRule==='double' && lastD.mult!==2) bust=true;
+    if(outRule==='master' && lastD.mult!==2 && lastD.mult!==3) bust=true;
+  }
+
+  const turnData={darts:[...darts],total,wasBust:bust};
+  p.turns.push(turnData);
+  p.allTurns.push(turnData);
+
+  if(bust){
+    p.dartsThrown+=darts.length;
+    p.totalDarts+=darts.length;
+    showBust();
+    G.turn={darts:[],mult:1};
+    nextPlayer();
+    return;
+  }
+
+  p.score=newScore;
+  p.dartsThrown+=darts.length;
+  p.totalDarts+=darts.length;
+
+  // Animate score
+  const sc=document.getElementById('sc'+G.cur);
+  if(sc){sc.style.color='';sc.textContent=p.score;sc.classList.remove('score-anim');void sc.offsetWidth;sc.classList.add('score-anim');}
+
+  if(newScore===0){
+    p.coSuccesses++;
+    G.turn={darts:[],mult:1};
+    setTimeout(legWon,400);
+    return;
+  }
+
+  G.turn={darts:[],mult:1};
+  nextPlayer();
+}
+
+function nextPlayer(){
+  G.cur=(G.cur+1)%G.players.length;
+  setMult(1);
+  buildScoreboard(); updateTurnLabel(); refreshSlots(); updateCheckoutHint();
+}
+
+// ─────────────────────────────────────────────────────────────────
+//  BUST ANIMATION
+// ─────────────────────────────────────────────────────────────────
+function showBust(){
+  const b=document.getElementById('bust-banner');
+  b.classList.add('show');
+  setTimeout(()=>b.classList.remove('show'),900);
+}
+
+// ─────────────────────────────────────────────────────────────────
+//  LEG / SET / MATCH
+// ─────────────────────────────────────────────────────────────────
+function legWon(){
+  const p=G.players[G.cur];
+  p.legs++;
+
+  if(p.legs>=G.cfg.legsToWin){
+    p.sets++;
+    G.players.forEach(pl=>pl.legs=0);
+    if(p.sets>=G.cfg.setsToWin){
+      setTimeout(()=>matchWon(p),200);
+      return;
+    }
+    G.setNum++;G.legNum=1;
+  } else {
+    G.legNum++;
+  }
+
+  // Next leg
+  G.legFirst=(G.legFirst+1)%G.players.length;
+  G.cur=G.legFirst;
+  G.players.forEach(pl=>{
+    pl.score=G.cfg.startScore;
+    pl.dartsThrown=0;pl.turns=[];
+    pl.coAttempts=0;pl.coSuccesses=0;
+  });
+  setMult(1);
+  buildScoreboard();updateMatchInfo();updateTurnLabel();refreshSlots();updateCheckoutHint();
+}
+
+function matchWon(winner){
+  saveMatchHistory(winner);
+  renderPostGame(winner);
+  showScreen('postgame');
+}
+
+// ─────────────────────────────────────────────────────────────────
+//  POST GAME STATS
+// ─────────────────────────────────────────────────────────────────
+function renderPostGame(winner){
+  document.getElementById('pg-winner').textContent=winner.name.toUpperCase();
+  document.getElementById('pg-sub').textContent=
+    G.cfg.startScore+' · '+G.cfg.outRule.toUpperCase()+' OUT';
+
+  const c=document.getElementById('stats-container');c.innerHTML='';
+  G.players.forEach((p,i)=>{
+    const isW=p===winner;
+    const avg=finalAvg(p);
+    const best=bestRound(p);
+    const f9=first9(p);
+    const coP=p.coAttempts>0?Math.round(p.coSuccesses/p.coAttempts*100)+'%':'–';
+    const s180=p.allTurns.filter(t=>!t.wasBust&&t.total===180).length;
+    const s100=p.allTurns.filter(t=>!t.wasBust&&t.total>=100).length;
+    const hiCo=highCo(p);
+
+    const card=document.createElement('div');
+    card.className='stats-card'+(isW?' winner':'');
+    card.style.animationDelay=(0.1+i*0.1)+'s';
+    card.innerHTML=`
+      <div class="sc-name${isW?' winner':''}">${isW?'🏆 ':''}${esc(p.name)}</div>
+      <div class="stats-grid">
+        <div class="sg-item"><div class="sg-label">3-Dart Avg</div><div class="sg-val hi">${avg}</div></div>
+        <div class="sg-item"><div class="sg-label">Darts Thrown</div><div class="sg-val">${p.totalDarts}</div></div>
+        <div class="sg-item"><div class="sg-label">Best Round</div><div class="sg-val">${best}</div></div>
+        <div class="sg-item"><div class="sg-label">First 9 Avg</div><div class="sg-val">${f9}</div></div>
+        <div class="sg-item"><div class="sg-label">Checkout %</div><div class="sg-val">${coP}</div></div>
+        <div class="sg-item"><div class="sg-label">Highest CO</div><div class="sg-val">${hiCo}</div></div>
+        <div class="sg-item"><div class="sg-label">180s</div><div class="sg-val">${s180}</div></div>
+        <div class="sg-item"><div class="sg-label">100+ Rounds</div><div class="sg-val">${s100}</div></div>
+      </div>`;
+    c.appendChild(card);
+  });
+}
+
+function finalAvg(p){
+  if(!p.totalDarts) return '–';
+  const scored=p.allTurns.filter(t=>!t.wasBust).reduce((s,t)=>s+t.total,0);
+  return ((scored/p.totalDarts)*3).toFixed(1);
+}
+function bestRound(p){
+  const v=p.allTurns.filter(t=>!t.wasBust).map(t=>t.total);
+  return v.length?Math.max(...v):'–';
+}
+function first9(p){
+  const t=p.allTurns.filter(t=>!t.wasBust).slice(0,3);
+  if(!t.length) return '–';
+  const sc=t.reduce((s,x)=>s+x.total,0);
+  const d=t.reduce((s,x)=>s+x.darts.length,0);
+  return d?((sc/d)*3).toFixed(1):'–';
+}
+function highCo(p){
+  // Highest scoring completed (non-bust) turn — rough proxy for checkout
+  const v=p.allTurns.filter(t=>!t.wasBust).map(t=>t.total);
+  return v.length?Math.max(...v):'–';
+}
+
+// ─────────────────────────────────────────────────────────────────
+//  HISTORY
+// ─────────────────────────────────────────────────────────────────
+function saveMatchHistory(winner){
+  const hist=JSON.parse(localStorage.getItem('dhist')||'[]');
+  hist.unshift({
+    date:new Date().toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'}),
+    game:G.cfg.startScore,out:G.cfg.outRule,winner:winner.name,
+    players:G.players.map(p=>({name:p.name,sets:p.sets,avg:finalAvg(p)}))
+  });
+  if(hist.length>10) hist.pop();
+  localStorage.setItem('dhist',JSON.stringify(hist));
+}
+
+function renderHistory(){
+  const list=document.getElementById('hist-list');
+  const hist=JSON.parse(localStorage.getItem('dhist')||'[]');
+  if(!hist.length){list.innerHTML='<div class="hist-empty">No matches recorded yet.</div>';return;}
+  list.innerHTML=hist.map(e=>`
+    <div class="hi-item">
+      <div class="hi-top">
+        <div class="hi-game">${e.mode==='cricket'?'CRICKET':e.game+' · '+(e.out||'double').toUpperCase()+' OUT'}</div>
+        <div class="hi-date">${e.date}</div>
+      </div>
+      <div class="hi-winner">🏆 ${esc(e.winner)}</div>
+      <div class="hi-stats">${(e.players||[]).map(p=>e.mode==='cricket'?`${esc(p.name)}: ${p.pts} pts · ${p.mpr} MPR`:`${esc(p.name)}: ${p.sets||0} sets · avg ${p.avg}`).join(' &nbsp;·&nbsp; ')}</div>
+    </div>`).join('');
+}
+
+function clearHist(){
+  if(confirm('Clear all match history?')){localStorage.removeItem('dhist');renderHistory();}
+}
+
+// ─────────────────────────────────────────────────────────────────
+//  REMATCH / MENU
+// ─────────────────────────────────────────────────────────────────
+function rematch(){
+  if(cfg.mode==='cricket'){initCricket();showScreen('cricket');}
+  else{initGame();showScreen('game');}
+}
+function undoTurnAny(){cfg.mode==='cricket'?cUndoTurn():undoTurn();}
+
+function openMenu(){document.getElementById('modal').classList.add('open');}
+function closeModal(){document.getElementById('modal').classList.remove('open');}
+function closeMenuOut(e){if(e.target===document.getElementById('modal')) closeModal();}
+function abandonGame(){closeModal();if(confirm('Abandon current game?')) showScreen('setup');}
+
+// ─────────────────────────────────────────────────────────────────
+//  SCREEN NAV
+// ─────────────────────────────────────────────────────────────────
+function showScreen(name){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-'+name).classList.add('active');
+  if(name==='history') renderHistory();
+}
+
+// ─────────────────────────────────────────────────────────────────
+//  CRICKET  (20–15 + Bull; 3 marks to close; extra marks score while an opponent is open)
+// ─────────────────────────────────────────────────────────────────
+const CT=[20,19,18,17,16,15,25];
+const MARK=['','/','✕','◉'];
+let C=null;
+
+function initCricket(){
+  C={
+    players:Array.from({length:cfg.numPlayers},(_,i)=>({
+      name:cfg.names[i],m:{20:0,19:0,18:0,17:0,16:0,15:0,25:0},pts:0,hits:0,darts:0,turns:0
+    })),
+    cur:0,round:1,darts:[],mult:1,hist:[]
+  };
+  renderCricket();
+}
+
+function cSnap(){
+  C.hist.push(JSON.stringify({players:C.players,cur:C.cur,round:C.round,darts:C.darts,mult:C.mult}));
+  if(C.hist.length>60) C.hist.shift();
+}
+function cRestore(){Object.assign(C,JSON.parse(C.hist.pop()));renderCricket();}
+
+function cMult(m){
+  C.mult=m;
+  ['S','D','T'].forEach((x,i)=>document.getElementById('cm'+x).classList.toggle('active',i+1===m));
+}
+
+function renderCricket(){
+  const n=C.players.length,b=document.getElementById('c-board');
+  b.style.gridTemplateColumns=`64px repeat(${n},1fr)`;
+  let h='<div></div>';
+  C.players.forEach((p,i)=>{
+    h+=`<div class="c-head${i===C.cur?' is-active':''}"><div class="n">${esc(p.name)}</div><div class="p">${p.pts}</div></div>`;
+  });
+  CT.forEach(t=>{
+    const dead=C.players.every(p=>p.m[t]>=3);
+    h+=`<button class="c-num${dead?' dead':''}" onclick="cDart(${t})">${t===25?'BULL':t}</button>`;
+    C.players.forEach((p,i)=>{
+      h+=`<div class="c-cell${i===C.cur?' is-active':''}${p.m[t]>=3?' closed':''}">${MARK[p.m[t]]}</div>`;
+    });
+  });
+  b.innerHTML=h;
+  document.getElementById('c-info').innerHTML=`CRICKET · ROUND <b>${C.round}</b>`;
+  document.getElementById('c-turn-label').innerHTML=`► <b>${esc(C.players[C.cur].name)}</b>'S TURN`;
+  for(let i=0;i<3;i++){
+    const el=document.getElementById('cd'+i);
+    el.textContent=C.darts[i]||'–';
+    el.className='dart-slot'+(C.darts[i]?' filled':'');
+  }
+  document.getElementById('c-end').disabled=!C.darts.length;
+  cMult(C.mult);
+}
+
+function cDart(t,mult){
+  mult=mult||C.mult;
+  if(C.darts.length>=3||(t===25&&mult===3)) return;
+  cSnap();
+  const p=C.players[C.cur];
+  p.darts++;
+  for(let k=0;k<mult&&t;k++){
+    if(p.m[t]<3){p.m[t]++;p.hits++;}
+    else if(C.players.some((q,i)=>i!==C.cur&&q.m[t]<3)){p.pts+=t;p.hits++;}
+  }
+  C.darts.push(!t?'MISS':t===25?(mult===2?'D-BULL':'BULL'):(['','','D','T'][mult])+t);
+  C.mult=1;
+  renderCricket();
+  const won=CT.every(n=>p.m[n]===3)&&C.players.every((q,i)=>i===C.cur||p.pts>=q.pts);
+  if(won){p.turns++;setTimeout(()=>cWon(p),300);}
+  else if(C.darts.length===3) setTimeout(cEnd,300);
+}
+
+function cEnd(){
+  if(!C.darts.length) return;
+  cSnap();
+  C.players[C.cur].turns++;
+  C.darts=[];C.mult=1;
+  C.cur=(C.cur+1)%C.players.length;
+  if(C.cur===0) C.round++;
+  renderCricket();
+}
+
+function cUndoDart(){if(C.hist.length) cRestore();}
+function cUndoTurn(){
+  const start=C.cur;
+  while(C.hist.length){
+    const top=JSON.parse(C.hist[C.hist.length-1]);
+    if(!top.darts.length&&top.cur!==start){cRestore();return;}
+    C.hist.pop();
+  }
+}
+
+function mpr(p){return p.turns?(p.hits/p.turns).toFixed(2):'–';}
+
+function cWon(w){
+  const hist=JSON.parse(localStorage.getItem('dhist')||'[]');
+  hist.unshift({
+    date:new Date().toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'}),
+    mode:'cricket',winner:w.name,players:C.players.map(p=>({name:p.name,pts:p.pts,mpr:mpr(p)}))
+  });
+  if(hist.length>10) hist.pop();
+  localStorage.setItem('dhist',JSON.stringify(hist));
+
+  document.getElementById('pg-winner').textContent=w.name.toUpperCase();
+  document.getElementById('pg-sub').textContent='CRICKET';
+  const c=document.getElementById('stats-container');c.innerHTML='';
+  C.players.forEach((p,i)=>{
+    const isW=p===w,card=document.createElement('div');
+    card.className='stats-card'+(isW?' winner':'');
+    card.style.animationDelay=(0.1+i*0.1)+'s';
+    card.innerHTML=`
+      <div class="sc-name${isW?' winner':''}">${isW?'🏆 ':''}${esc(p.name)}</div>
+      <div class="stats-grid">
+        <div class="sg-item"><div class="sg-label">Points</div><div class="sg-val hi">${p.pts}</div></div>
+        <div class="sg-item"><div class="sg-label">Marks / Round</div><div class="sg-val">${mpr(p)}</div></div>
+        <div class="sg-item"><div class="sg-label">Darts Thrown</div><div class="sg-val">${p.darts}</div></div>
+        <div class="sg-item"><div class="sg-label">Marks</div><div class="sg-val">${p.hits}</div></div>
+      </div>`;
+    c.appendChild(card);
+  });
+  showScreen('postgame');
+}
+
+// ─────────────────────────────────────────────────────────────────
+//  UTILS
+// ─────────────────────────────────────────────────────────────────
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+// ─────────────────────────────────────────────────────────────────
+//  BOOT
+// ─────────────────────────────────────────────────────────────────
+initSetup();
+</script>
+</body>
+</html>
