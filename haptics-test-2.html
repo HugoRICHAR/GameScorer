@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Haptics test 2</title>
+<!-- Temporary diagnostic page: only a finger-toggled native switch buzzes; find a way to put one under app buttons. Delete once settled. -->
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body { margin: 0; padding: calc(16px + env(safe-area-inset-top)) 16px 32px; font: 16px/1.45 -apple-system, system-ui, sans-serif; background: #111318; color: #f1f2f5; }
+  h1 { font-size: 26px; margin: 0 0 4px; }
+  p { color: #a7adb8; margin: 0 0 16px; }
+  .row { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 58px; padding: 0 16px; margin-bottom: 10px; border-radius: 14px; background: #2b3040; font-weight: 600; font-size: 17px; overflow: hidden; }
+  .row small { display: block; font-weight: 400; font-size: 13px; color: #a7adb8; }
+  .row:active { background: #3a4156; }
+  .tag { position: absolute; right: 14px; color: #8ce99a; font-size: 13px; font-weight: 400; }
+  /* F: switch tucked inside a label-button, invisible */
+  .tuck { position: absolute; width: 1px; height: 1px; opacity: 0.01; pointer-events: none; }
+  /* G: invisible switch stretched over the whole button */
+  .cover { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0.01; z-index: 2; }
+  /* H: invisible switch scaled up over the button */
+  .scale { position: absolute; left: 50%; top: 50%; margin: 0; opacity: 0.01; z-index: 2; transform: translate(-50%, -50%) scale(9, 2.6); }
+  /* I: like G but with the native look removed */
+  .flat { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0.01; z-index: 2; -webkit-appearance: none; appearance: none; }
+  .info { font: 12px/1.5 ui-monospace, Menlo, monospace; background: #1c1f26; border-radius: 12px; padding: 10px 12px; margin: 18px 0 8px; word-break: break-word; }
+  .copy { width: 100%; padding: 12px; border: 0; border-radius: 12px; background: #3b5bdb; color: #fff; font: 600 16px -apple-system, system-ui; }
+  .real { width: 52px; height: 32px; }
+</style>
+</head>
+<body>
+<h1>Haptics test 2</h1>
+<p>Tap the grey area of each row (not a visible switch, there isn't one except in 0b). A green "tapped" appears so you know the tap landed.</p>
+
+<label class="row"><span>0b · Tap only the TEXT of this row<small>The switch is at the right; don't touch it</small></span><input type="checkbox" switch class="real"></label>
+
+<label class="row" onclick="hit(this)"><span>F · Button with a hidden switch inside<small>Label wraps an invisible switch</small></span><input type="checkbox" switch class="tuck"><i class="tag"></i></label>
+
+<div class="row"><span>G · Invisible switch stretched over<small>Finger lands on the switch itself</small></span><input type="checkbox" switch class="cover" onclick="hit(this.parentNode)"><i class="tag"></i></div>
+
+<div class="row"><span>H · Invisible switch scaled over<small>Same, but enlarged with a transform</small></span><input type="checkbox" switch class="scale" onclick="hit(this.parentNode)"><i class="tag"></i></div>
+
+<div class="row"><span>I · Like G, native look removed<small>appearance: none</small></span><input type="checkbox" switch class="flat" onclick="hit(this.parentNode)"><i class="tag"></i></div>
+
+<div class="info" id="info"></div>
+<button class="copy" onclick="copyInfo(this)">Copy device info</button>
+
+<script>
+function hit(row) {
+  const t = row.querySelector('.tag');
+  t.textContent = 'tapped ' + new Date().toLocaleTimeString();
+}
+const probe = document.createElement('input');
+const info = navigator.userAgent + ' | standalone=' + (navigator.standalone === true) + ' | switch=' + ('switch' in probe);
+document.getElementById('info').textContent = info;
+function copyInfo(b) {
+  navigator.clipboard.writeText(info).then(() => { b.textContent = 'Copied'; }, () => { b.textContent = 'Select the text above and copy it'; });
+}
+</script>
+</body>
+</html>
