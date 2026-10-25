@@ -61,9 +61,11 @@ X01 (301/501/701, straight/double/master out, sets & legs) and Cricket (20–15 
 
 ## 📱 How to use on iPhone
 
-1. Open the HTML file in **Safari**
-2. Tap the **Share** button → **Add to Home Screen**
-3. It will appear as an app icon on your home screen
+1. Open https://hugorichar.github.io/GameScorer/ in **Safari**
+2. Tap **Share** → **Add to Home Screen**
+3. It opens full-screen like an app; each game can also be added on its own from its page
+
+In-progress games are saved on the device, so a reload or a closed tab picks up where you left off (the hub shows "Resume").
 
 ---
 
@@ -71,16 +73,16 @@ X01 (301/501/701, straight/double/master out, sets & legs) and Cricket (20–15 
 
 ```
 GameScorer/
-├── index.html
+├── index.html               hub
+├── manifest.webmanifest     home-screen app (standalone, start = hub)
+├── apple-touch-icon.png, icon-192.png, icon-512.png
 ├── shared/
-│   ├── base.css
-│   └── base.js
-├── scopa/
-│   └── index.html
-├── skull-king/
-│   └── index.html
-├── darts/
-│   └── index.html
+│   ├── reset.css            baseline, safe areas, motion (screen-in, stagger, bump, confetti, bottom sheet)
+│   ├── components.css       optional cards / buttons / stepper (Scopa)
+│   └── base.js              showScreen() + GS helpers (esc, save/load, bump, tween, confetti)
+├── scopa/        index.html + apple-touch-icon.png
+├── skull-king/   index.html + apple-touch-icon.png
+├── darts/        index.html + apple-touch-icon.png
 └── README.md
 ```
 
@@ -88,7 +90,7 @@ GameScorer/
 
 ## 🚀 GitHub Pages
 
-Once enabled, the apps are accessible at:
+Live (deployed from `main`, repo root):
 - `https://hugorichar.github.io/GameScorer/` — hub, links to every scorer
 - `https://hugorichar.github.io/GameScorer/scopa/`
 - `https://hugorichar.github.io/GameScorer/skull-king/`
