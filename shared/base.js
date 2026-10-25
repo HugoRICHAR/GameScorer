@@ -26,6 +26,12 @@ function showScreen(id) {
 }
 
 var GS = {
+  // <svg> referencing a symbol in shared/icons.svg (path resolved from this script's URL)
+  ICONS: document.currentScript.src.replace(/base\.js[^/]*$/, 'icons.svg'),
+  icon: function (id, cls) {
+    return '<svg class="i' + (cls ? ' ' + cls : '') + '" aria-hidden="true"><use href="' + GS.ICONS + '#' + id + '"/></svg>';
+  },
+
   esc: function (s) {
     return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   },
