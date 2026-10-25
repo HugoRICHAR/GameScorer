@@ -2,6 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
+<script>/* language picked on the hub; default from the phone */try{document.documentElement.lang=localStorage.getItem('gs-lang')||(/^fr/i.test(navigator.language)?'fr':'en')}catch(e){document.documentElement.lang='en'}</script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -267,16 +268,16 @@
 
 <!-- ═══ SETUP SCREEN ═══ -->
 <div id="setup-screen" class="screen active">
-  <div class="top-bar"><a href="../index.html" class="hub-link">‹ Hub</a><span class="spacer"></span><button class="hub-link" onclick="toggleRules(true)"><svg class="i" aria-hidden="true"><use href="../shared/icons.svg#book"/></svg> Règles</button></div>
+  <div class="top-bar"><a href="../index.html" class="hub-link">‹ Hub</a><span class="spacer"></span><button class="hub-link" onclick="toggleRules(true)"><svg class="i" aria-hidden="true"><use href="../shared/icons.svg#book"/></svg> <span data-l="fr">Règles</span><span data-l="en">Rules</span></button></div>
   <header>
     <svg class="i skull-icon" aria-hidden="true"><use href="../shared/icons.svg#skull"/></svg>
     <h1>Skull King</h1>
-    <div class="subtitle">Capitaine des Sept Mers</div>
+    <div class="subtitle"><span data-l="fr">Capitaine des Sept Mers</span><span data-l="en">Captain of the Seven Seas</span></div>
   </header>
 
   <div class="wrap stagger">
     <div class="card">
-      <div class="card-title"><svg class="i" aria-hidden="true"><use href="../shared/icons.svg#anchor"/></svg> Équipage
+      <div class="card-title"><svg class="i" aria-hidden="true"><use href="../shared/icons.svg#anchor"/></svg> <span data-l="fr">Équipage</span><span data-l="en">Crew</span>
         <span class="aside">
           <span class="stepper sm" style="display:inline-flex;">
             <button onclick="changeCount(-1)" aria-label="Moins de pirates">−</button>
@@ -292,22 +293,22 @@
       <div class="card-title"><svg class="i" aria-hidden="true"><use href="../shared/icons.svg#sliders"/></svg> Options</div>
       <label class="opt">
         <span>
-          <b>Bonus toujours accordés</b>
-          <small>Bonus (14, Skull King…) comptés même si le pari est raté. Désactivé = règle standard : bonus seulement si le pari est exact.</small>
+          <b><span data-l="fr">Bonus toujours accordés</span><span data-l="en">Bonuses always count</span></b>
+          <small><span data-l="fr">Bonus (14, Skull King…) comptés même si le pari est raté. Désactivé = règle standard : bonus seulement si le pari est exact.</span><span data-l="en">Bonuses (14s, Skull King…) count even when the bid is missed. Off = standard rule: bonuses only on an exact bid.</span></small>
         </span>
         <input type="checkbox" switch id="bonus-opt" onchange="bonusAlways = this.checked">
       </label>
       <label class="opt">
         <span>
-          <b>Butin &amp; Rascal</b>
-          <small>Cartes avancées : alliance Butin (+20 chacun si les deux paris sont justes) et pari de Rascal le Flambeur (0, 10 ou 20 points).</small>
+          <b><span data-l="fr">Butin &amp; Rascal</span><span data-l="en">Loot &amp; Rascal</span></b>
+          <small><span data-l="fr">Cartes avancées : alliance Butin (+20 chacun si les deux paris sont justes) et pari de Rascal le Flambeur (0, 10 ou 20 points).</span><span data-l="en">Advanced cards: Loot alliance (+20 each when both bids are right) and Rascal’s bet (0, 10 or 20 points).</span></small>
         </span>
         <input type="checkbox" switch id="loot-opt" onchange="options.loot = this.checked">
       </label>
       <label class="opt">
         <span>
-          <b>L'Extension</b>
-          <small>Nouveaux 7 (−5) et 8 (+5), Second (+30 à qui le capture), Casier de Davy Jones (+20 par léviathan), Mary Throne (6ᵉ pirate).</small>
+          <b><span data-l="fr">L'Extension</span><span data-l="en">Expansion</span></b>
+          <small><span data-l="fr">Nouveaux 7 (−5) et 8 (+5), Second (+30 à qui le capture), Casier de Davy Jones (+20 par léviathan), Mary Throne (6ᵉ pirate).</span><span data-l="en">New 7s (−5) and 8s (+5), First Mate (+30 to its captor), Davy Jones’ Locker (+20 per leviathan), Mary Throne (6th pirate).</span></small>
         </span>
         <input type="checkbox" switch id="ext-opt" onchange="options.ext = this.checked">
       </label>
@@ -315,7 +316,7 @@
   </div>
 
   <div class="dock">
-    <div class="dock-row"><button class="btn btn-primary" onclick="startGame()"><svg class="i" aria-hidden="true"><use href="../shared/icons.svg#anchor"/></svg> Appareiller</button></div>
+    <div class="dock-row"><button class="btn btn-primary" onclick="startGame()"><svg class="i" aria-hidden="true"><use href="../shared/icons.svg#anchor"/></svg> <span data-l="fr">Appareiller</span><span data-l="en">Set sail</span></button></div>
   </div>
 </div>
 
@@ -337,7 +338,7 @@
     <div id="entry-grid" class="stagger"></div>
 
     <div class="card" id="history-card" style="display:none">
-      <div class="card-title"><svg class="i" aria-hidden="true"><use href="../shared/icons.svg#scroll"/></svg> Historique</div>
+      <div class="card-title"><svg class="i" aria-hidden="true"><use href="../shared/icons.svg#scroll"/></svg> <span data-l="fr">Historique</span><span data-l="en">History</span></div>
       <div class="table-wrap"><table class="history-table" id="history-table"></table></div>
     </div>
   </div>
@@ -357,33 +358,34 @@
   <div class="wrap">
     <div class="over-hero">
       <span class="over-flag glass"><svg class="i" aria-hidden="true"><use href="../shared/icons.svg#crown"/></svg></span>
-      <h2>Fin de partie</h2>
+      <h2><span data-l="fr">Fin de partie</span><span data-l="en">Game over</span></h2>
       <p id="winner-text"></p>
     </div>
     <div class="card"><div class="podium stagger" id="podium"></div></div>
     <div class="card">
-      <div class="card-title"><svg class="i" aria-hidden="true"><use href="../shared/icons.svg#scroll"/></svg> Tableau complet</div>
+      <div class="card-title"><svg class="i" aria-hidden="true"><use href="../shared/icons.svg#scroll"/></svg> <span data-l="fr">Tableau complet</span><span data-l="en">Full scoreboard</span></div>
       <div class="table-wrap"><table class="history-table" id="final-history-table"></table></div>
     </div>
   </div>
   <div class="dock">
-    <div class="dock-row"><button class="btn btn-primary" onclick="confirmRestart()"><svg class="i" aria-hidden="true"><use href="../shared/icons.svg#anchor"/></svg> Nouvelle partie</button></div>
+    <div class="dock-row"><button class="btn btn-primary" onclick="confirmRestart()"><svg class="i" aria-hidden="true"><use href="../shared/icons.svg#anchor"/></svg> <span data-l="fr">Nouvelle partie</span><span data-l="en">New game</span></button></div>
   </div>
 </div>
 
 <!-- Rules sheet -->
 <div class="sheet-scrim" id="rules-panel" onclick="if (event.target === this) toggleRules(false)">
   <div class="sheet">
-    <h3><svg class="i" aria-hidden="true"><use href="../shared/icons.svg#book"/></svg> Règles</h3>
+    <h3><svg class="i" aria-hidden="true"><use href="../shared/icons.svg#book"/></svg> <span data-l="fr">Règles</span><span data-l="en">Rules</span></h3>
     <div class="rule-links">
       <a class="rule-link" href="https://cdn.1j1ju.com/medias/eb/6c/1c-skull-king-regle-2022.pdf" target="_blank" rel="noopener">
-        <svg class="i" aria-hidden="true"><use href="../shared/icons.svg#book"/></svg><span><b>Règles du jeu</b><small>PDF officiel · Butin p. 25, Rascal p. 26</small></span><svg class="i" aria-hidden="true"><use href="../shared/icons.svg#external"/></svg>
+        <svg class="i" aria-hidden="true"><use href="../shared/icons.svg#book"/></svg><span><b><span data-l="fr">Règles du jeu</span><span data-l="en">Game rules</span></b><small><span data-l="fr">PDF officiel · Butin p. 25, Rascal p. 26</span><span data-l="en">Official PDF, in French · Loot p. 25, Rascal p. 26</span></small></span><svg class="i" aria-hidden="true"><use href="../shared/icons.svg#external"/></svg>
       </a>
       <a class="rule-link" href="https://cdn.blackrockgames.fr/items/GRA004SK/FR.pdf" target="_blank" rel="noopener">
-        <svg class="i" aria-hidden="true"><use href="../shared/icons.svg#book"/></svg><span><b>Règles de l'Extension</b><small>PDF officiel · Second, Casier de Davy Jones…</small></span><svg class="i" aria-hidden="true"><use href="../shared/icons.svg#external"/></svg>
+        <svg class="i" aria-hidden="true"><use href="../shared/icons.svg#book"/></svg><span><b><span data-l="fr">Règles de l'Extension</span><span data-l="en">Expansion rules</span></b><small><span data-l="fr">PDF officiel · Second, Casier de Davy Jones…</span><span data-l="en">Official PDF, in French · First Mate, Davy Jones’ Locker…</span></small></span><svg class="i" aria-hidden="true"><use href="../shared/icons.svg#external"/></svg>
       </a>
     </div>
-    <h3 class="sub">Résumé du scoring</h3>
+    <h3 class="sub"><span data-l="fr">Résumé du scoring</span><span data-l="en">Scoring summary</span></h3>
+    <div data-l="fr">
     <div class="rule-row"><strong>Pari exact (≥1)</strong><br><span class="rule-val">+20 × plis annoncés</span></div>
     <div class="rule-row"><strong>Pari raté</strong><br><span class="rule-val">−10 × écart</span> (en plus ou en moins)</div>
     <div class="rule-row"><strong>Pari 0 réussi</strong><br><span class="rule-val">+10 × numéro de manche</span></div>
@@ -410,6 +412,35 @@
       Mary Throne compte comme un Pirate (jusqu'à 6 pour le Skull King)
     </div>
     <div class="rule-row"><strong>10 manches</strong> — le capitaine avec le plus de points gagne !</div>
+    </div>
+    <div data-l="en">
+    <div class="rule-row"><strong>Exact bid (≥1)</strong><br><span class="rule-val">+20 × tricks bid</span></div>
+    <div class="rule-row"><strong>Missed bid</strong><br><span class="rule-val">−10 × difference</span> (over or under)</div>
+    <div class="rule-row"><strong>Bid 0, made</strong><br><span class="rule-val">+10 × round number</span></div>
+    <div class="rule-row"><strong>Bid 0, missed</strong><br><span class="rule-val">−10 × round number</span></div>
+    <div class="rule-row">
+      <strong>Bonuses (by default: only on an exact bid)</strong><br>
+      Skull King captures Pirates: <span class="rule-val">+30/pirate</span><br>
+      Mermaid captures the Skull King: <span class="rule-val">+40</span><br>
+      Pirate captures a Mermaid: <span class="rule-val">+20/mermaid</span><br>
+      Green/yellow/purple 14 captured: <span class="rule-val">+10/card</span><br>
+      Black 14 captured: <span class="rule-val">+20</span><br>
+      <em style="font-size:0.9rem;color:var(--ink-3)">"Bonuses always count" option: bonuses count even on a missed bid.</em>
+    </div>
+    <div class="rule-row">
+      <strong>Loot &amp; Rascal</strong><br>
+      Successful Loot alliance: <span class="rule-val">+20</span> each, if both bids are right<br>
+      Rascal: bet <span class="rule-val">0, 10 or 20</span>, won if the bid is right, lost otherwise
+    </div>
+    <div class="rule-row">
+      <strong>Expansion</strong><br>
+      New 8 captured: <span class="rule-val">+5</span> · new 7: <span class="rule-val">−5</span> (if the bid is right)<br>
+      First Mate captured by the Skull King or a Mermaid: <span class="rule-val">+30</span><br>
+      Davy Jones’ Locker: <span class="rule-val">+20</span> per leviathan destroyed<br>
+      Mary Throne counts as a Pirate (up to 6 for the Skull King)
+    </div>
+    <div class="rule-row"><strong>10 rounds</strong>: the captain with the most points wins!</div>
+    </div>
   </div>
 </div>
 
@@ -424,7 +455,7 @@ let tempData = {};
 let bonusAlways = false; // Option: bonus même si bid raté
 let options = { loot: false, ext: false }; // Butin & Rascal / L'Extension
 const SAVE_KEY = 'skullking-game';
-const esc = GS.esc;
+const esc = GS.esc, L = GS.L;
 
 const AVATARS = ['anchor', 'compass', 'wheel', 'swords', 'skull', 'map', 'spyglass', 'bottle'];
 const COLORS = ['#f5c451', '#ff6b6b', '#51cf66', '#4dabf7', '#b197fc', '#ffa94d', '#3bc9db', '#f783ac'];
@@ -432,19 +463,19 @@ const COLORS = ['#f5c451', '#ff6b6b', '#51cf66', '#4dabf7', '#b197fc', '#ffa94d'
 // Bonus fields: [key, label, points note, max, group, step]
 // group 'base' always shows; 'ext' / 'loot' only when that option is on.
 const BONUSES = [
-  ['sk_pirates', GS.icon('skull') + ' Pirates capturés par le Skull King', '×30 pts', 5, 'base'],
-  ['mermaid_sk', GS.icon('wave') + ' Sirène capture le Skull King', '+40 pts', 1, 'base'],
-  ['pirate_mermaid', GS.icon('swords') + ' Pirates capturent des Sirènes', '×20 pts', 2, 'base'],
-  ['c14_color', '<span class="dots"><i style="--c:#51cf66"></i><i style="--c:#fcc419"></i><i style="--c:#b197fc"></i></span> Cartes 14 de couleur', '×10 pts', 3, 'base'],
-  ['c14_black', '<span class="dots"><i style="--c:#111"></i></span> Carte 14 noire', '+20 pts', 1, 'base'],
-  ['c8', '<span class="numcard">8</span> Nouveaux 8 capturés', '×5 pts', 4, 'ext'],
-  ['c7', '<span class="numcard">7</span> Nouveaux 7 capturés', '×−5 pts', 4, 'ext'],
-  ['second', GS.icon('crown') + ' Second capturé (Skull King ou Sirène)', '+30 pts', 1, 'ext'],
-  ['davy', GS.icon('anchor') + ' Léviathans détruits par le Casier de Davy Jones', '×20 pts', 3, 'ext'],
-  ['loot', GS.icon('coin') + ' Alliances Butin réussies', '+20 pts chacune', 2, 'loot'],
-  ['rascal', GS.icon('swords') + ' Pari de Rascal le Flambeur', 'gagné si pari juste, perdu sinon', 20, 'loot', 10],
+  ['sk_pirates', GS.icon('skull') + L(' Pirates capturés par le Skull King', ' Pirates captured by the Skull King'), '×30 pts', 5, 'base'],
+  ['mermaid_sk', GS.icon('wave') + L(' Sirène capture le Skull King', ' Mermaid captures the Skull King'), '+40 pts', 1, 'base'],
+  ['pirate_mermaid', GS.icon('swords') + L(' Pirates capturent des Sirènes', ' Pirates capture Mermaids'), '×20 pts', 2, 'base'],
+  ['c14_color', '<span class="dots"><i style="--c:#51cf66"></i><i style="--c:#fcc419"></i><i style="--c:#b197fc"></i></span>' + L(' Cartes 14 de couleur', ' Colored 14s'), '×10 pts', 3, 'base'],
+  ['c14_black', '<span class="dots"><i style="--c:#111"></i></span>' + L(' Carte 14 noire', ' Black 14'), '+20 pts', 1, 'base'],
+  ['c8', '<span class="numcard">8</span>' + L(' Nouveaux 8 capturés', ' New 8s captured'), '×5 pts', 4, 'ext'],
+  ['c7', '<span class="numcard">7</span>' + L(' Nouveaux 7 capturés', ' New 7s captured'), '×−5 pts', 4, 'ext'],
+  ['second', GS.icon('crown') + L(' Second capturé (Skull King ou Sirène)', ' First Mate captured (Skull King or Mermaid)'), '+30 pts', 1, 'ext'],
+  ['davy', GS.icon('anchor') + L(' Léviathans détruits par le Casier de Davy Jones', ' Leviathans destroyed by Davy Jones’ Locker'), '×20 pts', 3, 'ext'],
+  ['loot', GS.icon('coin') + L(' Alliances Butin réussies', ' Successful Loot alliances'), L('+20 pts chacune', '+20 pts each'), 2, 'loot'],
+  ['rascal', GS.icon('swords') + L(' Pari de Rascal le Flambeur', ' Rascal’s bet'), L('gagné si pari juste, perdu sinon', 'won if the bid is right, lost otherwise'), 20, 'loot', 10],
 ];
-const GROUP_NAMES = { ext: "L'Extension", loot: 'Butin & Rascal' };
+const GROUP_NAMES = { ext: L("L'Extension", 'Expansion'), loot: L('Butin & Rascal', 'Loot & Rascal') };
 const activeBonuses = () => BONUSES.filter(b => b[4] === 'base' || options[b[4]]);
 const blankEntry = () => Object.fromEntries([['bid', 0], ['won', 0], ...BONUSES.map(b => [b[0], 0])]);
 
@@ -557,7 +588,7 @@ function renderRoundProgress() {
     h += `<i class="${r < currentRound ? 'done' : r === currentRound ? 'current' : ''}${r === currentRound - 1 ? ' just' : ''}"></i>`;
   }
   document.getElementById('round-progress').innerHTML = h;
-  document.getElementById('round-badge').innerHTML = `Manche ${currentRound} <small>/ ${MAX_ROUNDS}</small>`;
+  document.getElementById('round-badge').innerHTML = `${L('Manche', 'Round')} ${currentRound} <small>/ ${MAX_ROUNDS}</small>`;
 }
 
 let lastTotals = {};
@@ -583,7 +614,7 @@ function renderTotalsBar() {
 
 function renderEntryForm() {
   document.getElementById('entry-round-label').innerHTML =
-    `${GS.icon('target')} Saisie — ${currentRound} carte${currentRound > 1 ? 's' : ''} par pirate`;
+    `${GS.icon('target')} ${L('Saisie', 'Entry')} — ${currentRound} ${L('carte', 'card')}${currentRound > 1 ? 's' : ''} ${L('par pirate', 'each')}`;
 
   document.getElementById('entry-grid').innerHTML = players.map((name, i) => {
     const d = tempData[i];
@@ -606,11 +637,11 @@ function renderEntryForm() {
         <div class="preview" id="preview-${i}"></div>
       </div>
       <div class="entry-fields">
-        <div class="field"><label>Annonce</label>${stepperHTML(i, 'bid', d.bid, true)}</div>
-        <div class="field"><label>Plis remportés</label>${stepperHTML(i, 'won', d.won, true)}</div>
+        <div class="field"><label>${L('Annonce', 'Bid')}</label>${stepperHTML(i, 'bid', d.bid, true)}</div>
+        <div class="field"><label>${L('Plis remportés', 'Tricks won')}</label>${stepperHTML(i, 'won', d.won, true)}</div>
       </div>
       <button class="bonus-toggle" id="btog-${i}" onclick="toggleBonus(${i})">
-        ${GS.icon('crown')} Bonus spéciaux <span class="count" id="bcount-${i}" ${nBonus ? '' : 'hidden'}>${nBonus}</span><span class="chev">▾</span>
+        ${GS.icon('crown')} ${L('Bonus spéciaux', 'Special bonuses')} <span class="count" id="bcount-${i}" ${nBonus ? '' : 'hidden'}>${nBonus}</span><span class="chev">▾</span>
       </button>
       <div class="bonus-fields" id="bonus-${i}"><div>${bonusRows}</div></div>
     </div>`;
@@ -619,7 +650,7 @@ function renderEntryForm() {
   updateTrickSum();
 
   document.getElementById('btn-prev').style.display = currentRound > 1 ? '' : 'none';
-  document.getElementById('btn-validate').textContent = currentRound === MAX_ROUNDS ? 'Terminer la partie' : 'Valider la manche';
+  document.getElementById('btn-validate').textContent = currentRound === MAX_ROUNDS ? L('Terminer la partie', 'Finish game') : L('Valider la manche', 'Confirm round');
 }
 
 function stepperHTML(i, field, val, big) {
@@ -661,10 +692,10 @@ function updatePreview(i) {
   const bidExact = d.bid > 0 && d.bid === d.won;
   const parts = [];
   if (bonus && (bidExact || bonusAlways)) parts.push(`bonus ${signed(bonus)}`);
-  else if (bonus) parts.push('bonus ignoré');
-  if (loot) parts.push(`butin +${loot}`);
+  else if (bonus) parts.push(L('bonus ignoré', 'bonus ignored'));
+  if (loot) parts.push(`${L('butin', 'loot')} +${loot}`);
   if (rascal) parts.push(`rascal ${signed(rascal)}`);
-  const detail = parts.join(' · ') || 'cette manche';
+  const detail = parts.join(' · ') || L('cette manche', 'this round');
   const el = document.getElementById(`preview-${i}`);
   const prev = el.querySelector('.preview-val');
   const from = prev ? parseInt(prev.textContent) || 0 : score;
@@ -676,7 +707,7 @@ function updatePreview(i) {
 function updateTrickSum() {
   const sum = players.reduce((s, _, i) => s + tempData[i].won, 0);
   const el = document.getElementById('trick-sum');
-  el.innerHTML = `Plis distribués : <b>${sum} / ${currentRound}</b>${sum === currentRound ? ' ✓' : ''}`;
+  el.innerHTML = `${L('Plis distribués :', 'Tricks dealt:')} <b>${sum} / ${currentRound}</b>${sum === currentRound ? ' ✓' : ''}`;
   el.className = 'trick-sum ' + (sum === currentRound ? 'ok' : sum > currentRound ? 'off' : '');
 }
 
@@ -702,7 +733,7 @@ function validateRound() {
 
   // A mis-tap is one tap away from being undone, even from the game-over screen:
   // Annuler reloads the round into the form, like the ← button.
-  GS.toast(`Manche ${currentRound} validée`, 'Annuler', () => {
+  GS.toast(L(`Manche ${currentRound} validée`, `Round ${currentRound} saved`), L('Annuler', 'Undo'), () => {
     if (roundData.length === MAX_ROUNDS && currentRound === MAX_ROUNDS) currentRound = MAX_ROUNDS + 1;
     prevRound();
     if (!document.getElementById('game-screen').classList.contains('active')) showScreen('game-screen');
@@ -745,9 +776,9 @@ function renderHistoryTable(tableId) {
   const table = document.getElementById(tableId);
   if (!table) return;
   const running = players.map(() => 0);
-  let h = `<thead><tr><th>M</th>${players.map(p => `<th>${esc(p)}</th>`).join('')}</tr></thead><tbody>`;
+  let h = `<thead><tr><th>${L('M', 'R')}</th>${players.map(p => `<th>${esc(p)}</th>`).join('')}</tr></thead><tbody>`;
   roundData.forEach((round, ri) => {
-    h += `<tr><td>M${ri+1}</td>`;
+    h += `<tr><td>${L('M', 'R')}${ri+1}</td>`;
     players.forEach((p, pi) => {
       const c = round[pi];
       running[pi] += c.score;
@@ -770,7 +801,7 @@ function showGameOver() {
   scores.sort((a, b) => b.score - a.score);
 
   const winner = scores[0];
-  document.getElementById('winner-text').textContent = `${winner.name} est le Capitaine des Sept Mers !`;
+  document.getElementById('winner-text').textContent = L(`${winner.name} est le Capitaine des Sept Mers !`, `${winner.name} is Captain of the Seven Seas!`);
 
   document.getElementById('podium').innerHTML = scores.map((s, ri) => `
     <div class="podium-item">
@@ -786,7 +817,7 @@ function showGameOver() {
 
 // ═══ UTILS ═══
 function confirmRestart() {
-  if (confirm('Recommencer une nouvelle partie ?')) {
+  if (confirm(L('Recommencer une nouvelle partie ?', 'Start a new game?'))) {
     lastTotals = {};
     showScreen('setup-screen');
     renderSetupInputs();

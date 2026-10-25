@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<script>/* language picked on the hub; default from the phone */try{document.documentElement.lang=localStorage.getItem('gs-lang')||(/^fr/i.test(navigator.language)?'fr':'en')}catch(e){document.documentElement.lang='en'}</script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -292,8 +293,8 @@ input{font-family:var(--ui);outline:none}
 <div id="screen-setup" class="screen active">
   <div class="setup-header">
     <a href="../index.html" class="hub-link">‹ Hub</a>
-    <h1>🎯 DART SCORER</h1>
-    <p id="setup-sub">X01 · Sets &amp; Legs</p>
+    <h1>🎯 <span data-l="fr">FLÉCHETTES</span><span data-l="en">DART SCORER</span></h1>
+    <p id="setup-sub"></p>
   </div>
   <div class="setup-body">
     <div class="setup-section">
@@ -304,7 +305,7 @@ input{font-family:var(--ui);outline:none}
       </div>
     </div>
     <div class="setup-section x01-only">
-      <div class="setup-label">Game Type</div>
+      <div class="setup-label"><span data-l="fr">Partie</span><span data-l="en">Game Type</span></div>
       <div class="btn-group" id="grp-type">
         <button class="btn-opt" data-val="301">301</button>
         <button class="btn-opt active" data-val="501">501</button>
@@ -312,22 +313,22 @@ input{font-family:var(--ui);outline:none}
       </div>
     </div>
     <div class="setup-section x01-only">
-      <div class="setup-label">Out Rule</div>
+      <div class="setup-label"><span data-l="fr">Sortie</span><span data-l="en">Out Rule</span></div>
       <div class="btn-group" id="grp-out">
-        <button class="btn-opt" data-val="straight">Straight</button>
+        <button class="btn-opt" data-val="straight"><span data-l="fr">Simple</span><span data-l="en">Straight</span></button>
         <button class="btn-opt active" data-val="double">Double</button>
         <button class="btn-opt" data-val="master">Master</button>
       </div>
     </div>
     <div class="setup-section x01-only">
-      <div class="setup-label">Input</div>
+      <div class="setup-label"><span data-l="fr">Saisie</span><span data-l="en">Input</span></div>
       <div class="btn-group" id="grp-input">
-        <button class="btn-opt active" data-val="keypad">Keypad</button>
-        <button class="btn-opt" data-val="board">Dartboard</button>
+        <button class="btn-opt active" data-val="keypad"><span data-l="fr">Clavier</span><span data-l="en">Keypad</span></button>
+        <button class="btn-opt" data-val="board"><span data-l="fr">Cible</span><span data-l="en">Dartboard</span></button>
       </div>
     </div>
     <div class="setup-section">
-      <div class="setup-label">Players</div>
+      <div class="setup-label"><span data-l="fr">Joueurs</span><span data-l="en">Players</span></div>
       <div class="btn-group" id="grp-players">
         <button class="btn-opt" data-val="1">1</button>
         <button class="btn-opt active" data-val="2">2</button>
@@ -336,12 +337,12 @@ input{font-family:var(--ui);outline:none}
       </div>
     </div>
     <div class="setup-section">
-      <div class="setup-label">Player Names</div>
+      <div class="setup-label"><span data-l="fr">Noms des joueurs</span><span data-l="en">Player Names</span></div>
       <div class="player-inputs" id="player-inputs"></div>
     </div>
     <div class="setup-section setup-row-2 x01-only">
       <div>
-        <div class="setup-label">Legs per Set</div>
+        <div class="setup-label"><span data-l="fr">Legs par set</span><span data-l="en">Legs per Set</span></div>
         <div class="num-input-group">
           <button onclick="adj('legs',-1)">−</button>
           <span class="nig-val" id="legs-val">2</span>
@@ -349,7 +350,7 @@ input{font-family:var(--ui);outline:none}
         </div>
       </div>
       <div>
-        <div class="setup-label">Sets to Win</div>
+        <div class="setup-label"><span data-l="fr">Sets gagnants</span><span data-l="en">Sets to Win</span></div>
         <div class="num-input-group">
           <button onclick="adj('sets',-1)">−</button>
           <span class="nig-val" id="sets-val">2</span>
@@ -357,8 +358,8 @@ input{font-family:var(--ui);outline:none}
         </div>
       </div>
     </div>
-    <button class="btn-start" onclick="startGame()">▶ START GAME</button>
-    <button class="btn-history" onclick="showScreen('history')">📋 Match History</button>
+    <button class="btn-start" onclick="startGame()">▶ <span data-l="fr">LANCER LA PARTIE</span><span data-l="en">START GAME</span></button>
+    <button class="btn-history" onclick="showScreen('history')">📋 <span data-l="fr">Historique des matchs</span><span data-l="en">Match History</span></button>
   </div>
 </div>
 
@@ -370,7 +371,7 @@ input{font-family:var(--ui);outline:none}
   </div>
   <div class="scoreboard" id="scoreboard"></div>
   <div class="turn-display">
-    <div class="turn-label" id="turn-label">► <b></b>'S TURN</div>
+    <div class="turn-label" id="turn-label"></div>
     <div class="dart-row">
       <div class="dart-slots">
         <div class="dart-slot" id="ds0">–</div>
@@ -385,7 +386,7 @@ input{font-family:var(--ui);outline:none}
   </div>
   <div class="keyboard">
     <div class="mult-row">
-      <button class="mult-btn active" id="mS" onclick="setMult(1)">SINGLE</button>
+      <button class="mult-btn active" id="mS" onclick="setMult(1)"><span data-l="fr">SIMPLE</span><span data-l="en">SINGLE</span></button>
       <button class="mult-btn" id="mD" onclick="setMult(2)">DOUBLE</button>
       <button class="mult-btn" id="mT" onclick="setMult(3)">TRIPLE</button>
     </div>
@@ -397,8 +398,8 @@ input{font-family:var(--ui);outline:none}
       <button class="spc-btn miss" onclick="enterDart(0,1)">MISS<small>0</small></button>
     </div>
     <div class="actions-row">
-      <button class="btn-undo" onclick="undoDart()">← UNDO</button>
-      <button class="btn-confirm" id="btn-confirm" onclick="confirmTurn()" disabled>CONFIRM ✓</button>
+      <button class="btn-undo" onclick="undoDart()">← <span data-l="fr">ANNULER</span><span data-l="en">UNDO</span></button>
+      <button class="btn-confirm" id="btn-confirm" onclick="confirmTurn()" disabled><span data-l="fr">VALIDER</span><span data-l="en">CONFIRM</span> ✓</button>
     </div>
   </div>
   <div class="bust-banner" id="bust-banner">BUST!</div>
@@ -407,7 +408,7 @@ input{font-family:var(--ui);outline:none}
 <!-- ══════════════════ CRICKET ══════════════════ -->
 <div id="screen-cricket" class="screen">
   <div class="game-header">
-    <div class="game-match-info" id="c-info">CRICKET · ROUND <b>1</b></div>
+    <div class="game-match-info" id="c-info"></div>
     <button class="btn-menu" onclick="openMenu()">☰</button>
   </div>
   <div class="c-board" id="c-board"></div>
@@ -421,14 +422,14 @@ input{font-family:var(--ui);outline:none}
   </div>
   <div class="c-controls">
     <div class="mult-row">
-      <button class="mult-btn active" id="cmS" onclick="cMult(1)">SINGLE</button>
+      <button class="mult-btn active" id="cmS" onclick="cMult(1)"><span data-l="fr">SIMPLE</span><span data-l="en">SINGLE</span></button>
       <button class="mult-btn" id="cmD" onclick="cMult(2)">DOUBLE</button>
       <button class="mult-btn" id="cmT" onclick="cMult(3)">TRIPLE</button>
       <button class="mult-btn" onclick="cDart(0,1)">MISS</button>
     </div>
     <div class="actions-row">
-      <button class="btn-undo" onclick="cUndoDart()">← UNDO</button>
-      <button class="btn-confirm" id="c-end" onclick="cEnd()" disabled>END TURN ✓</button>
+      <button class="btn-undo" onclick="cUndoDart()">← <span data-l="fr">ANNULER</span><span data-l="en">UNDO</span></button>
+      <button class="btn-confirm" id="c-end" onclick="cEnd()" disabled><span data-l="fr">FIN DU TOUR</span><span data-l="en">END TURN</span> ✓</button>
     </div>
   </div>
 </div>
@@ -436,15 +437,15 @@ input{font-family:var(--ui);outline:none}
 <!-- ══════════════════ POST GAME ══════════════════ -->
 <div id="screen-postgame" class="screen">
   <div class="pg-header">
-    <div style="font-size:11px;font-weight:700;letter-spacing:2px;color:var(--text3);text-transform:uppercase;margin-bottom:4px">🏆 MATCH WINNER</div>
-    <div class="pg-winner" id="pg-winner">PLAYER 1</div>
-    <div class="pg-sub" id="pg-sub">WINS THE MATCH</div>
+    <div style="font-size:11px;font-weight:700;letter-spacing:2px;color:var(--text3);text-transform:uppercase;margin-bottom:4px">🏆 <span data-l="fr">VAINQUEUR DU MATCH</span><span data-l="en">MATCH WINNER</span></div>
+    <div class="pg-winner" id="pg-winner"></div>
+    <div class="pg-sub" id="pg-sub"></div>
     <div class="win-bar"></div>
   </div>
   <div class="stats-container" id="stats-container"></div>
   <div class="pg-actions">
-    <button class="btn-rematch" onclick="rematch()">🔄 REMATCH</button>
-    <button class="btn-new" onclick="showScreen('setup')">NEW GAME</button>
+    <button class="btn-rematch" onclick="rematch()">🔄 <span data-l="fr">REVANCHE</span><span data-l="en">REMATCH</span></button>
+    <button class="btn-new" onclick="showScreen('setup')"><span data-l="fr">NOUVELLE PARTIE</span><span data-l="en">NEW GAME</span></button>
   </div>
 </div>
 
@@ -452,8 +453,8 @@ input{font-family:var(--ui);outline:none}
 <div id="screen-history" class="screen">
   <div class="hist-header">
     <button class="btn-back" onclick="showScreen('setup')">←</button>
-    <h2>HISTORY</h2>
-    <button class="btn-clr" onclick="clearHist()">CLEAR</button>
+    <h2><span data-l="fr">HISTORIQUE</span><span data-l="en">HISTORY</span></h2>
+    <button class="btn-clr" onclick="clearHist()"><span data-l="fr">EFFACER</span><span data-l="en">CLEAR</span></button>
   </div>
   <div class="hist-list" id="hist-list"></div>
 </div>
@@ -461,15 +462,16 @@ input{font-family:var(--ui);outline:none}
 <!-- ══════════════════ PAUSE MENU ══════════════════ -->
 <div class="modal-overlay" id="modal" onclick="closeMenuOut(event)">
   <div class="modal-sheet">
-    <div class="modal-title">⏸ GAME MENU</div>
-    <button class="modal-btn" onclick="undoTurnAny();closeModal()">↩ Undo Last Turn</button>
-    <button class="modal-btn danger" onclick="abandonGame()">✕ Abandon Game</button>
-    <button class="modal-cancel" onclick="closeModal()">Cancel</button>
+    <div class="modal-title">⏸ <span data-l="fr">MENU</span><span data-l="en">GAME MENU</span></div>
+    <button class="modal-btn" onclick="undoTurnAny();closeModal()">↩ <span data-l="fr">Annuler le dernier tour</span><span data-l="en">Undo Last Turn</span></button>
+    <button class="modal-btn danger" onclick="abandonGame()">✕ <span data-l="fr">Abandonner la partie</span><span data-l="en">Abandon Game</span></button>
+    <button class="modal-cancel" onclick="closeModal()"><span data-l="fr">Fermer</span><span data-l="en">Cancel</span></button>
   </div>
 </div>
 
 <script src="../shared/base.js"></script>
 <script>
+const L=GS.L;
 // ─────────────────────────────────────────────────────────────────
 //  CHECKOUT TABLE  (precomputed at load for double / master / straight)
 // ─────────────────────────────────────────────────────────────────
@@ -572,7 +574,7 @@ function getCheckout(score, dartsLeft, rule){
 // ─────────────────────────────────────────────────────────────────
 const cfg={
   mode:'x01', startScore:501, outRule:'double', legsToWin:2, setsToWin:2, numPlayers:2, input:'keypad',
-  names:['Player 1','Player 2','Player 3','Player 4']
+  names:[1,2,3,4].map(n=>L('Joueur ','Player ')+n)
 };
 let G=null; // game state
 
@@ -581,7 +583,9 @@ let G=null; // game state
 // ─────────────────────────────────────────────────────────────────
 function initSetup(){
   const saved=JSON.parse(localStorage.getItem('dnames')||'[]');
-  saved.forEach((n,i)=>{if(n) cfg.names[i]=n;});
+  // default names follow the language; real names are kept
+  saved.forEach((n,i)=>{if(n&&!/^(Player|Joueur) \d$/.test(n)) cfg.names[i]=n;});
+  setMode(cfg.mode);
   mkBtnGroup('grp-mode',setMode);
   mkBtnGroup('grp-type',v=>{cfg.startScore=+v;});
   mkBtnGroup('grp-out',v=>{cfg.outRule=v;});
@@ -603,7 +607,7 @@ function mkBtnGroup(id,cb){
 function setMode(v){
   cfg.mode=v;
   document.getElementById('screen-setup').classList.toggle('cricket',v==='cricket');
-  document.getElementById('setup-sub').textContent=v==='cricket'?'Cricket · 20–15 & Bull':'X01 · Sets & Legs';
+  document.getElementById('setup-sub').textContent=v==='cricket'?L('Cricket · 20–15 et Bull','Cricket · 20–15 & Bull'):L('X01 · Sets et Legs','X01 · Sets & Legs');
   document.querySelector('#grp-players [data-val="1"]').style.display=v==='cricket'?'none':'';
   if(v==='cricket'&&cfg.numPlayers<2) document.querySelector('#grp-players [data-val="2"]').click();
 }
@@ -612,7 +616,7 @@ function renderNames(){
   const c=document.getElementById('player-inputs');c.innerHTML='';
   for(let i=0;i<cfg.numPlayers;i++){
     const r=document.createElement('div');r.className='player-row';
-    r.innerHTML=`<span>P${i+1}</span><input class="player-name-input" id="pn${i}" value="${esc(cfg.names[i])}" maxlength="16" placeholder="Player ${i+1}">`;
+    r.innerHTML=`<span>${L('J','P')}${i+1}</span><input class="player-name-input" id="pn${i}" value="${esc(cfg.names[i])}" maxlength="16" placeholder="${L('Joueur','Player')} ${i+1}">`;
     c.appendChild(r);
   }
 }
@@ -625,7 +629,7 @@ function adj(t,d){
 function startGame(){
   for(let i=0;i<cfg.numPlayers;i++){
     const el=document.getElementById('pn'+i);
-    if(el) cfg.names[i]=el.value.trim()||'Player '+(i+1);
+    if(el) cfg.names[i]=el.value.trim()||L('Joueur ','Player ')+(i+1);
   }
   localStorage.setItem('dnames',JSON.stringify(cfg.names));
   rematch();
@@ -726,7 +730,7 @@ function updateMatchInfo(){
 
 function updateTurnLabel(){
   const name=G.players[G.cur].name;
-  document.getElementById('turn-label').innerHTML=`► <b>${esc(name)}</b>'S TURN`;
+  document.getElementById('turn-label').innerHTML=turnText(name);
 }
 
 function refreshSlots(){
@@ -764,7 +768,7 @@ function updateCheckoutHint(){
   if(rem<2||rem>170){hint.innerHTML='';return;}
   const co=getCheckout(rem,dLeft,G.cfg.outRule);
   if(co) hint.innerHTML=`🎯 <b>${co}</b>`;
-  else hint.innerHTML=`<span style="color:var(--red);opacity:.7">No finish in ${dLeft} dart${dLeft!==1?'s':''}</span>`;
+  else hint.innerHTML=`<span style="color:var(--red);opacity:.7">${L(`Pas de finish en ${dLeft} fléchette${dLeft!==1?'s':''}`,`No finish in ${dLeft} dart${dLeft!==1?'s':''}`)}</span>`;
 }
 
 function setMult(m){
@@ -1003,7 +1007,7 @@ function matchWon(winner){
 function renderPostGame(winner){
   document.getElementById('pg-winner').textContent=winner.name.toUpperCase();
   document.getElementById('pg-sub').textContent=
-    G.cfg.startScore+' · '+G.cfg.outRule.toUpperCase()+' OUT';
+    G.cfg.startScore+' · '+outLabel(G.cfg.outRule);
 
   const c=document.getElementById('stats-container');c.innerHTML='';
   G.players.forEach((p,i)=>{
@@ -1022,14 +1026,14 @@ function renderPostGame(winner){
     card.innerHTML=`
       <div class="sc-name${isW?' winner':''}">${isW?'🏆 ':''}${esc(p.name)}</div>
       <div class="stats-grid">
-        <div class="sg-item"><div class="sg-label">3-Dart Avg</div><div class="sg-val hi">${avg}</div></div>
-        <div class="sg-item"><div class="sg-label">Darts Thrown</div><div class="sg-val">${p.totalDarts}</div></div>
-        <div class="sg-item"><div class="sg-label">Best Round</div><div class="sg-val">${best}</div></div>
-        <div class="sg-item"><div class="sg-label">First 9 Avg</div><div class="sg-val">${f9}</div></div>
-        <div class="sg-item"><div class="sg-label">Checkout %</div><div class="sg-val">${coP}</div></div>
-        <div class="sg-item"><div class="sg-label">Highest CO</div><div class="sg-val">${hiCo}</div></div>
+        <div class="sg-item"><div class="sg-label">${L('Moy. 3 fléchettes','3-Dart Avg')}</div><div class="sg-val hi">${avg}</div></div>
+        <div class="sg-item"><div class="sg-label">${L('Fléchettes','Darts Thrown')}</div><div class="sg-val">${p.totalDarts}</div></div>
+        <div class="sg-item"><div class="sg-label">${L('Meilleur tour','Best Round')}</div><div class="sg-val">${best}</div></div>
+        <div class="sg-item"><div class="sg-label">${L('Moy. 9 premières','First 9 Avg')}</div><div class="sg-val">${f9}</div></div>
+        <div class="sg-item"><div class="sg-label">${L('% de finish','Checkout %')}</div><div class="sg-val">${coP}</div></div>
+        <div class="sg-item"><div class="sg-label">${L('Plus haut finish','Highest CO')}</div><div class="sg-val">${hiCo}</div></div>
         <div class="sg-item"><div class="sg-label">180s</div><div class="sg-val">${s180}</div></div>
-        <div class="sg-item"><div class="sg-label">100+ Rounds</div><div class="sg-val">${s100}</div></div>
+        <div class="sg-item"><div class="sg-label">${L('Tours à 100+','100+ Rounds')}</div><div class="sg-val">${s100}</div></div>
       </div>`;
     c.appendChild(card);
   });
@@ -1074,20 +1078,20 @@ function saveMatchHistory(winner){
 function renderHistory(){
   const list=document.getElementById('hist-list');
   const hist=JSON.parse(localStorage.getItem('dhist')||'[]');
-  if(!hist.length){list.innerHTML='<div class="hist-empty">No matches recorded yet.</div>';return;}
+  if(!hist.length){list.innerHTML=`<div class="hist-empty">${L('Aucun match enregistré.','No matches recorded yet.')}</div>`;return;}
   list.innerHTML=hist.map(e=>`
     <div class="hi-item">
       <div class="hi-top">
-        <div class="hi-game">${e.mode==='cricket'?'CRICKET':e.game+' · '+(e.out||'double').toUpperCase()+' OUT'}</div>
+        <div class="hi-game">${e.mode==='cricket'?'CRICKET':e.game+' · '+outLabel(e.out||'double')}</div>
         <div class="hi-date">${e.date}</div>
       </div>
       <div class="hi-winner">🏆 ${esc(e.winner)}</div>
-      <div class="hi-stats">${(e.players||[]).map(p=>e.mode==='cricket'?`${esc(p.name)}: ${p.pts} pts · ${p.mpr} MPR`:`${esc(p.name)}: ${p.sets||0} sets · avg ${p.avg}`).join(' &nbsp;·&nbsp; ')}</div>
+      <div class="hi-stats">${(e.players||[]).map(p=>e.mode==='cricket'?`${esc(p.name)}: ${p.pts} pts · ${p.mpr} MPR`:`${esc(p.name)}: ${p.sets||0} sets · ${L('moy.','avg')} ${p.avg}`).join(' &nbsp;·&nbsp; ')}</div>
     </div>`).join('');
 }
 
 function clearHist(){
-  if(confirm('Clear all match history?')){localStorage.removeItem('dhist');renderHistory();}
+  if(confirm(L("Effacer tout l'historique ?",'Clear all match history?'))){localStorage.removeItem('dhist');renderHistory();}
 }
 
 // ─────────────────────────────────────────────────────────────────
@@ -1102,7 +1106,7 @@ function undoTurnAny(){cfg.mode==='cricket'?cUndoTurn():undoTurn();}
 function openMenu(){document.getElementById('modal').classList.add('open');}
 function closeModal(){GS.closeSheet(document.getElementById('modal'));}
 function closeMenuOut(e){if(e.target===document.getElementById('modal')) closeModal();}
-function abandonGame(){closeModal();if(confirm('Abandon current game?')) showScreen('setup');}
+function abandonGame(){closeModal();if(confirm(L('Abandonner la partie en cours ?','Abandon current game?'))) showScreen('setup');}
 
 // ─────────────────────────────────────────────────────────────────
 //  SCREEN NAV
@@ -1175,8 +1179,8 @@ function renderCricket(){
     });
   });
   b.innerHTML=h;
-  document.getElementById('c-info').innerHTML=`CRICKET · ROUND <b>${C.round}</b>`;
-  document.getElementById('c-turn-label').innerHTML=`► <b>${esc(C.players[C.cur].name)}</b>'S TURN`;
+  document.getElementById('c-info').innerHTML=`CRICKET · ${L('TOUR','ROUND')} <b>${C.round}</b>`;
+  document.getElementById('c-turn-label').innerHTML=turnText(C.players[C.cur].name);
   for(let i=0;i<3;i++){
     const el=document.getElementById('cd'+i);
     el.textContent=C.darts[i]||'–';
@@ -1247,9 +1251,9 @@ function cWon(w){
       <div class="sc-name${isW?' winner':''}">${isW?'🏆 ':''}${esc(p.name)}</div>
       <div class="stats-grid">
         <div class="sg-item"><div class="sg-label">Points</div><div class="sg-val hi">${p.pts}</div></div>
-        <div class="sg-item"><div class="sg-label">Marks / Round</div><div class="sg-val">${mpr(p)}</div></div>
-        <div class="sg-item"><div class="sg-label">Darts Thrown</div><div class="sg-val">${p.darts}</div></div>
-        <div class="sg-item"><div class="sg-label">Marks</div><div class="sg-val">${p.hits}</div></div>
+        <div class="sg-item"><div class="sg-label">${L('Marques / tour','Marks / Round')}</div><div class="sg-val">${mpr(p)}</div></div>
+        <div class="sg-item"><div class="sg-label">${L('Fléchettes','Darts Thrown')}</div><div class="sg-val">${p.darts}</div></div>
+        <div class="sg-item"><div class="sg-label">${L('Marques','Marks')}</div><div class="sg-val">${p.hits}</div></div>
       </div>`;
     c.appendChild(card);
   });
@@ -1260,6 +1264,8 @@ function cWon(w){
 // ─────────────────────────────────────────────────────────────────
 //  UTILS
 // ─────────────────────────────────────────────────────────────────
+function turnText(name){return L(`► AU TOUR DE <b>${esc(name)}</b>`,`► <b>${esc(name)}</b>'S TURN`);}
+function outLabel(rule){return L('SORTIE '+{straight:'SIMPLE',double:'DOUBLE',master:'MASTER'}[rule],rule.toUpperCase()+' OUT');}
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
 // ─────────────────────────────────────────────────────────────────

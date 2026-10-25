@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<script>/* language picked on the hub; default from the phone */try{document.documentElement.lang=localStorage.getItem('gs-lang')||(/^fr/i.test(navigator.language)?'fr':'en')}catch(e){document.documentElement.lang='en'}</script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -194,7 +195,7 @@
     <div class="top-bar"><a href="../index.html" class="hub-link">‹ Hub</a></div>
     <div class="app-header">
       <h1>Scopa</h1>
-      <div class="subtitle">Score keeper</div>
+      <div class="subtitle"><span data-l="fr">Feuille de score</span><span data-l="en">Score keeper</span></div>
     </div>
 
     <div class="stagger">
@@ -203,20 +204,20 @@
         <div class="mode-row">
           <button class="mode-btn selected" data-mode="players" onclick="selectMode('players')">
             <svg class="i icon" aria-hidden="true"><use href="../shared/icons.svg#person"/></svg>
-            <span class="label">Players</span>
-            <span class="sub">Individual</span>
+            <span class="label"><span data-l="fr">Joueurs</span><span data-l="en">Players</span></span>
+            <span class="sub"><span data-l="fr">Chacun pour soi</span><span data-l="en">Individual</span></span>
           </button>
           <button class="mode-btn" data-mode="teams" onclick="selectMode('teams')">
             <svg class="i icon" aria-hidden="true"><use href="../shared/icons.svg#people"/></svg>
-            <span class="label">Teams</span>
-            <span class="sub">2 teams</span>
+            <span class="label"><span data-l="fr">Équipes</span><span data-l="en">Teams</span></span>
+            <span class="sub"><span data-l="fr">2 équipes</span><span data-l="en">2 teams</span></span>
           </button>
         </div>
       </div>
 
       <!-- players setup -->
       <div id="players-setup" class="card">
-        <div class="card-title">Players</div>
+        <div class="card-title"><span data-l="fr">Joueurs</span><span data-l="en">Players</span></div>
         <div class="seg" id="count-seg" style="margin-bottom:14px;">
           <button class="on" data-n="2" onclick="setPlayerCount(2)">2</button>
           <button data-n="3" onclick="setPlayerCount(3)">3</button>
@@ -227,7 +228,7 @@
 
       <!-- teams setup -->
       <div id="teams-setup" class="card" style="display:none;">
-        <div class="card-title">Teams</div>
+        <div class="card-title"><span data-l="fr">Équipes</span><span data-l="en">Teams</span></div>
         <div class="player-input-row">
           <div class="player-num">A</div>
           <input type="text" id="team1-name" placeholder="Team A" maxlength="16" autocomplete="off">
@@ -239,7 +240,7 @@
       </div>
 
       <div class="card">
-        <div class="card-title">Play to</div>
+        <div class="card-title"><span data-l="fr">Partie en</span><span data-l="en">Play to</span></div>
         <div class="target-row">
           <div class="seg" id="target-seg">
             <button data-t="11" onclick="setTarget(11)">11</button>
@@ -256,7 +257,7 @@
     </div>
 
     <div class="spacer"></div>
-    <div class="dock"><button class="btn btn-primary" onclick="startGame()">Start game</button></div>
+    <div class="dock"><button class="btn btn-primary" onclick="startGame()"><span data-l="fr">Commencer</span><span data-l="en">Start game</span></button></div>
   </div>
 
   <!-- ═══ GAME SCREEN ═══ -->
@@ -276,25 +277,25 @@
 
     <div class="card" id="history-card" style="display:none;">
       <div class="card-title" style="display:flex;justify-content:space-between;align-items:center;">
-        <span>History</span>
+        <span><span data-l="fr">Historique</span><span data-l="en">History</span></span>
         <span id="rounds-played" style="letter-spacing:0;text-transform:none;font-weight:500;color:var(--ink-3);"></span>
       </div>
       <div id="history-list"></div>
     </div>
 
-    <button class="btn btn-danger" onclick="confirmNewGame()">New game</button>
+    <button class="btn btn-danger" onclick="confirmNewGame()"><span data-l="fr">Nouvelle partie</span><span data-l="en">New game</span></button>
     <div class="spacer"></div>
-    <div class="dock"><button class="btn btn-primary" onclick="confirmRound()">Confirm round</button></div>
+    <div class="dock"><button class="btn btn-primary" onclick="confirmRound()"><span data-l="fr">Valider la manche</span><span data-l="en">Confirm round</span></button></div>
   </div>
 
   <!-- ═══ WIN SCREEN ═══ -->
   <div id="win-screen" class="screen">
     <div class="win-trophy glass"><svg class="i" aria-hidden="true"><use href="../shared/icons.svg#trophy"/></svg></div>
     <div class="win-name" id="win-name"></div>
-    <div class="win-subtitle">wins the game</div>
+    <div class="win-subtitle"><span data-l="fr">remporte la partie</span><span data-l="en">wins the game</span></div>
     <div class="card win-scores stagger" id="win-scores"></div>
-    <button class="btn btn-primary" onclick="startNew()">Play again</button>
-    <button class="btn btn-secondary" onclick="goSetup()">Change settings</button>
+    <button class="btn btn-primary" onclick="startNew()"><span data-l="fr">Rejouer</span><span data-l="en">Play again</span></button>
+    <button class="btn btn-secondary" onclick="goSetup()"><span data-l="fr">Modifier les réglages</span><span data-l="en">Change settings</span></button>
   </div>
 
 </div>
@@ -312,7 +313,9 @@ let state = {
   roundData: {}
 };
 const SAVE_KEY = 'scopa-game';
-const esc = GS.esc;
+const esc = GS.esc, L = GS.L;
+document.getElementById('team1-name').placeholder = L('Équipe A', 'Team A');
+document.getElementById('team2-name').placeholder = L('Équipe B', 'Team B');
 
 function persist(screen) {
   GS.save(SAVE_KEY, { state, screen });
@@ -343,7 +346,7 @@ function renderPlayerNames() {
     c.innerHTML += `
       <div class="player-input-row">
         <div class="player-num">${i+1}</div>
-        <input type="text" id="pname-${i}" placeholder="Player ${i+1}" maxlength="16" autocomplete="off" value="${esc(prev[i] || '')}">
+        <input type="text" id="pname-${i}" placeholder="${L('Joueur', 'Player')} ${i+1}" maxlength="16" autocomplete="off" value="${esc(prev[i] || '')}">
       </div>`;
   }
 }
@@ -363,13 +366,13 @@ function startGame() {
   state.target = target;
 
   if (state.mode === 'teams') {
-    const t1 = document.getElementById('team1-name').value.trim() || 'Team A';
-    const t2 = document.getElementById('team2-name').value.trim() || 'Team B';
+    const t1 = document.getElementById('team1-name').value.trim() || L('Équipe A', 'Team A');
+    const t2 = document.getElementById('team2-name').value.trim() || L('Équipe B', 'Team B');
     state.players = [t1, t2];
   } else {
     state.players = [];
     for (let i = 0; i < playerCount; i++) {
-      const v = document.getElementById(`pname-${i}`).value.trim() || `Player ${i+1}`;
+      const v = document.getElementById(`pname-${i}`).value.trim() || `${L('Joueur', 'Player')} ${i+1}`;
       state.players.push(v);
     }
   }
@@ -386,8 +389,8 @@ function startGame() {
 // ── GAME UI ──
 const CATS = [
   { key: 'scopa',   label: 'Scopa',      icon: 'broom', type: 'count' },
-  { key: 'cards',   label: 'Most cards', icon: 'cards', type: 'winner' },
-  { key: 'coins',   label: 'Most coins', icon: 'coin',  type: 'winner' },
+  { key: 'cards',   label: L('Plus de cartes', 'Most cards'), icon: 'cards', type: 'winner' },
+  { key: 'coins',   label: L('Plus de deniers', 'Most coins'), icon: 'coin',  type: 'winner' },
   { key: 'sette',   label: 'Settebello', icon: 'seven', type: 'winner' },
   { key: 'primiera',label: 'Primiera',   icon: 'fan',   type: 'winner' },
 ];
@@ -405,7 +408,7 @@ function buildGameUI() {
       <div class="p-bar"><i id="bar-${i}"></i></div>
     </div>`).join('');
 
-  document.getElementById('target-badge').textContent = `To ${state.target}`;
+  document.getElementById('target-badge').textContent = L(`En ${state.target}`, `To ${state.target}`);
 
   renderScoreCards();
   buildScoringTable();
@@ -440,14 +443,14 @@ function buildScoringTable() {
           </div>
         </div>`).join('');
       body += `<div class="cat">
-        <div class="cat-label">${GS.icon(cat.icon)}${cat.label}<small>1 pt each</small></div>
+        <div class="cat-label">${GS.icon(cat.icon)}${cat.label}<small>${L('1 pt chacune', '1 pt each')}</small></div>
         <div class="scopa-grid">${cells}</div>
       </div>`;
     } else {
       state.roundData[cat.key] = null;
       let btns = state.players.map((p, i) =>
         `<button id="dot-${cat.key}-${i}" onclick="selectWinner('${cat.key}',${i})">${esc(p)}</button>`).join('');
-      btns += `<button class="tie" id="dot-${cat.key}-tie" onclick="selectWinner('${cat.key}','tie')">Tie</button>`;
+      btns += `<button class="tie" id="dot-${cat.key}-tie" onclick="selectWinner('${cat.key}','tie')">${L('Égalité', 'Tie')}</button>`;
       body += `<div class="cat">
         <div class="cat-label">${GS.icon(cat.icon)}${cat.label}</div>
         <div class="seg">${btns}</div>
@@ -456,7 +459,7 @@ function buildScoringTable() {
   });
 
   document.getElementById('scoring-body').innerHTML = body;
-  document.getElementById('round-title').textContent = `Round ${state.round}`;
+  document.getElementById('round-title').textContent = `${L('Manche', 'Round')} ${state.round}`;
   document.querySelectorAll('#scoring-body .seg').forEach(GS.seg);
   renderPending();
 }
@@ -518,7 +521,7 @@ function confirmRound() {
   state.round++;
 
   // A mis-tap is one tap away from being undone, even from the win screen.
-  GS.toast(`Round ${state.round - 1} saved`, 'Undo', () => {
+  GS.toast(L(`Manche ${state.round - 1} validée`, `Round ${state.round - 1} saved`), L('Annuler', 'Undo'), () => {
     undoRound(state.history.length - 1);
     if (!document.getElementById('game-screen').classList.contains('active')) showScreen('game-screen');
   });
@@ -541,16 +544,16 @@ function renderHistory(fresh) {
   const card = document.getElementById('history-card');
   if (state.history.length === 0) { card.style.display = 'none'; return; }
   card.style.display = '';
-  document.getElementById('rounds-played').textContent = `${state.history.length} round${state.history.length > 1 ? 's' : ''}`;
+  document.getElementById('rounds-played').textContent = `${state.history.length} ${L('manche', 'round')}${state.history.length > 1 ? 's' : ''}`;
   // rows already on screen slide down to make room instead of jumping
   GS.flip(list, () => list.innerHTML = state.history.slice().reverse().map((entry, revI) => {
     const i = state.history.length - 1 - revI;
     const pts = entry.pts.map((p, pi) =>
       `<span>${esc(state.players[pi])} <b>${p > 0 ? '+' + p : p}</b> <em>${entry.scores[pi]}</em></span>`).join('');
     return `<div class="history-row${fresh && revI === 0 ? ' fresh' : ''}" data-flip="${entry.round}">
-      <span class="hr-round">R${entry.round}</span>
+      <span class="hr-round">${L('M', 'R')}${entry.round}</span>
       <span class="hr-pts">${pts}</span>
-      <button class="hr-undo" onclick="undoRound(${i})">Undo</button>
+      <button class="hr-undo" onclick="undoRound(${i})">${L('Annuler', 'Undo')}</button>
     </div>`;
   }).join(''));
 }
@@ -567,7 +570,7 @@ function undoRound(idx) {
 }
 
 function confirmNewGame() {
-  if (confirm('Start a new game? Current scores will be lost.')) startNew();
+  if (confirm(L('Commencer une nouvelle partie ? Les scores actuels seront perdus.', 'Start a new game? Current scores will be lost.'))) startNew();
 }
 
 function startNew() {
