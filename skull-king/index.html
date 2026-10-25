@@ -12,7 +12,7 @@
 <title>Skull King — Score Tracker</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&display=block" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IM+Fell+English+SC&display=block" rel="stylesheet">
 <link rel="stylesheet" href="../shared/glass.css">
 <link rel="stylesheet" href="../shared/reset.css">
 <style>
@@ -24,7 +24,7 @@
     --field-3: #a61e1e;
     --tint: #f5c451;
     --on-tint: #2a1a02;
-    --font-display: 'Cinzel', Georgia, serif;
+    --font-display: 'IM Fell English SC', Georgia, serif;
   }
 
   body { font-size: 17px; }
@@ -32,9 +32,9 @@
 
   /* ═══ HEADER ═══ */
   header { text-align: center; padding: 4px 1rem 1.4rem; }
-  .skull-icon { font-size: 3.2rem; display: block; margin-bottom: 0.2rem; filter: drop-shadow(0 6px 20px rgba(245,196,81,0.45)); animation: sway 4s ease-in-out infinite; }
+  svg.skull-icon { display: block; width: 68px; height: 68px; margin: 0 auto 0.4rem; color: var(--tint); stroke-width: 1.4; filter: drop-shadow(0 6px 20px rgba(245,196,81,0.4)); animation: sway 4s ease-in-out infinite; }
   @keyframes sway { 50% { transform: rotate(-6deg) translateY(-3px); } }
-  h1 { font-family: var(--font-display); font-size: clamp(2rem, 10vw, 2.8rem); font-weight: 900; letter-spacing: 0.06em; line-height: 1.1; text-shadow: 0 6px 30px rgba(0,0,0,0.35); }
+  h1 { font-family: var(--font-display); font-size: clamp(2.5rem, 12.5vw, 3.3rem); font-weight: 400; letter-spacing: 0.02em; line-height: 1; text-shadow: 0 6px 30px rgba(0,0,0,0.35); }
   .subtitle { color: var(--ink-2); font-size: 1rem; margin-top: 0.2rem; }
 
   /* ═══ CARDS ═══ */
@@ -48,7 +48,7 @@
     padding: 1.05rem;
     margin: 0 12px 14px;
   }
-  .card-title { font-family: var(--font-display); font-weight: 700; font-size: 1rem; letter-spacing: 0.04em; margin-bottom: 0.9rem; display: flex; align-items: center; gap: 0.5rem; }
+  .card-title { font-family: var(--font-display); font-weight: 400; font-size: 1.2rem; letter-spacing: 0.02em; margin-bottom: 0.9rem; display: flex; align-items: center; gap: 0.5rem; }
   .card-title .aside { margin-left: auto; }
 
   /* ═══ SETUP ═══ */
@@ -144,7 +144,7 @@
     margin-top: calc(-1 * env(safe-area-inset-top));
     padding-top: env(safe-area-inset-top);
   }
-  .round-badge { flex: 1; text-align: center; font-family: var(--font-display); font-weight: 900; font-size: 1.15rem; letter-spacing: 0.05em; }
+  .round-badge { flex: 1; text-align: center; font-family: var(--font-display); font-weight: 400; font-size: 1.35rem; letter-spacing: 0.03em; }
   .round-badge small { color: var(--ink-3); font-weight: 400; font-size: 0.85rem; }
   .round-progress { display: flex; gap: 4px; padding: 0 16px 10px; }
   .round-progress i { flex: 1; height: 4px; border-radius: 2px; background: rgba(255,255,255,0.14); transition: background 0.4s, box-shadow 0.4s; }
@@ -165,19 +165,22 @@
     display: flex; align-items: center; gap: 0.5rem;
     transition: background 0.3s, box-shadow 0.3s;
   }
-  .total-pill .avatar { width: 32px; height: 32px; font-size: 0.95rem; }
+  .total-pill .avatar { width: 32px; height: 32px; }
+  .avatar .i { width: 20px; height: 20px; }
+  .total-pill .avatar .i { width: 17px; height: 17px; }
+  .entry-label .i { color: var(--tint); }
   .total-pill.leader { background: var(--glass-fill-strong); box-shadow: inset 0 0 0 1.5px var(--tint), var(--glass-shadow); }
   .pill-name { font-size: 0.85rem; color: var(--ink-2); max-width: 7rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .pill-score { font-family: var(--font-display); font-size: 1.15rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .pill-score { font-family: var(--ui); font-size: 1.1rem; font-weight: 750; font-variant-numeric: tabular-nums; }
   .pill-score.neg { color: var(--negative); }
 
   /* ═══ ENTRY ═══ */
   .entry-label { padding: 0 18px 8px; font-size: 0.9rem; color: var(--ink-2); }
   .entry-card { padding: 0.95rem; }
   .entry-head { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.85rem; }
-  .entry-name { flex: 1; min-width: 0; font-family: var(--font-display); font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .entry-name { flex: 1; min-width: 0; font-family: var(--font-display); font-weight: 400; font-size: 1.2rem; letter-spacing: 0.02em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .preview { text-align: right; line-height: 1; }
-  .preview-val { display: inline-block; font-family: var(--font-display); font-weight: 900; font-size: 1.6rem; font-variant-numeric: tabular-nums; transition: color 0.25s; }
+  .preview-val { display: inline-block; font-family: var(--ui); font-weight: 800; font-size: 1.6rem; font-variant-numeric: tabular-nums; transition: color 0.25s; }
   .preview small { display: block; font-size: 0.78rem; color: var(--ink-3); margin-top: 3px; }
   .pos { color: var(--positive); } .neg { color: var(--negative); } .zero { color: var(--ink-3); }
 
@@ -203,6 +206,9 @@
   .bonus-item { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; padding-top: 0.65rem; }
   .bonus-item span { font-size: 0.92rem; line-height: 1.25; }
   .bonus-item em { display: block; font-style: normal; font-size: 0.78rem; color: var(--tint); }
+  .bonus-item .i { color: var(--tint); width: 18px; height: 18px; margin-right: 2px; }
+  .dots { display: inline-flex; gap: 2px; margin-right: 3px; vertical-align: -1px; }
+  .dots i { width: 10px; height: 10px; border-radius: 50%; background: var(--c); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.35); }
   .bonus-sep { border-top: 1px solid rgba(255,255,255,0.1); margin-top: 0.65rem; }
 
   /* ═══ HISTORY TABLE ═══ */
@@ -212,26 +218,32 @@
   .history-table th { font-size: 0.75rem; color: var(--ink-2); font-weight: 600; max-width: 5.5rem; overflow: hidden; text-overflow: ellipsis; }
   .history-table th:first-child, .history-table td:first-child { position: sticky; left: 0; background: rgba(8,28,48,0.92); color: var(--ink-3); font-size: 0.8rem; z-index: 1; }
   .history-table td small { display: block; font-size: 0.7rem; color: var(--ink-3); }
-  .history-table tr.total td { border-top: 1px solid rgba(255,255,255,0.3); border-bottom: none; font-family: var(--font-display); font-weight: 700; color: var(--tint); }
+  .history-table tr.total td { border-top: 1px solid rgba(255,255,255,0.3); border-bottom: none; font-family: var(--ui); font-weight: 750; color: var(--tint); }
   .history-table tr.total td.neg { color: var(--negative); }
 
   /* ═══ GAME OVER ═══ */
   .over-hero { text-align: center; padding: 1.4rem 1rem 1rem; }
-  .over-flag { font-size: 4.2rem; display: inline-block; animation: trophy-in 0.9s var(--bounce) backwards; }
+  .over-flag { width: 116px; height: 116px; margin: 0 auto; border-radius: 50%; display: grid; place-items: center; color: var(--tint); animation: trophy-in 0.9s var(--bounce) backwards; }
+  .over-flag .i { width: 58px; height: 58px; stroke-width: 1.5; }
   @keyframes trophy-in { from { opacity: 0; transform: scale(0.3) rotate(-25deg); } }
-  .over-hero h2 { font-family: var(--font-display); font-weight: 900; font-size: 1.7rem; letter-spacing: 0.06em; margin-top: 0.3rem; }
+  .over-hero h2 { font-family: var(--font-display); font-weight: 400; font-size: 2.2rem; letter-spacing: 0.03em; margin-top: 0.3rem; }
   .over-hero p { color: var(--ink-2); font-size: 1.1rem; margin-top: 0.3rem; }
   .podium { display: flex; flex-direction: column; gap: 0.6rem; }
   .podium-item { padding: 0.75rem 1rem; border-radius: 20px; display: flex; align-items: center; gap: 0.75rem; background: var(--control); }
   .podium-item:nth-child(1) { background: color-mix(in srgb, var(--tint) 26%, transparent); box-shadow: inset 0 0 0 1.5px var(--tint); }
   .podium-item:nth-child(2) { background: rgba(220,226,235,0.16); }
   .podium-item:nth-child(3) { background: rgba(205,127,50,0.18); }
-  .podium-rank { font-size: 1.5rem; min-width: 2rem; text-align: center; }
-  .podium-name { font-family: var(--font-display); font-weight: 700; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .podium-score { font-family: var(--font-display); font-size: 1.25rem; font-weight: 700; color: var(--tint); }
+  .podium-rank { width: 30px; height: 30px; flex-shrink: 0; border-radius: 50%; display: grid; place-items: center; font-weight: 800; font-size: 0.95rem; background: var(--control); }
+  .podium-rank.r0 { background: linear-gradient(#ffe08a, #d4a017); color: #2a1a02; }
+  .podium-rank.r1 { background: linear-gradient(#f1f3f5, #a5adb5); color: #212529; }
+  .podium-rank.r2 { background: linear-gradient(#f3b98a, #a0522d); color: #2a1205; }
+  .podium-name { font-family: var(--font-display); font-weight: 400; font-size: 1.15rem; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .podium-score { font-family: var(--ui); font-size: 1.2rem; font-weight: 750; color: var(--tint); }
 
   /* ═══ RULES SHEET (glass from shared .sheet) ═══ */
-  .sheet h3 { font-family: var(--font-display); margin-bottom: 0.6rem; font-size: 1.15rem; }
+  .sheet h3 { font-family: var(--font-display); font-weight: 400; margin-bottom: 0.6rem; font-size: 1.4rem; display: flex; align-items: center; gap: 0.5rem; }
+  .sheet h3 .i, .card-title .i, .btn .i { color: var(--tint); }
+  .btn-primary .i { color: inherit; }
   .rule-row { font-size: 1rem; line-height: 1.45; padding: 0.65rem 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
   .rule-row:last-child { border: none; }
   .rule-val { color: var(--tint); font-weight: 650; }
@@ -244,14 +256,14 @@
 <div id="setup-screen" class="screen active">
   <div class="top-bar"><a href="../index.html" class="hub-link">‹ Hub</a></div>
   <header>
-    <span class="skull-icon">☠️</span>
-    <h1>SKULL KING</h1>
+    <svg class="i skull-icon" aria-hidden="true"><use href="../shared/icons.svg#skull"/></svg>
+    <h1>Skull King</h1>
     <div class="subtitle">Capitaine des Sept Mers</div>
   </header>
 
   <div class="wrap stagger">
     <div class="card">
-      <div class="card-title">⚓ Équipage
+      <div class="card-title"><svg class="i" aria-hidden="true"><use href="../shared/icons.svg#anchor"/></svg> Équipage
         <span class="aside">
           <span class="stepper sm" style="display:inline-flex;">
             <button onclick="changeCount(-1)" aria-label="Moins de pirates">−</button>
@@ -264,7 +276,7 @@
     </div>
 
     <div class="card">
-      <div class="card-title">⚙️ Options</div>
+      <div class="card-title"><svg class="i" aria-hidden="true"><use href="../shared/icons.svg#sliders"/></svg> Options</div>
       <label class="opt">
         <span>
           <b>Bonus toujours accordés</b>
@@ -276,7 +288,7 @@
   </div>
 
   <div class="dock">
-    <div class="dock-row"><button class="btn btn-primary" onclick="startGame()">⚓ Appareiller !</button></div>
+    <div class="dock-row"><button class="btn btn-primary" onclick="startGame()"><svg class="i" aria-hidden="true"><use href="../shared/icons.svg#anchor"/></svg> Appareiller</button></div>
   </div>
 </div>
 
@@ -298,7 +310,7 @@
     <div id="entry-grid" class="stagger"></div>
 
     <div class="card" id="history-card" style="display:none">
-      <div class="card-title">📜 Historique</div>
+      <div class="card-title"><svg class="i" aria-hidden="true"><use href="../shared/icons.svg#scroll"/></svg> Historique</div>
       <div class="table-wrap"><table class="history-table" id="history-table"></table></div>
     </div>
   </div>
@@ -317,31 +329,31 @@
   <div class="top-bar"><a href="../index.html" class="hub-link">‹ Hub</a></div>
   <div class="wrap">
     <div class="over-hero">
-      <span class="over-flag">🏴‍☠️</span>
-      <h2>FIN DE PARTIE</h2>
+      <span class="over-flag glass"><svg class="i" aria-hidden="true"><use href="../shared/icons.svg#crown"/></svg></span>
+      <h2>Fin de partie</h2>
       <p id="winner-text"></p>
     </div>
     <div class="card"><div class="podium stagger" id="podium"></div></div>
     <div class="card">
-      <div class="card-title">📜 Tableau complet</div>
+      <div class="card-title"><svg class="i" aria-hidden="true"><use href="../shared/icons.svg#scroll"/></svg> Tableau complet</div>
       <div class="table-wrap"><table class="history-table" id="final-history-table"></table></div>
     </div>
   </div>
   <div class="dock">
-    <div class="dock-row"><button class="btn btn-primary" onclick="confirmRestart()">⚓ Nouvelle partie</button></div>
+    <div class="dock-row"><button class="btn btn-primary" onclick="confirmRestart()"><svg class="i" aria-hidden="true"><use href="../shared/icons.svg#anchor"/></svg> Nouvelle partie</button></div>
   </div>
 </div>
 
 <!-- Rules sheet -->
 <div class="sheet-scrim" id="rules-panel" onclick="if (event.target === this) toggleRules(false)">
   <div class="sheet">
-    <h3>⚓ Règles de scoring</h3>
+    <h3><svg class="i" aria-hidden="true"><use href="../shared/icons.svg#scroll"/></svg> Règles de scoring</h3>
     <div class="rule-row"><strong>Pari exact (≥1)</strong><br><span class="rule-val">+20 × plis annoncés</span></div>
     <div class="rule-row"><strong>Pari raté</strong><br><span class="rule-val">−10 × écart</span> (en plus ou en moins)</div>
     <div class="rule-row"><strong>Pari 0 réussi</strong><br><span class="rule-val">+10 × numéro de manche</span></div>
     <div class="rule-row"><strong>Pari 0 raté</strong><br><span class="rule-val">−10 × numéro de manche</span></div>
     <div class="rule-row">
-      <strong>🎯 Bonus (par défaut : si pari exact)</strong><br>
+      <strong>Bonus (par défaut : si pari exact)</strong><br>
       Skull King capture des Pirates : <span class="rule-val">+30/pirate</span><br>
       Sirène capture le Skull King : <span class="rule-val">+40</span><br>
       Pirate capture une Sirène : <span class="rule-val">+20/sirène</span><br>
@@ -365,16 +377,16 @@ let bonusAlways = false; // Option: bonus même si bid raté
 const SAVE_KEY = 'skullking-game';
 const esc = GS.esc;
 
-const AVATARS = ['🏴‍☠️','⚓','🦜','🗡️','🧭','💀','🌊','🐙'];
-const COLORS = ['#d4a017','#e74c3c','#2ecc71','#3498db','#9b59b6','#f39c12','#1abc9c','#e67e22'];
+const AVATARS = ['anchor', 'compass', 'wheel', 'swords', 'skull', 'map', 'spyglass', 'bottle'];
+const COLORS = ['#f5c451', '#ff6b6b', '#51cf66', '#4dabf7', '#b197fc', '#ffa94d', '#3bc9db', '#f783ac'];
 
 // Bonus fields: [key, label, points note, max]
 const BONUSES = [
-  ['sk_pirates', '☠️ Pirates capturés par le Skull King', '×30 pts', 5],
-  ['mermaid_sk', '🧜 Sirène capture le Skull King', '+40 pts', 1],
-  ['pirate_mermaid', '⚔️ Pirates capturent des Sirènes', '×20 pts', 2],
-  ['c14_color', '🟢🟡🟣 Cartes 14 de couleur', '×10 pts', 3],
-  ['c14_black', '⚫ Carte 14 noire', '+20 pts', 1],
+  ['sk_pirates', GS.icon('skull') + ' Pirates capturés par le Skull King', '×30 pts', 5],
+  ['mermaid_sk', GS.icon('wave') + ' Sirène capture le Skull King', '+40 pts', 1],
+  ['pirate_mermaid', GS.icon('swords') + ' Pirates capturent des Sirènes', '×20 pts', 2],
+  ['c14_color', '<span class="dots"><i style="--c:#51cf66"></i><i style="--c:#fcc419"></i><i style="--c:#b197fc"></i></span> Cartes 14 de couleur', '×10 pts', 3],
+  ['c14_black', '<span class="dots"><i style="--c:#111"></i></span> Carte 14 noire', '+20 pts', 1],
 ];
 
 function persist(screen) {
@@ -382,7 +394,7 @@ function persist(screen) {
 }
 
 function avatar(i) {
-  return `<span class="avatar" style="--c:${COLORS[i]}">${AVATARS[i]}</span>`;
+  return `<span class="avatar" style="--c:${COLORS[i]}">${GS.icon(AVATARS[i])}</span>`;
 }
 
 // ═══ SETUP ═══
@@ -475,7 +487,7 @@ function renderRoundProgress() {
     h += `<i class="${r < currentRound ? 'done' : r === currentRound ? 'current' : ''}${r === currentRound - 1 ? ' just' : ''}"></i>`;
   }
   document.getElementById('round-progress').innerHTML = h;
-  document.getElementById('round-badge').innerHTML = `MANCHE ${currentRound} <small>/ ${MAX_ROUNDS}</small>`;
+  document.getElementById('round-badge').innerHTML = `Manche ${currentRound} <small>/ ${MAX_ROUNDS}</small>`;
 }
 
 let lastTotals = {};
@@ -488,7 +500,7 @@ function renderTotalsBar() {
   GS.flip(bar, () => bar.innerHTML = sorted.map(s => {
     const isLeader = roundData.length > 0 && s.score === maxScore;
     return `<div class="total-pill${isLeader ? ' leader' : ''}" data-flip="${s.idx}">
-      ${isLeader ? '<span class="avatar" style="--c:var(--tint)">👑</span>' : avatar(s.idx)}
+      ${isLeader ? `<span class="avatar" style="--c:var(--tint)">${GS.icon('crown')}</span>` : avatar(s.idx)}
       <span class="pill-name">${esc(s.name)}</span>
       <span class="pill-score roll${s.score < 0 ? ' neg' : ''}" id="pill-${s.idx}"><span>${signed(lastTotals[s.idx] || 0)}</span></span>
     </div>`;
@@ -500,8 +512,8 @@ function renderTotalsBar() {
 }
 
 function renderEntryForm() {
-  document.getElementById('entry-round-label').textContent =
-    `🎯 Saisie — ${currentRound} carte${currentRound > 1 ? 's' : ''} par pirate`;
+  document.getElementById('entry-round-label').innerHTML =
+    `${GS.icon('target')} Saisie — ${currentRound} carte${currentRound > 1 ? 's' : ''} par pirate`;
 
   document.getElementById('entry-grid').innerHTML = players.map((name, i) => {
     const d = tempData[i];
@@ -524,7 +536,7 @@ function renderEntryForm() {
         <div class="field"><label>Plis remportés</label>${stepperHTML(i, 'won', d.won, true)}</div>
       </div>
       <button class="bonus-toggle" id="btog-${i}" onclick="toggleBonus(${i})">
-        🎯 Bonus spéciaux <span class="count" id="bcount-${i}" ${nBonus ? '' : 'hidden'}>${nBonus}</span><span class="chev">▾</span>
+        ${GS.icon('crown')} Bonus spéciaux <span class="count" id="bcount-${i}" ${nBonus ? '' : 'hidden'}>${nBonus}</span><span class="chev">▾</span>
       </button>
       <div class="bonus-fields" id="bonus-${i}"><div>${bonusRows}</div></div>
     </div>`;
@@ -676,10 +688,9 @@ function showGameOver() {
   const winner = scores[0];
   document.getElementById('winner-text').textContent = `${winner.name} est le Capitaine des Sept Mers !`;
 
-  const medals = ['🥇','🥈','🥉'];
   document.getElementById('podium').innerHTML = scores.map((s, ri) => `
     <div class="podium-item">
-      <span class="podium-rank">${medals[ri] || ri+1}</span>
+      <span class="podium-rank r${ri}">${ri+1}</span>
       ${avatar(s.idx)}
       <span class="podium-name">${esc(s.name)}</span>
       <span class="podium-score">${signed(s.score)}</span>
