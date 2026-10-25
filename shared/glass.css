@@ -8,7 +8,7 @@
      --field-base             dark ground color
      --field-1/2/3            the three glows of the color field
      --tint / --on-tint       accent fill and the text on it
-   and adds <div class="gs-field"></div> as the first body child.
+   and adds <div class="gs-field"><i></i><i></i><i></i></div> as the first body child.
 
    Rule of thumb: blur only big surfaces (cards, bars, sheets).
    Small controls inside them use plain translucent fills, so
@@ -51,25 +51,33 @@ html {
 h1, h2, h3 { text-wrap: balance; }
 
 /* ── COLOR FIELD ──
-   Breathes in on page load, then glides to a new spot on each screen
-   change (GS.shiftField sets --fx/--fy/--fr). No infinite loop: a moving
-   field under glass would force a re-blur every frame. */
+   Three glows (<i> children of .gs-field) drift on their own slow loops.
+   Durations don't share a rhythm (26 / 33 / 41 s) so the field never
+   visibly repeats. Only `transform` animates, so it stays on the GPU.
+   On a screen change GS.shiftField moves all three via `translate`
+   (independent of the drift) to a new spot. */
 .gs-field { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; background: var(--field-base); view-transition-name: gs-field; }
-.gs-field::before {
-  content: '';
+.gs-field i {
   position: absolute;
-  inset: -25%;
-  background:
-    radial-gradient(34% 30% at 18% 16%, var(--field-1), transparent 70%),
-    radial-gradient(40% 34% at 86% 34%, var(--field-2), transparent 70%),
-    radial-gradient(48% 42% at 38% 96%, var(--field-3), transparent 70%);
-  transform: translate(var(--fx, 0%), var(--fy, 0%)) rotate(var(--fr, 0deg));
-  transition: transform 1.6s cubic-bezier(0.2, 0.8, 0.2, 1);
-  animation: field-in 1.4s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+  width: 95vmax;
+  height: 95vmax;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, var(--c), transparent);
+  opacity: 0.95;
+  will-change: transform;
+  translate: var(--fx, 0%) var(--fy, 0%);
+  transition: translate 1.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+  animation: field-in 1.6s cubic-bezier(0.2, 0.8, 0.2, 1) backwards, var(--drift) ease-in-out infinite alternate;
 }
+.gs-field i:nth-child(1) { --c: var(--field-1); left: -38vmax; top: -40vmax; --drift: drift-1 26s; }
+.gs-field i:nth-child(2) { --c: var(--field-2); right: -44vmax; top: -8vmax; --drift: drift-2 33s; }
+.gs-field i:nth-child(3) { --c: var(--field-3); left: -22vmax; bottom: -55vmax; --drift: drift-3 41s; }
+@keyframes drift-1 { 50% { transform: translate(18vmax, 14vmax) scale(1.12); } 100% { transform: translate(6vmax, 26vmax) scale(0.94); } }
+@keyframes drift-2 { 50% { transform: translate(-20vmax, 18vmax) scale(0.9); } 100% { transform: translate(-8vmax, -6vmax) scale(1.1); } }
+@keyframes drift-3 { 50% { transform: translate(16vmax, -18vmax) scale(1.15); } 100% { transform: translate(28vmax, -6vmax) scale(0.95); } }
+@keyframes field-in { from { opacity: 0; } }
 /* scrim keeps white text legible over the brightest glows */
 .gs-field::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0.12), rgba(0,0,0,0.38)); }
-@keyframes field-in { from { opacity: 0.3; transform: scale(1.18) rotate(-10deg); } }
 
 /* ── PAGE + SCREEN TRANSITIONS ──
    View Transitions (iOS 18+). Page loads cross-fade with a slight zoom while
@@ -132,6 +140,6 @@ button, .btn, a { -webkit-user-select: none; user-select: none; -webkit-touch-ca
   :root { --glass-fill: rgba(20,20,26,0.92); --glass-edge: rgba(255,255,255,0.7); --ink-2: #fff; --ink-3: rgba(255,255,255,0.85); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .gs-field::before { animation: none; transition: none; }
+  .gs-field i { animation: none; transition: none; }
   ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }
 }
