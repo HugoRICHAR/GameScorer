@@ -1,57 +1,59 @@
 /* ============================================================
-   GameScorer — shared components (optional)
-   Optional component styling — card, button, form, and stepper
-   rules — for games whose layout matches these patterns (full-
-   width stacked buttons, fixed-margin cards, uppercase labels).
-   Link this AFTER shared/reset.css.
+   GameScorer — shared components (optional), Liquid Glass
+   Card, button, form, and stepper rules for games whose layout
+   matches these patterns (full-width stacked buttons, inset
+   cards, small uppercase labels). Link AFTER shared/reset.css
+   and shared/glass.css.
 
    Games with a different structural approach (e.g. Skull King's
-   inline-flex buttons and centered max-width layout) should skip
-   linking this file and keep their own local component CSS
-   instead — do not link it just because it's "the shared file".
+   inline buttons and centered max-width layout) skip this file
+   and keep their own component CSS built on the same glass
+   tokens instead.
    ============================================================ */
 
 /* ── CARD ── */
 .card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 20px;
-  margin: 0 16px 16px;
-  box-shadow: var(--shadow);
+  background: var(--glass-fill);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-edge);
+  box-shadow: var(--glass-shadow);
+  border-radius: 26px;
+  padding: 18px;
+  margin: 0 16px 14px;
 }
 .card-title {
-  font-family: var(--font-display);
-  font-size: 0.75rem;
-  letter-spacing: 0.25em;
+  font-family: var(--ui);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--primary);
-  margin-bottom: 14px;
+  color: var(--ink-2);
+  margin-bottom: 12px;
 }
 
 /* ── FORM ELEMENTS ── */
 label {
   display: block;
   font-size: 0.85rem;
-  color: var(--text-dim);
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  margin-bottom: 5px;
+  color: var(--ink-2);
+  margin-bottom: 6px;
 }
 input[type="text"], input[type="number"] {
   width: 100%;
-  background: var(--card2);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 12px 14px;
-  color: var(--text);
-  font-family: var(--font-body);
+  background: var(--control);
+  border: 1px solid var(--glass-edge);
+  border-radius: 14px;
+  padding: 13px 14px;
+  color: var(--ink);
+  font-family: var(--ui);
   font-size: max(16px, 1.05rem); /* under 16px iOS zooms the page on focus */
   outline: none;
   margin-bottom: 12px;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition: border-color 0.2s, background 0.2s;
 }
-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-shadow, rgba(255,255,255,0.1)); }
+input::placeholder { color: var(--ink-3); }
+input:focus { border-color: rgba(255,255,255,0.6); background: rgba(255,255,255,0.16); }
 
 /* ── BUTTONS ── */
 .btn {
@@ -60,42 +62,33 @@ input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-
   margin: 0 16px 12px;
   padding: 16px;
   border: none;
-  border-radius: 10px;
-  font-family: var(--font-display);
-  font-size: 1.1rem;
-  letter-spacing: 0.05em;
+  border-radius: 999px;
+  font-family: var(--ui);
+  font-size: 1.08rem;
+  font-weight: 650;
   cursor: pointer;
-  transition: transform 0.12s ease-out, box-shadow 0.2s, opacity 0.2s;
-  position: relative;
-  overflow: hidden;
+  transition: transform 0.4s var(--spring), filter 0.2s;
 }
-.btn:active { transform: scale(0.97); }
-.btn::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: rgba(255,255,255,0);
-  transition: background 0.15s;
-}
-.btn:active::after { background: rgba(255,255,255,0.08); }
+.btn:active { transform: scale(0.96); filter: brightness(1.08); transition-duration: 0.1s; }
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 50%, var(--primary) 100%);
-  color: var(--bg);
-  font-weight: 700;
-  box-shadow: 0 2px 16px var(--primary-shadow, rgba(0,0,0,0.35));
+  background: var(--tint);
+  color: var(--on-tint);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.55), 0 10px 26px color-mix(in srgb, var(--tint) 38%, transparent);
 }
 .btn-secondary {
-  background: transparent;
-  color: var(--primary);
-  border: 1px solid var(--border);
+  background: var(--glass-fill);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  color: var(--ink);
+  border: 1px solid var(--glass-edge);
 }
 .btn-danger {
-  background: transparent;
-  color: var(--danger-light, var(--danger));
-  border: 1px solid var(--danger-border, var(--danger));
-  font-size: 0.9rem;
-  padding: 12px;
+  background: var(--control);
+  color: var(--negative);
+  border: 1px solid color-mix(in srgb, var(--negative) 35%, transparent);
+  font-size: 0.95rem;
+  padding: 13px;
 }
 .btn-sm {
   display: inline-block;
@@ -108,69 +101,66 @@ input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-
 /* ── PLAYER INPUT ROW (numbered input, e.g. player-name entry) ── */
 .player-input-row {
   display: flex;
-  gap: 8px;
+  gap: 10px;
   align-items: center;
   margin-bottom: 8px;
 }
 .player-input-row .player-num {
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
-  background: var(--primary);
-  color: var(--bg);
+  background: var(--tint);
+  color: var(--on-tint);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: var(--font-display);
-  font-size: 0.85rem;
+  font-family: var(--ui);
+  font-size: 0.9rem;
   font-weight: 700;
   flex-shrink: 0;
 }
 .player-input-row input { margin-bottom: 0; flex: 1; }
 
-/* ── STEPPER (− value + counter control) ── */
+/* ── STEPPER (− value + capsule) ── */
 .stepper {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
-  gap: 0;
+  padding: 3px;
+  border-radius: 999px;
+  background: var(--control);
+  border: 1px solid var(--glass-edge);
+  flex-shrink: 0;
 }
 .stepper-btn {
-  width: 40px;
-  height: 40px;
-  border: 1px solid var(--border);
-  background: var(--card2);
-  color: var(--primary);
-  font-size: 1.3rem;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: var(--ink);
+  font-size: 1.35rem;
+  line-height: 1;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  line-height: 1;
-  flex-shrink: 0;
-  transition: background 0.1s, color 0.1s;
+  transition: background 0.15s, transform 0.35s var(--spring);
 }
-.stepper-btn:first-child { border-radius: 10px 0 0 10px; border-right: none; }
-.stepper-btn:last-child { border-radius: 0 10px 10px 0; border-left: none; }
-.stepper-btn:active { background: var(--primary); color: var(--bg); }
+.stepper-btn:active { background: rgba(255,255,255,0.28); transform: scale(0.88); transition-duration: 0.08s; }
 .stepper-val {
-  min-width: 36px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--font-display);
-  font-size: 1.15rem;
-  color: var(--text);
-  border-top: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
-  background: var(--card2);
+  min-width: 34px;
+  text-align: center;
+  font-family: var(--ui);
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
 }
 
 /* ── UTILS ── */
 .spacer { flex: 1; }
-.divider { height: 1px; background: var(--border); margin: 12px 16px; }
+.divider { height: 1px; background: var(--glass-edge); margin: 12px 16px; }
 .text-center { text-align: center; }
-.text-muted { color: var(--text-dim); font-size: 0.85rem; }
+.text-muted { color: var(--ink-2); font-size: 0.85rem; }
 .mt8 { margin-top: 8px; }
 .pb-safe { padding-bottom: calc(16px + env(safe-area-inset-bottom)); }

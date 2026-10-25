@@ -7,23 +7,12 @@
    Component styling (cards/buttons/forms/stepper) lives in
    shared/components.css and is optional.
 
-   Each game sets its own look by defining these custom
-   properties on :root in its own <style> block (linked AFTER
-   this file), and may override any rule below where its layout
-   genuinely differs.
-
-   Required per-game variables:
-     --bg --card --card2 --primary --primary-light
-     --text --text-dim --danger --border --shadow
-     --font-display --font-body
-   Optional (fall back to sane defaults if unset):
-     --primary-shadow --danger-light --danger-border
-
-   Note: --danger is for destructive/error-state UI (e.g. a
-   delete/reset button or a negative-score indicator). A game
-   that also wants a decorative accent color unrelated to error/
-   destructive state should define its own additional custom var
-   for that rather than overloading --danger.
+   Surfaces and colors come from shared/glass.css (link it
+   before this file). Each game themes the glass on :root in its
+   own <style> block (--field-*, --tint, --on-tint) and sets
+   --font-display for its titles; body text uses the system
+   rounded face (--ui). A game may override any rule below where
+   its layout genuinely differs.
 
    Pages use viewport-fit=cover + black-translucent status bar,
    so the top of every screen must clear env(safe-area-inset-top)
@@ -41,9 +30,9 @@
 html { -webkit-text-size-adjust: 100%; }
 
 body {
-  font-family: var(--font-body, Georgia, serif);
-  background: var(--bg, #111);
-  color: var(--text, #eee);
+  font-family: var(--ui);
+  background: transparent; /* html carries the ground; the .field sits between them */
+  color: var(--ink, #fff);
   min-height: 100vh;
   min-height: 100dvh;
   overflow-x: hidden;
@@ -57,11 +46,11 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 
 ::-webkit-scrollbar { width: 4px; height: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--border, rgba(255,255,255,0.2)); border-radius: 4px; }
+::-webkit-scrollbar-thumb { background: var(--glass-edge, rgba(255,255,255,0.2)); border-radius: 4px; }
 
 /* ── SCREENS ── */
 .screen { display: none; min-height: 100vh; min-height: 100dvh; }
-.screen.active { display: flex; flex-direction: column; animation: gs-screen-in 0.38s cubic-bezier(0.2, 0.8, 0.2, 1) backwards; }
+.screen.active { display: flex; flex-direction: column; animation: gs-screen-in 0.5s var(--spring) backwards; }
 
 /* ── TOP BAR + HUB LINK ── */
 .top-bar {
@@ -76,25 +65,26 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   align-items: center;
   gap: 4px;
   flex-shrink: 0;
-  font-family: var(--font-display);
-  font-size: 0.85rem;
-  color: var(--text-dim);
+  font-family: var(--ui);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--ink);
   text-decoration: none;
-  letter-spacing: 0.04em;
-  padding: 8px 14px 8px 10px;
+  padding: 8px 14px 8px 11px;
   min-height: 36px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--glass-edge);
   border-radius: 999px;
-  background: color-mix(in srgb, var(--card) 70%, transparent);
-  -webkit-backdrop-filter: blur(12px);
-  backdrop-filter: blur(12px);
-  transition: color 0.2s, border-color 0.2s, transform 0.12s ease-out;
+  background: var(--glass-fill);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  box-shadow: var(--glass-shadow);
+  transition: transform 0.4s var(--spring), background 0.2s;
 }
-.hub-link:active { color: var(--primary); border-color: var(--primary); transform: scale(0.95); }
+.hub-link:active { background: var(--glass-fill-strong); transform: scale(0.92); transition-duration: 0.1s; }
 
 /* ── MOTION VOCABULARY ── */
 /* Children of .stagger rise in one after another. */
-.stagger > * { animation: gs-rise 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) backwards; }
+.stagger > * { animation: gs-rise 0.6s var(--spring) backwards; }
 .stagger > :nth-child(2) { animation-delay: 50ms; }
 .stagger > :nth-child(3) { animation-delay: 100ms; }
 .stagger > :nth-child(4) { animation-delay: 150ms; }
@@ -104,11 +94,11 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .stagger > :nth-child(n+8) { animation-delay: 350ms; }
 
 /* GS.bump(el) — a value just changed. */
-.bump { animation: gs-bump 0.42s cubic-bezier(0.3, 1.6, 0.5, 1); }
+.bump { animation: gs-bump 0.5s var(--bounce); }
 
 @keyframes gs-screen-in { from { opacity: 0; transform: translateY(14px); } }
 @keyframes gs-rise { from { opacity: 0; transform: translateY(18px) scale(0.98); } }
-@keyframes gs-bump { 40% { transform: scale(1.18); } }
+@keyframes gs-bump { from { transform: scale(0.85); } }
 @keyframes gs-fade { from { opacity: 0; } }
 
 /* GS.confetti() */
@@ -131,14 +121,21 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .sheet-scrim {
   position: fixed; inset: 0; z-index: 200;
   display: none; align-items: flex-end; justify-content: center;
-  background: rgba(0,0,0,0.6);
+  background: rgba(0,0,0,0.45);
 }
 .sheet-scrim.open { display: flex; animation: gs-fade 0.25s ease-out; }
 .sheet {
   width: 100%; max-width: 560px; max-height: 85dvh; overflow-y: auto;
-  border-radius: 22px 22px 0 0;
+  border-radius: 30px 30px 0 0;
   padding: 10px 20px calc(24px + env(safe-area-inset-bottom));
-  animation: gs-sheet-in 0.42s cubic-bezier(0.2, 0.9, 0.25, 1);
+  color: var(--ink);
+  background: var(--glass-fill-strong);
+  -webkit-backdrop-filter: blur(40px) saturate(180%);
+  backdrop-filter: blur(40px) saturate(180%);
+  border: 1px solid var(--glass-edge);
+  border-bottom: none;
+  box-shadow: inset 0 1px 0 var(--glass-hi);
+  animation: gs-sheet-in 0.6s var(--spring);
 }
 .sheet::before {
   content: ''; display: block; width: 38px; height: 5px; border-radius: 3px;

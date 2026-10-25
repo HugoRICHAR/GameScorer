@@ -49,6 +49,27 @@ var GS = {
     GS.bump(el);
   },
 
+  // Old digits slide out, new ones spring in (down when the value drops).
+  roll: function (el, v) {
+    if (!el) return;
+    if (!el.classList.contains('roll')) {
+      el.classList.add('roll');
+      el.innerHTML = '<span>' + GS.esc(el.textContent) + '</span>';
+    }
+    var old = el.lastElementChild;
+    if (old.textContent === String(v)) return;
+    var nu = document.createElement('span');
+    nu.textContent = v;
+    el.appendChild(nu);
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) { old.remove(); return; }
+    var dir = parseFloat(v) < parseFloat(old.textContent) ? -1 : 1;
+    var spring = getComputedStyle(document.documentElement).getPropertyValue('--spring').trim() || 'ease-out';
+    old.animate([{ transform: 'translateY(0)', opacity: 1 }, { transform: 'translateY(' + (-90 * dir) + '%)', opacity: 0 }],
+      { duration: 260, easing: 'ease-in', fill: 'forwards' }).onfinish = function () { old.remove(); };
+    nu.animate([{ transform: 'translateY(' + (90 * dir) + '%)', opacity: 0 }, { transform: 'translateY(0)', opacity: 1 }],
+      { duration: 560, easing: spring });
+  },
+
   confetti: function (colors) {
     var box = document.createElement('div');
     box.className = 'gs-confetti';

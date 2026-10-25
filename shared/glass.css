@@ -1,0 +1,84 @@
+/* ============================================================
+   GameScorer — Liquid Glass material
+   Linked by every page (hub + games), before the page's own
+   <style>. Gives the moving color field, the glass surface
+   tokens, spring easings and the rolling-digit helper style.
+
+   Each page themes it on :root:
+     --field-base             dark ground color
+     --field-1/2/3            the three glows of the color field
+     --tint / --on-tint       accent fill and the text on it
+   and adds <div class="gs-field"></div> as the first body child.
+
+   Rule of thumb: blur only big surfaces (cards, bars, sheets).
+   Small controls inside them use plain translucent fills, so
+   glass never stacks on glass.
+   ============================================================ */
+
+:root {
+  --ui: ui-rounded, 'SF Pro Rounded', -apple-system, BlinkMacSystemFont, system-ui, 'Segoe UI', sans-serif;
+  --ink: #fff;
+  --ink-2: rgba(255,255,255,0.74);
+  --ink-3: rgba(255,255,255,0.5);
+  --glass-fill: rgba(255,255,255,0.12);
+  --glass-fill-strong: rgba(255,255,255,0.22);
+  --glass-edge: rgba(255,255,255,0.22);
+  --glass-hi: rgba(255,255,255,0.4);
+  --glass-blur: blur(24px) saturate(170%);
+  --glass-shadow: inset 0 1px 0 var(--glass-hi), 0 10px 30px rgba(0,0,0,0.18);
+  --control: rgba(255,255,255,0.1);
+  --control-on: rgba(255,255,255,0.92);
+  --positive: #69db7c;
+  --negative: #ff8787;
+  --spring: cubic-bezier(0.2, 0.9, 0.3, 1.15);
+  --bounce: cubic-bezier(0.3, 1.6, 0.5, 1);
+}
+@supports (transition-timing-function: linear(0, 1)) {
+  :root {
+    /* critically-damped-ish spring, and a bouncier one for celebratory pops */
+    --spring: linear(0, 0.006, 0.025 2.8%, 0.101 6.1%, 0.539 18.9%, 0.721 25.3%, 0.849 31.5%, 0.937 38.1%, 0.968 41.8%, 0.991 45.7%, 1.006 50.1%, 1.015 55%, 1.017 63.9%, 1.001 85.9%, 1);
+    --bounce: linear(0, 0.2 6%, 0.65 14%, 1.08 25%, 1.16 31%, 1.1 38%, 0.98 50%, 0.97 58%, 1.005 75%, 1);
+  }
+}
+
+html { background: var(--field-base, #111); color-scheme: dark; }
+
+/* ── COLOR FIELD ── */
+.gs-field { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; background: var(--field-base); }
+.gs-field::before {
+  content: '';
+  position: absolute;
+  inset: -25%;
+  background:
+    radial-gradient(34% 30% at 18% 16%, var(--field-1), transparent 70%),
+    radial-gradient(40% 34% at 86% 34%, var(--field-2), transparent 70%),
+    radial-gradient(48% 42% at 38% 96%, var(--field-3), transparent 70%);
+  animation: field-drift 22s ease-in-out infinite alternate;
+}
+/* scrim keeps white text legible over the brightest glows */
+.gs-field::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0.12), rgba(0,0,0,0.38)); }
+@keyframes field-drift { to { transform: translate(-6%, 4%) rotate(9deg) scale(1.08); } }
+
+/* ── MATERIAL ── */
+.glass {
+  background: var(--glass-fill);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-edge);
+  box-shadow: var(--glass-shadow);
+}
+
+/* GS.roll(el, value) — digits roll instead of snapping */
+.roll { display: inline-grid; overflow: hidden; vertical-align: bottom; }
+.roll > span { grid-area: 1 / 1; }
+
+@media (prefers-reduced-transparency: reduce) {
+  :root { --glass-fill: rgba(28,28,36,0.94); --glass-fill-strong: rgba(48,48,60,0.96); --glass-blur: none; }
+  .gs-field::before { animation: none; }
+}
+@media (prefers-contrast: more) {
+  :root { --glass-fill: rgba(20,20,26,0.92); --glass-edge: rgba(255,255,255,0.7); --ink-2: #fff; --ink-3: rgba(255,255,255,0.85); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gs-field::before { animation: none; }
+}
